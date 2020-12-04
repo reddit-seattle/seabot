@@ -1,0 +1,27 @@
+{
+  "name": "seabot",
+  "version": "0.0.1",
+  "description": "a bot. in SEA.",
+  "main": "server.js",
+  "dependencies": {
+    "discord.js": "11.5.1",
+    "dotenv": "8.2.0",
+    "moment": "^2.24.0",
+    "mtgsdk": "^0.4.3",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "underscore": "1.9.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "launch": "npm i --no-optional && npm start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "author": "",
+  "license": "MIT"
+}
