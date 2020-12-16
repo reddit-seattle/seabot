@@ -38,10 +38,10 @@ module.exports.forecast = (message) => {
             const opts = buildOptions(zip, weatherForecastURL);
             rp(opts)
                 .then((response) => {
-                    const richEmbed = new Discord.RichEmbed()
+                    const richEmbed = new Discord.MessageEmbed()
                         .setTitle(`Forecast for ${response.city.name}:`);
                     _.each(response.list.slice(0, 5), (record) => {
-                        const time = moment.unix(record.dt).format('HH:mm');
+                        const time = moment.unix(record.dt).utcOffset(-8).format("HH:mm");
                         const weather = `${record.main.temp}° F - ${record.weather[0].description}, ${record.main.humidity}% humidity`;
                         richEmbed.addField(time, weather, false);
                     });

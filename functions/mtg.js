@@ -12,7 +12,7 @@ module.exports.mtg = (message) => {
     const queryStrings = message.content.split(' ');
     queryStrings.shift();
     const cardName = queryStrings.join(' ');
-    const richEmbed = new Discord.RichEmbed()
+    const richEmbed = new Discord.MessageEmbed()
         .setTitle(`Card results for ${cardName}`);
     const emitter = mtg.card.all({name:cardName });
     emitter.on('data', card => {
