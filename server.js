@@ -105,6 +105,8 @@ client.on('ready', async () => {
     _.each(client.guilds.cache.array(), (guild) => {
         console.log(guild.name);
     });
+
+    client.user.setPresence({activity: {name: ':yeet:'}, status: 'online'})
 });
 
 //stupid fix for azure app service containers requiring a response to port 8080
