@@ -5,6 +5,7 @@ const _ = require('underscore');
 const weatherModule = require('./functions/weather');
 const constants = require('./utils/constants');
 const mtgModule = require('./functions/mtg');
+const voiceModule = require('./functions/voiceChannelManagement');
 const client = new Discord.Client();
 const prefix = constants.PREFIX;
 
@@ -32,14 +33,47 @@ else {
     client.login(botToken);
 }
 
+//handle voice connections
+client.on('voiceStateUpdate', (oldState, newState) => {
+    const groupName = 'user-voice-channels'
 
+    if(DEBUG){
+        console.dir(oldState);
+        console.dir(newState);
+    }
+    // check for bot
+    if (oldState.member.user.bot) return;
+
+    // if user has joined the test channel, do the thing
+    if (newState?.member?.voice?.channel?.name == 'Join to create channel') {
+        voiceModule.createVoiceChannelForMember(newState);
+    }
+    // if user has left a channel (no newstate.voiceChannel), delete it if it's empty
+    if (
+        (
+            //leaving voice (disconnect)
+            !newState.member?.voice?.channel || // or
+            //switching channel
+            newState?.channelID != oldState?.channelID
+        ) &&
+        //and you're not leaving the initial join channel
+        oldState?.channel?.name != 'Join to create channel' &&
+        //and you ARE leaving a channel in the group
+        oldState?.channel?.parent?.name == groupName
+    ) {
+        // THEN delete the old channel
+        voiceModule.deleteEmptyMemberVoiceChannel(oldState)
+    }
+});
+
+//handle messages
 client.on('message', (message) => {
     const commandPart = message.content.split(' ')[0];
-    if(commandPart && commandPart.startsWith(prefix)) {
+    if (commandPart && commandPart.startsWith(prefix)) {
         const command = commandPart.split(prefix)[1];
         COMMANDS[command] && tryCommand(COMMANDS[command](message));
     }
-    else if(message.content === 'SEA') {
+    else if (message.content === 'SEA') {
         message.channel.send('HAWKS!')
     }
 });
@@ -52,7 +86,7 @@ const tryCommand = (cmd) => {
     try {
         cmd && cmd();
     }
-    catch(err) {console.log(err);}
+    catch (err) { console.log(err); }
 }
 
 //log errors to the console because i don't have anywhere better to store them for now
@@ -62,17 +96,21 @@ const DEBUG = false;
 client.on('ready', async () => {
     if (DEBUG) {
         //try to announce to servers when you go online
-        _.each(client.guilds.array(), (guild) => {
-            const debugChannel = guild.channels.find(ch => ch.name == 'debug');
+        _.each(client.guilds.cache.array(), (guild) => {
+            const debugChannel = guild.channels.cache.find(ch => ch.name == 'debug');
             debugChannel && debugChannel.send("SEAbot online!");
         });
     }
+    console.log('connected to servers:');
+    _.each(client.guilds.cache.array(), (guild) => {
+        console.log(guild.name);
+    });
 });
 
 //stupid fix for azure app service containers requiring a response to port 8080
 var http = require('http');
 http.createServer(function (req, res) {
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.write('yeet');
-  res.end();
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.write('yeet');
+    res.end();
 }).listen(8080);
