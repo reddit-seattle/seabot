@@ -12,11 +12,7 @@ module.exports.createVoiceChannelForMember = (state) => {
 
         //TODO: if the user's channel already exists, just put them in that and prevent deletion
         // create channel for user
-        guild.channels.create(user_channel_name, {type: VOICE_TYPE}).then(channel => {
-            // add to category
-            if (channel) {
-                channel.setParent(category_channel)
-            }
+        guild.channels.create(user_channel_name, {type: VOICE_TYPE, parent: category_channel.id}).then(channel => {
             // add user to channel
             state.member.voice.setChannel(channel);
         });
