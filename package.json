@@ -4,7 +4,8 @@
   "description": "a bot. in SEA.",
   "main": "server.js",
   "dependencies": {
-    "discord.js": "11.5.1",
+    "@discordjs/opus": "^0.3.3",
+    "discord.js": "^12.5.1",
     "dotenv": "8.2.0",
     "moment": "^2.24.0",
     "mtgsdk": "^0.4.3",
