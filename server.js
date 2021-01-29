@@ -6,6 +6,7 @@ const weatherModule = require('./functions/weather');
 const constants = require('./utils/constants');
 const mtgModule = require('./functions/mtg');
 const voiceModule = require('./functions/voiceChannelManagement');
+const deleto = require('./functions/deleto');
 const client = new Discord.Client();
 const prefix = constants.PREFIX;
 
@@ -68,6 +69,10 @@ client.on('voiceStateUpdate', (oldState, newState) => {
 
 //handle messages
 client.on('message', (message) => {
+    if(message.channel.name == 'rant') {
+        deleto.delete(message);
+    }
+
     const commandPart = message.content.split(' ')[0];
     if (commandPart && commandPart.startsWith(prefix)) {
         const command = commandPart.split(prefix)[1];
