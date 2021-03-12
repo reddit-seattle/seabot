@@ -1,7 +1,7 @@
 const rp = require('request-promise');
 const Discord = require('discord.js');
 const _ = require('underscore');
-const constants = require('../utils/constants');
+const constants = require('../../utils/constants');
 const prefix = constants.PREFIX;
 const mtg = require('mtgsdk');
 module.exports.mtg = (message) => {

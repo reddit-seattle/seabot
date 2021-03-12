@@ -1,5 +1,5 @@
 
-const constants = require('../utils/constants');
+const constants = require('../../utils/constants');
 const _ = require('underscore');
 
 module.exports.delete = async (message) => {
