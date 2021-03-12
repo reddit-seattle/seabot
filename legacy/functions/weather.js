@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 const _ = require('underscore');
 const weatherForecastURL = 'https://api.openweathermap.org/data/2.5/forecast';
 const currentWeatherURL = 'https://api.openweathermap.org/data/2.5/weather'
-const constants = require('../utils/constants');
+const constants = require('../../utils/constants');
 const weatherAPIKey = process.env['weatherAPIKey'];
 
 const prefix = constants.PREFIX;

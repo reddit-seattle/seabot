@@ -2,22 +2,29 @@
   "name": "seabot",
   "version": "0.0.1",
   "description": "a bot. in SEA.",
-  "main": "server.js",
+  "main": "dist/server.js",
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
     "discord.js": "^12.5.1",
     "dotenv": "8.2.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.1",
     "mtgsdk": "^0.4.3",
     "node-cron": "^3.0.0",
+    "node-fetch": "^2.6.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
-    "underscore": "1.9.1"
+    "underscore": "^1.12.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/moment": "^2.13.0",
+    "@types/node": "^14.14.34",
+    "@types/node-cron": "^2.0.3",
+    "@types/node-fetch": "^2.5.8",
+    "@types/underscore": "^1.11.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
+    "start": "npm i && node dist/server.js",
     "launch": "npm i --no-optional && npm start"
   },
   "repository": {
