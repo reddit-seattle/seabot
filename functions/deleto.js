@@ -31,7 +31,7 @@ module.exports.deleteOldMessages = async (client) => {
             //last message is over an hour old, kill it all
             previous = (await rantChannel.messages.fetch({limit:50}));
             rantChannel.bulkDelete(previous.array(), true);
-            rantChannel.send('Messages here will be deleted as new messages are typed. The channel will be cleared if no messages are sent within one hour.');
+            // rantChannel.send('Messages here will be deleted as new messages are typed. The channel will be cleared if no messages are sent within one hour.');
 
         }
     });
