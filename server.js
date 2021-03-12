@@ -1,5 +1,5 @@
 const config = require('dotenv').config();
-
+const cron = require('node-cron');
 const Discord = require('discord.js');
 const _ = require('underscore');
 const weatherModule = require('./functions/weather');
@@ -97,6 +97,12 @@ const tryCommand = (cmd) => {
 //log errors to the console because i don't have anywhere better to store them for now
 client.on('error', console.error);
 
+const startCronJobs = () => {
+    cron.schedule('*/5 * * * *', () => {
+        deleto.deleteOldMessages(client);
+    })
+}
+
 const DEBUG = false;
 client.on('ready', async () => {
     if (DEBUG) {
@@ -111,7 +117,8 @@ client.on('ready', async () => {
         console.log(guild.name);
     });
 
-    client.user.setPresence({activity: {name: ':yeet:'}, status: 'online'})
+    client.user.setPresence({activity: {name: 'doin bot stuff'}, status: 'online'})
+    startCronJobs();
 });
 
 //stupid fix for azure app service containers requiring a response to port 8080
