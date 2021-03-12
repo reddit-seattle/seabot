@@ -14,8 +14,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Build
+      - name: install
         run: |
           npm i
           npm i -g typescript
-          tsc
+      - name: build
+        run: tsc
