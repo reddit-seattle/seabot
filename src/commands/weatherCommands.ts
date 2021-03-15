@@ -101,7 +101,6 @@ export const WeatherCommand: Command = {
                 var arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
                 const windDir = arr[(val % 16)];
                 const weather = `${response.weather[0].description}, ${response.main.humidity}% humidity. Winds ${windDir} @ ${response.wind.speed} mph`;
-                message.channel.send(`Current weather for ${response.name}`)
                 richEmbed.addField(`${response.main.temp}° F`, weather);
                 message.channel.send(richEmbed);
             }
