@@ -8,23 +8,23 @@ export const MTGCommand: Command = {
     execute: (message: Message) => {
         let cardFound = false;
         let hasImage = false;
-        let cardNames: {[id: string]: boolean} = {};
-    
+        let cardNames: { [id: string]: boolean } = {};
+
         const queryStrings = message.content.split(' ');
         queryStrings.shift();
         const cardName = queryStrings.join(' ');
         const richEmbed = new MessageEmbed()
             .setTitle(`Card results for ${cardName}`);
-        const emitter = card.all({name:cardName });
+        const emitter = card.all({ name: cardName });
         emitter.on('data', (card: Card) => {
             cardFound = cardFound || !!card;
             //first card image is shown
-            if(!hasImage) {
+            if (!hasImage) {
                 richEmbed.setImage(card.imageUrl);
                 hasImage = true;
             }
             //really stupid way to avoid duplicates that only differ in sets
-            if(!cardNames[card.name]){
+            if (!cardNames[card.name]) {
                 richEmbed.addField(`${card.name}${card.manaCost ? (' ' + card.manaCost) : ''}`, `${card.type} - ${card.text}`, false);
                 cardNames[card.name] = true;
             }

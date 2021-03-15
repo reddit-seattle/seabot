@@ -2,7 +2,7 @@ import { Config, Environment } from './utils/constants';
 import { Command } from './models/Command';
 import { schedule } from 'node-cron';
 import { Client, TextChannel } from 'discord.js'
-import { each }from 'underscore';
+import { each } from 'underscore';
 import { Http2ServerRequest, Http2ServerResponse } from 'http2';
 import { MTGCommand } from './commands/mtgCommands';
 import { ForecastCommand, WeatherCommand } from './commands/weatherCommands';
@@ -22,7 +22,7 @@ const commands = [
 ].reduce((map, obj) => {
     map[obj.name] = obj;
     return map;
-}, {} as { [id: string]: Command});
+}, {} as { [id: string]: Command });
 
 
 const botToken = Environment.botToken;
@@ -43,7 +43,7 @@ client.on('voiceStateUpdate', handleVoiceStatusUpdate);
 
 //handle messages
 client.on('message', async (message) => {
-    if(message.channel instanceof TextChannel && message?.channel?.name == 'rant') {
+    if (message.channel instanceof TextChannel && message?.channel?.name == 'rant') {
         deleteMessages(message);
         return;
     }
@@ -51,7 +51,7 @@ client.on('message', async (message) => {
         message.channel.send('HAWKS!')
         return;
     }
-    
+
     //bad bot
     if (!message.content.startsWith(Config.prefix) || message.author.bot) return;
 
@@ -60,10 +60,10 @@ client.on('message', async (message) => {
     const args = GetMessageArgs(message);
     const command = commands?.[args?.[0]]
 
-    try{
+    try {
         command?.execute(message, args)
     }
-    catch(e: any) {
+    catch (e: any) {
         console.dir(e);
         message.react('💩');
     }
@@ -93,7 +93,7 @@ client.on('ready', async () => {
         console.log(guild.name);
     });
 
-    client.user?.setPresence({activity: {name: 'bot stuff'}, status: 'online'})
+    client.user?.setPresence({ activity: { name: 'bot stuff' }, status: 'online' })
     startCronJobs();
 });
 
