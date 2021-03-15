@@ -6,10 +6,6 @@ const { Permissions } = VoiceConstants;
 export const handleVoiceStatusUpdate = (oldState: VoiceState, newState: VoiceState) => {
     const groupName = 'user-voice-channels'
 
-    if(Environment.DEBUG){
-        console.dir(oldState);
-        console.dir(newState);
-    }
     // check for bot
     if (oldState?.member?.user?.bot) return;
 
