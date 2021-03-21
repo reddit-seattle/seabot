@@ -45,3 +45,11 @@ export module VoiceConstants {
         DEAFEN = 'DEAFEN_MEMBERS'
     }
 }
+
+export module ServerInfo {
+    export module Valheim  {
+        export const serverName = '/r/Seattle valheim dedicated';
+        export const ipAddress = '20.57.179.81';
+        export const access = 'rSeattle1'
+    }
+}

@@ -6,7 +6,7 @@ import { each } from 'underscore';
 import { Http2ServerRequest, Http2ServerResponse } from 'http2';
 import { MTGCommand } from './commands/mtgCommands';
 import { ForecastCommand, WeatherCommand } from './commands/weatherCommands';
-import { coffeeCommand, pingCommand, teaCommand } from './commands/utilCommands';
+import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from './commands/utilCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
 import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { GetMessageArgs } from './utils/helpers';
@@ -18,6 +18,7 @@ const commands = [
     ForecastCommand,
     teaCommand,
     coffeeCommand,
+    valheimServerCommand,
     pingCommand
 ].reduce((map, obj) => {
     map[obj.name] = obj;
