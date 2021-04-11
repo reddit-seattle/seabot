@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
-    "discord.js": "^12.5.1",
+    "discord.js": "^12.5.3",
     "dotenv": "8.2.0",
     "moment": "^2.29.1",
     "mtgsdk": "^0.4.3",
