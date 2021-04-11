@@ -10,6 +10,7 @@ import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from './
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
 import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { GetMessageArgs } from './utils/helpers';
+import { abeLeaves } from './commands/joinLeaveCommands';
 
 const client: Client = new Client();
 const commands = [
@@ -42,6 +43,9 @@ else {
 //handle voice connections
 client.on('voiceStateUpdate', handleVoiceStatusUpdate);
 
+//join/leave
+client.on('guildMemberRemove', abeLeaves);
+
 //handle messages
 client.on('message', async (message) => {
     if (message.channel instanceof TextChannel && message?.channel?.name == 'rant') {
@@ -50,6 +54,10 @@ client.on('message', async (message) => {
     }
     else if (message.content === 'SEA') {
         message.channel.send('HAWKS!')
+        return;
+    }
+    else if (message.content.includes('tbf') || message.content.includes('to be fair')) {
+        message.channel.send('https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631');
         return;
     }
 

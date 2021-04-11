@@ -5,6 +5,10 @@ export module Environment {
     export const weatherAPIKey = process.env['weatherAPIKey'] || undefined;
 }
 
+export module Channels {
+    export const rSeattleGeneral = '370945003566006274';
+}
+
 export module Endpoints {
     export const currentWeatherURL = 'https://api.openweathermap.org/data/2.5/weather'
     export const weatherForecastURL = 'https://api.openweathermap.org/data/2.5/forecast';

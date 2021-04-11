@@ -12,6 +12,7 @@ export const teaCommand: Command = {
     description: 'tea',
     execute: (message) => message.channel.send(Strings.teapot)
 }
+
 export const coffeeCommand: Command = {
     name: 'coffee',
     description: 'coffee',
