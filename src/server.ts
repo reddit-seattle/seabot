@@ -56,8 +56,11 @@ client.on('message', async (message) => {
         message.channel.send('HAWKS!')
         return;
     }
-    else if (message.content.includes('tbf') || message.content.includes('to be fair')) {
-        message.channel.send('https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631');
+    else if (message.content.toLowerCase().includes('tbf') || message.content.toLowerCase().includes('to be fair')) {
+        // we use tbf more than we should, tbf
+        if (Math.random() >= 0.75) {
+            message.channel.send('https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631');
+        }
         return;
     }
 
