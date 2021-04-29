@@ -5,5 +5,5 @@ export interface Command {
     name: string;
     description: string;
     help?: string;
-    execute: (message: Message, args: string[]) => void;
+    execute: (message: Message, args?: string[]) => void;
 }
