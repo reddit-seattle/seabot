@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import moment from "moment";
 import fetch from "node-fetch";
 import { each } from "underscore";
@@ -31,6 +31,7 @@ const buildWeatherRequestUri: (zip: string, uri: string) => string = (zip, uri) 
 
 export const ForecastCommand: Command = {
     description: 'Get weather forecast in 3-hour intervals',
+    help: 'forecast 98102',
     name: 'forecast',
     execute: async (message, args) => {
         if (!Environment.weatherAPIKey) {
@@ -38,7 +39,7 @@ export const ForecastCommand: Command = {
             message.channel.send('forecast feature not enabled');
         }
         else {
-            const zip = args[1];
+            const zip = args?.[1];
             if (!zip || !parseInt(zip) || zip.length != 5) {
                 message.channel.send(`Invalid zip code. Usage example: "${Config.prefix}forecast 98102"`);
             }
@@ -78,6 +79,7 @@ export interface WeatherResponse {
 
 export const WeatherCommand: Command = {
     description: 'Get current weather',
+    help: 'weather 98102',
     name: 'weather',
     execute: async (message, args) => {
         if (!Environment.weatherAPIKey) {
@@ -85,7 +87,7 @@ export const WeatherCommand: Command = {
             message.channel.send('forecast feature not enabled');
         }
         else {
-            const zip = args[1];
+            const zip = args?.[1];
             if (!zip || !parseInt(zip) || zip.length != 5) {
                 message.channel.send(`Invalid zip code. Usage example: "${Config.prefix}weather 98102"`);
             }
