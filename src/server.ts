@@ -7,12 +7,15 @@ import { Http2ServerRequest, Http2ServerResponse } from 'http2';
 import { MTGCommand } from './commands/mtgCommands';
 import { ForecastCommand, WeatherCommand } from './commands/weatherCommands';
 import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from './commands/utilCommands';
-import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
 import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
-import { GetMessageArgs } from './utils/helpers';
 import { abeLeaves } from './commands/joinLeaveCommands';
+import { Help } from './commands/helpCommands';
+import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
+import { GetMessageArgs } from './utils/helpers';
 
 const client: Client = new Client();
+
+// TODO: common command loader
 const commands = [
     MTGCommand,
     WeatherCommand,
@@ -20,14 +23,15 @@ const commands = [
     teaCommand,
     coffeeCommand,
     valheimServerCommand,
-    pingCommand
+    pingCommand,
+    Help
 ].reduce((map, obj) => {
     map[obj.name] = obj;
     return map;
 }, {} as { [id: string]: Command });
 
 
-const botToken = Environment.botToken;
+const { botToken } = Environment;
 
 //MAIN
 

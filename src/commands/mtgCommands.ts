@@ -3,7 +3,8 @@ import { card, Card } from 'mtgsdk';
 import { Command } from '../models/Command';
 
 export const MTGCommand: Command = {
-    description: 'Find MTG cards by name',
+    description: 'Find MTG cards by name (inclusive, so try to be specific)',
+    help: 'mtg cheatyface',
     name: 'mtg',
     execute: (message: Message) => {
         let cardFound = false;
