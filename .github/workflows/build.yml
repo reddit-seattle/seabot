@@ -32,4 +32,6 @@ jobs:
           npm i
           npm i -g typescript
       - name: build
-        run: tsc   
+        run: tsc  
+      - name: test
+        run: npm test -- --coverage 
