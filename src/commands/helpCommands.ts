@@ -29,14 +29,14 @@ export const Help: Command = {
                 ...commands.map(command => {
                     return {
                         name: command.name,
-                        value: `${command.description}\nExample: ${Config.prefix} ${command.help}`,
+                        value: `${command.description}\nExample: ${Config.prefix}${command.help}`,
                         inline: false
                     }
                 }),
                 {
                     name: 'See an issue? Want to request a feature?',
                     inline: false,
-                    value: 'https://github.com/reddit-seattle/seabot/issues/new'
+                    value: 'https://github.com/reddit-seattle/seabot/issues'
                 },
             ]
         });
