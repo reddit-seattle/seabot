@@ -3,7 +3,7 @@ name: Bug report
 about: Something is broken.
 title: "[BUG]"
 labels: bug
-assignees: ''
+assignees: burn-piano-island
 
 ---
 
