@@ -1,6 +1,6 @@
 import { Message, MessageEmbed } from "discord.js";
 import { Command } from '../models/Command';
-import { Config } from '../utils/constants';
+import { Config, Strings } from '../utils/constants';
 import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from "../commands/utilCommands";
 import { ForecastCommand, WeatherCommand } from '../commands/weatherCommands';
 import { MTGCommand } from '../commands/mtgCommands';
@@ -34,9 +34,9 @@ export const Help: Command = {
                     }
                 }),
                 {
-                    name: 'See an issue? Want to request a feature?',
+                    name: Strings.feedbackText,
                     inline: false,
-                    value: 'https://github.com/reddit-seattle/seabot/issues'
+                    value: Strings.newIssueURL
                 },
             ]
         });

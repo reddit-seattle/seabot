@@ -1,10 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-export module Environment {
-    export const weatherAPIKey = process.env['weatherAPIKey'] || undefined;
-}
-
 export module Endpoints {
     export const currentWeatherURL = 'https://api.openweathermap.org/data/2.5/weather'
     export const weatherForecastURL = 'https://api.openweathermap.org/data/2.5/forecast';
@@ -30,11 +26,14 @@ export module Strings {
         "```";
 
     export const coffee = '`HTTP ERR: 418 - I am a teapot`';
+    export const newIssueURL = 'https://github.com/reddit-seattle/seabot/issues/new/choose';
+    export const feedbackText = 'See an issue? Want to request a feature?';
 }
 
 export module Environment {
     export const botToken = process.env['botToken'] || undefined;
     export const DEBUG = process.env['seabotDEBUG'] || undefined;
+    export const weatherAPIKey = process.env['weatherAPIKey'] || undefined;
 }
 export module VoiceConstants {
     export const groupName = 'user-voice-channels'
