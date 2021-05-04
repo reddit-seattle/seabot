@@ -1,6 +1,6 @@
 import { Message, MessageEmbed } from "discord.js";
 import { Command } from '../models/Command';
-import { Config } from '../utils/constants';
+import { Config, Strings } from '../utils/constants';
 import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from "../commands/utilCommands";
 import { ForecastCommand, WeatherCommand } from '../commands/weatherCommands';
 import { MTGCommand } from '../commands/mtgCommands';
@@ -29,14 +29,14 @@ export const Help: Command = {
                 ...commands.map(command => {
                     return {
                         name: command.name,
-                        value: `${command.description}\nExample: ${Config.prefix} ${command.help}`,
+                        value: `${command.description}\nExample: ${Config.prefix}${command.help}`,
                         inline: false
                     }
                 }),
                 {
-                    name: 'See an issue? Want to request a feature?',
+                    name: Strings.feedbackText,
                     inline: false,
-                    value: 'https://github.com/reddit-seattle/seabot/issues/new'
+                    value: Strings.newIssueURL
                 },
             ]
         });
