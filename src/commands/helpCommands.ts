@@ -4,6 +4,7 @@ import { Config, Strings } from '../utils/constants';
 import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from "../commands/utilCommands";
 import { ForecastCommand, WeatherCommand } from '../commands/weatherCommands';
 import { MTGCommand } from '../commands/mtgCommands';
+import { FrameQuote } from "./quoteCommands";
 
 // TODO: common command loader
 const commands: Command[] = [
@@ -13,7 +14,8 @@ const commands: Command[] = [
     valheimServerCommand,
     ForecastCommand,
     WeatherCommand,
-    MTGCommand
+    MTGCommand,
+    FrameQuote
 ];
 
 export const Help: Command = {

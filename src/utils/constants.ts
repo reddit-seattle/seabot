@@ -4,11 +4,25 @@ dotenv.config();
 export module Endpoints {
     export const currentWeatherURL = 'https://api.openweathermap.org/data/2.5/weather'
     export const weatherForecastURL = 'https://api.openweathermap.org/data/2.5/forecast';
+    export module Quotes {
+        export const Swanson = 'https://ron-swanson-quotes.herokuapp.com/v2/quotes';
+        // this is authenticated and therefore currently useless.
+        export const Ub3r_B0t = 'https://admin.ub3r-b0t.com/api/quotes/370945003566006272';
+        export const Image = (size: number) => `https://picsum.photos/${size}`;
+    }
 }
 
 export module Config {
     export const prefix = '$';
 }
+
+export module Constants {
+    export module Quotes {
+        export const ImageSize = 800;
+        export const TextMargin = 100;
+    }
+}
+
 export module Strings {
     export const teapot =
         "```\n" +

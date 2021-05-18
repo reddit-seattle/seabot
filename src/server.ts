@@ -12,6 +12,7 @@ import { abeLeaves } from './commands/joinLeaveCommands';
 import { Help } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
 import { GetMessageArgs } from './utils/helpers';
+import { FrameQuote } from './commands/quoteCommands';
 
 const client: Client = new Client();
 
@@ -24,6 +25,7 @@ const commands = [
     coffeeCommand,
     valheimServerCommand,
     pingCommand,
+    FrameQuote,
     Help
 ].reduce((map, obj) => {
     map[obj.name] = obj;
