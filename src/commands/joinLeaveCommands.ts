@@ -9,6 +9,6 @@ export const abeLeaves = (member: GuildMember | PartialGuildMember) => {
 
 export const newAccountJoins = (member: GuildMember | PartialGuildMember) => {
     if(((new Date()).getTime() - member.user!.createdTimestamp) < 1000 * 60 * 5) {
-        member.send(`Hey ${member.user!.username} - just a reminder, your account needs to be at least 5 minutes old to chat`)
+        member.send(`Hey ${member.user!.username} - just a reminder, your account needs to be at least 5 minutes old to chat. While you wait, feel free to browse our welcome channel for some basic rules and channel descriptions.`)
     }
 }
