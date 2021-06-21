@@ -44,7 +44,6 @@ export const botInfoCommand: Command = {
         const process_uptime = Math.floor(process.uptime());
         const { client } = message;
         const { uptime } = client;
-        const usage = process.cpuUsage();
         const { versions, arch } = process;
         message.channel.send(new MessageEmbed({
             title: 'SEABot Status',
@@ -82,12 +81,12 @@ export const botInfoCommand: Command = {
                 },
                 {
                     name: 'Process Uptime',
-                    value: `${process_uptime / 60 / 60} hours`,
+                    value: `${(process_uptime / 60 / 60).toFixed(2)} hours`,
                     inline: true
                 },
                 {
                     name: 'Client Uptime',
-                    value: `${uptime! / 60 / 60} hours`,
+                    value: `${(uptime! / 60 / 60).toFixed(2)} hours`,
                     inline: true
                 },
             ]
