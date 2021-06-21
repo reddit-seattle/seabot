@@ -5,10 +5,8 @@
   "main": "dist/server.js",
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
-    "canvas": "^2.8.0",
     "discord.js": "^12.5.3",
     "dotenv": "8.2.0",
-    "get-image-colors": "^4.0.0",
     "moment": "^2.29.1",
     "mtgsdk": "^0.4.3",
     "node-cron": "^3.0.0",
@@ -18,7 +16,6 @@
     "underscore": "^1.12.1"
   },
   "devDependencies": {
-    "@types/get-image-colors": "^2.0.0",
     "@types/jest": "^26.0.22",
     "@types/moment": "^2.13.0",
     "@types/node": "^14.14.34",
