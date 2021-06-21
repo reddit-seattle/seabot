@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
 import { Command } from '../models/Command';
 import { Config, Strings } from '../utils/constants';
-import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from "../commands/utilCommands";
+import { botInfoCommand, coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from "../commands/utilCommands";
 import { ForecastCommand, WeatherCommand } from '../commands/weatherCommands';
 import { MTGCommand } from '../commands/mtgCommands';
 
@@ -13,7 +13,8 @@ const commands: Command[] = [
     valheimServerCommand,
     ForecastCommand,
     WeatherCommand,
-    MTGCommand
+    MTGCommand,
+    botInfoCommand
 ];
 
 export const Help: Command = {

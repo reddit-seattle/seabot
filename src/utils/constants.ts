@@ -9,6 +9,13 @@ export module Endpoints {
 export module Config {
     export const prefix = '$';
 }
+
+export module AppConfiguration {
+    export const BOT_RELEASE_VERSION = process.env['botReleaseVersion'] || undefined;
+    export const BOT_RELEASE_REASON = process.env['botReleaseReason'] || undefined;
+    export const BOT_RELEASE_DESCRIPTION = process.env['botReleaseDescription'] || undefined;
+    export const BOT_RELEASE_COMMIT = process.env['botReleaseCommit'] || undefined;
+}
 export module Strings {
     export const teapot =
         "```\n" +
