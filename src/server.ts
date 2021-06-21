@@ -8,7 +8,7 @@ import { MTGCommand } from './commands/mtgCommands';
 import { ForecastCommand, WeatherCommand } from './commands/weatherCommands';
 import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from './commands/utilCommands';
 import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
-import { abeLeaves } from './commands/joinLeaveCommands';
+import { abeLeaves,newAccountJoins } from './commands/joinLeaveCommands';
 import { Help } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
 import { GetMessageArgs } from './utils/helpers';
@@ -51,6 +51,7 @@ client.on('voiceStateUpdate', handleVoiceStatusUpdate);
 
 //join/leave
 client.on('guildMemberRemove', abeLeaves);
+client.on('guildMemberAdd', newAccountJoins);
 
 //handle messages
 client.on('message', async (message) => {
