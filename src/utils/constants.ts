@@ -4,6 +4,7 @@ dotenv.config();
 export module Endpoints {
     export const currentWeatherURL = 'https://api.openweathermap.org/data/2.5/weather'
     export const weatherForecastURL = 'https://api.openweathermap.org/data/2.5/forecast';
+    export const dailyForecastURL = 'https://api.openweathermap.org/data/2.5/forecast/daily'
 }
 
 export module Config {
