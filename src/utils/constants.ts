@@ -3,9 +3,10 @@ dotenv.config();
 
 export module Endpoints {
     export const currentWeatherURL = 'https://api.openweathermap.org/data/2.5/weather'
-    export const weatherForecastURL = 'https://api.openweathermap.org/data/2.5/forecast';
-    export const dailyForecastURL = 'https://api.openweathermap.org/data/2.5/forecast/daily'
-    export const geocodingURL = 'http://api.openweathermap.org/geo/1.0/direct'
+    export const dailyForecastURL = 'https://api.openweathermap.org/data/2.5/forecast';
+    export const weeklyForecastURL = 'https://api.openweathermap.org/data/2.5/forecast/daily';
+    export const geocodingDirectURL = 'http://api.openweathermap.org/geo/1.0/direct';
+    export const geocodingReverseURL = 'http://api.openweathermap.org/geo/1.0/reverse';
 }
 
 export module Config {
