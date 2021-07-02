@@ -51,7 +51,7 @@ export interface List {
     pop: number;
 }
 
-export interface DailyForecastResponse {
+export interface WeeklyForecastResponse {
     city: City;
     cod: string;
     message: number;
@@ -107,8 +107,29 @@ export interface GeocodeResponse {
     lat: number;
     lon: number;
     country: string;
-    state: string;
+    state?: string;
 }
 
+export interface ForecastResponse {
+    city: City;
+    list: { dt: number, weather: { description: string }[], main: { humidity: string, temp: string } }[]
+}
 
-
+export interface WeatherResponse {
+    coord: Coord;
+    wind: {
+        deg: number;
+        speed: string;
+    },
+    name: string,
+    main: {
+        temp: string;
+        humidity: string;
+    },
+    weather: {
+        description: string;
+    }[],
+    sys: {
+        country: string;
+    }
+}
