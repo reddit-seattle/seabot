@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 import { each } from "underscore";
 import { URLSearchParams } from "url";
 import { Command } from "../models/Command";
-import { DailyForecastResponse } from "../models/WeatherModels";
+import { DailyForecastResponse, GeocodeResponse } from "../models/WeatherModels";
 import { Environment, Endpoints, Config } from "../utils/constants";
 
 const fetchInfo = {
@@ -21,9 +21,9 @@ export interface ForecastResponse {
     list: { dt: number, weather: { description: string }[], main: { humidity: string, temp: string } }[]
 }
 
-const buildWeatherRequestUri: (zip: string, uri: string) => string = (zip, uri) => {
+const buildWeatherRequestUri: (location: string, uri: string) => string = (location, uri) => {
     const queryString = new URLSearchParams({
-        zip: `${zip},us`,
+        q: `${location}`,
         units: 'imperial',
         appid: Environment.weatherAPIKey
     });
@@ -32,7 +32,7 @@ const buildWeatherRequestUri: (zip: string, uri: string) => string = (zip, uri) 
 
 export const ForecastCommand: Command = {
     description: 'Get weather forecast in 3-hour intervals',
-    help: 'forecast 98102',
+    help: 'forecast [98102 | Seattle] {optional: `weekly`}',
     name: 'forecast',
     execute: async (message, args) => {
         if (!Environment.weatherAPIKey) {
@@ -40,28 +40,34 @@ export const ForecastCommand: Command = {
             message.channel.send('forecast feature not enabled');
         }
         else {
-            const zip = args?.[1];
+            const location = args?.[1];
             const weekly = args?.[2] === 'weekly'; // currently only supports "weekly"
-            if (!zip || !parseInt(zip) || zip.length != 5) {
-                message.channel.send(`Invalid zip code. Usage example: "${Config.prefix}forecast 98102"`);
-            }
-            else {
-                const uri = buildWeatherRequestUri(zip, weekly ? Endpoints.dailyForecastURL : Endpoints.weatherForecastURL);
+            if (!!location) {
+                const uri = buildWeatherRequestUri(location, weekly ? Endpoints.dailyForecastURL : Endpoints.weatherForecastURL);
                 const result = await fetch(uri, fetchInfo);
 
                 const response = await result.json();
-                const embed = weekly ? buildWeeklyResponse(response) : buildForecastResponse(response);
+                const geoUri = buildWeatherRequestUri(location, Endpoints.geocodingURL);
+                const geoResult = await fetch(geoUri, fetchInfo);
+                const geoResponse = (await geoResult.json() as GeocodeResponse[])?.[0];
+
+                const embed = weekly ? buildWeeklyResponse(response, geoResponse) : buildForecastResponse(response, geoResponse);
                 message.channel.send(embed);
-                
+
+            }
+            else {
+                message.channel.send('Please provide a location');
             }
         }
     }
 }
 
-const buildWeeklyResponse = (response: any): MessageEmbed => {
+const buildWeeklyResponse = (response: any, geoResponse: GeocodeResponse): MessageEmbed => {
+
     const dailyForecast = response as DailyForecastResponse;
+    const titleString = `Weekly forecast for ${geoResponse ? `${geoResponse.name}, ${geoResponse.state} ${geoResponse.country}` : `${response.name}`}`;
     const richEmbed = new MessageEmbed()
-        .setTitle(`Weekly forecast for ${dailyForecast.city.name}:`);
+        .setTitle(titleString);
     let { list } = dailyForecast;
     each(list.slice(0, 7), (record) => {
         const date = moment.unix(record.dt).utcOffset(-8).format("dddd MMMM Do, YYYY");
@@ -76,10 +82,11 @@ const buildWeeklyResponse = (response: any): MessageEmbed => {
     return richEmbed;
 }
 
-const buildForecastResponse = (response: any): MessageEmbed  => {
+const buildForecastResponse = (response: any, geoResponse: GeocodeResponse): MessageEmbed => {
     response = response as ForecastResponse;
+    const titleString = `Forecast for ${geoResponse ? `${geoResponse.name}, ${geoResponse.state} ${geoResponse.country}` : `${response.name}`}`;
     const richEmbed = new MessageEmbed()
-        .setTitle(`Forecast for ${response.city.name}:`);
+        .setTitle(titleString);
     let { list } = response;
     each(response.list.slice(0, 5), (record) => {
         const time = moment.unix(record.dt).utcOffset(-8).format("HH:mm");
@@ -102,11 +109,14 @@ export interface WeatherResponse {
     weather: {
         description: string;
     }[],
+    sys: {
+        country: string;
+    }
 }
 
 export const WeatherCommand: Command = {
     description: 'Get current weather',
-    help: 'weather 98102',
+    help: 'weather [98102 | Seattle]',
     name: 'weather',
     execute: async (message, args) => {
         if (!Environment.weatherAPIKey) {
@@ -114,24 +124,26 @@ export const WeatherCommand: Command = {
             message.channel.send('forecast feature not enabled');
         }
         else {
-            const zip = args?.[1];
-            if (!zip || !parseInt(zip) || zip.length != 5) {
-                message.channel.send(`Invalid zip code. Usage example: "${Config.prefix}weather 98102"`);
-            }
-            else {
-                const uri = buildWeatherRequestUri(zip, Endpoints.currentWeatherURL);
-                const result = await fetch(uri, fetchInfo);
-
-                const response = await result.json() as WeatherResponse;
+            const location = args?.[1];
+            if (!!location) {
+                const weatherUri = buildWeatherRequestUri(location, Endpoints.currentWeatherURL);
+                const weatherResult = await fetch(weatherUri, fetchInfo);
+                const weatherResponse = await weatherResult.json() as WeatherResponse;
+                const geoUri = buildWeatherRequestUri(location, Endpoints.geocodingURL);
+                const geoResult = await fetch(geoUri, fetchInfo);
+                const geoResponse = (await geoResult.json() as GeocodeResponse[])?.[0];
+                const titleString = `Current weather for ${geoResponse ? `${geoResponse.name}, ${geoResponse.state} ${geoResponse.country}` : `${weatherResponse.name}`}`;
                 const richEmbed = new MessageEmbed()
-                    .setTitle(`Current weather for ${response.name}:`);
-
-                var val = Math.floor((response.wind.deg / 22.5) + 0.5);
+                    .setTitle(titleString);
+                var val = Math.floor((weatherResponse.wind.deg / 22.5) + 0.5);
                 var arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
                 const windDir = arr[(val % 16)];
-                const weather = `${response.weather[0].description}, ${response.main.humidity}% humidity. Winds ${windDir} @ ${response.wind.speed} mph`;
-                richEmbed.addField(`${response.main.temp}° F`, weather);
+                const weather = `${weatherResponse.weather[0].description}, ${weatherResponse.main.humidity}% humidity. Winds ${windDir} @ ${weatherResponse.wind.speed} mph`;
+                richEmbed.addField(`${weatherResponse.main.temp}° F`, weather);
                 message.channel.send(richEmbed);
+            }
+            else {
+                message.channel.send('Please provide a location')
             }
         }
     }
