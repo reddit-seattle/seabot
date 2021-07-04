@@ -51,7 +51,8 @@ export module VoiceConstants {
     export const enum Permissions {
         MOVE = 'MOVE_MEMBERS',
         MUTE = 'MUTE_MEMBERS',
-        DEAFEN = 'DEAFEN_MEMBERS'
+        DEAFEN = 'DEAFEN_MEMBERS',
+        MANAGE_CHANNELS = 'MANAGE_CHANNELS'
     }
 }
 
