@@ -52,12 +52,14 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
             //permissions
             permissionOverwrites: [
                 //allow user to move members out of this channel
+                //note: MANAGE_CHANNELS as a permission overwrite on a single channel doesn't extend to the entire guild
                 {
                     id: user?.id!,
                     allow: [
                         Permissions.MOVE,
                         Permissions.MUTE,
-                        Permissions.DEAFEN
+                        Permissions.DEAFEN,
+                        Permissions.MANAGE_CHANNELS
                     ]
                 }
             ]
