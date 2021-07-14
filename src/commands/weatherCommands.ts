@@ -209,12 +209,11 @@ export const AirQualityCommand: Command = {
         if (!Environment.weatherAPIKey) {
             message.channel.send('forecast feature not enabled');
         }
-        // escape if we don't have more than just $weather
+        // escape if we don't have args
         if (!args?.[1]) {
             message.channel.send('Please provide a location');
             return;
         }
-        // join all args besides $weather into a string to search
         const location = args?.[1];
         const isZip = isNumber(location) && location.length == 5;
         if (!isZip) {
