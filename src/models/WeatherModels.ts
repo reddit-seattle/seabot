@@ -140,7 +140,9 @@ export interface Category {
     Name: string;
 }
 
-export interface AirQualityResponse {
+export interface AirQualityForecastResponse extends Array<AirQualityForecast>{};
+export interface AirQualityCurrentResponse extends Array<AirQualityResponse>{};
+export interface AirQualityForecast {
     DateIssue: string;
     DateForecast: string;
     ReportingArea: string;
@@ -154,4 +156,15 @@ export interface AirQualityResponse {
     Discussion: string;
 }
 
-
+export interface AirQualityResponse {
+    DateObserved: string;
+    HourObserved: number;
+    LocalTimeZone: string;
+    ReportingArea: string;
+    StateCode: string;
+    Latitude: number;
+    Longitude: number;
+    ParameterName: string;
+    AQI: number;
+    Category: Category;
+}

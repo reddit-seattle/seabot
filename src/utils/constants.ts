@@ -7,7 +7,8 @@ export module Endpoints {
     export const weeklyForecastURL = 'https://api.openweathermap.org/data/2.5/forecast/daily';
     export const geocodingDirectURL = 'http://api.openweathermap.org/geo/1.0/direct';
     export const geocodingReverseURL = 'http://api.openweathermap.org/geo/1.0/reverse';
-    export const airQualityByZipURL = 'https://www.airnowapi.org/aq/forecast/zipCode/';
+    export const airQualityForecastByZipURL = 'https://www.airnowapi.org/aq/forecast/zipCode/';
+    export const airQualityCurrentByZipURL = 'https://www.airnowapi.org/aq/observation/zipCode/current';
 }
 
 export module Config {
