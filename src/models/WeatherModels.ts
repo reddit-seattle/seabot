@@ -133,3 +133,25 @@ export interface WeatherResponse {
         country: string;
     }
 }
+
+
+export interface Category {
+    Number: number;
+    Name: string;
+}
+
+export interface AirQualityResponse {
+    DateIssue: string;
+    DateForecast: string;
+    ReportingArea: string;
+    StateCode: string;
+    Latitude: number;
+    Longitude: number;
+    ParameterName: string;
+    AQI: number;
+    Category: Category;
+    ActionDay: boolean;
+    Discussion: string;
+}
+
+

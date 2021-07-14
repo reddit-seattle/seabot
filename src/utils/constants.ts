@@ -7,6 +7,7 @@ export module Endpoints {
     export const weeklyForecastURL = 'https://api.openweathermap.org/data/2.5/forecast/daily';
     export const geocodingDirectURL = 'http://api.openweathermap.org/geo/1.0/direct';
     export const geocodingReverseURL = 'http://api.openweathermap.org/geo/1.0/reverse';
+    export const airQualityByZipURL = 'https://www.airnowapi.org/aq/forecast/zipCode/';
 }
 
 export module Config {
@@ -44,6 +45,7 @@ export module Environment {
     export const botToken = process.env['botToken'] || undefined;
     export const DEBUG = process.env['seabotDEBUG'] || undefined;
     export const weatherAPIKey = process.env['weatherAPIKey'] || undefined;
+    export const airQualityAPIKey = process.env['airQualityAPIKey'] || undefined;
 }
 export module VoiceConstants {
     export const groupName = 'user-voice-channels'

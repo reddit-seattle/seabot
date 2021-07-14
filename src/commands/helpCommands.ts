@@ -2,7 +2,7 @@ import { Message, MessageEmbed } from "discord.js";
 import { Command } from '../models/Command';
 import { Config, Strings } from '../utils/constants';
 import { botInfoCommand, coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from "../commands/utilCommands";
-import { ForecastCommand, WeatherCommand } from '../commands/weatherCommands';
+import { AirQualityCommand, ForecastCommand, WeatherCommand } from '../commands/weatherCommands';
 import { MTGCommand } from '../commands/mtgCommands';
 
 // TODO: common command loader
@@ -14,6 +14,7 @@ const commands: Command[] = [
     ForecastCommand,
     WeatherCommand,
     MTGCommand,
+    AirQualityCommand,
     botInfoCommand
 ];
 
