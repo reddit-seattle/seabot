@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 import { each } from "underscore";
 import { URLSearchParams } from "url";
 import { Command } from "../models/Command";
-import { WeeklyForecastResponse, ForecastResponse, GeocodeResponse, WeatherResponse, Coord } from "../models/WeatherModels";
+import { WeeklyForecastResponse, ForecastResponse, GeocodeResponse, WeatherResponse, Coord, AirQualityForecastResponse, AirQualityCurrentResponse } from "../models/WeatherModels";
 import { Environment, Endpoints } from "../utils/constants";
 
 const fetchInfo = {
@@ -200,3 +200,78 @@ export const WeatherCommand: Command = {
         }
     }
 }
+
+export const AirQualityCommand: Command = {
+    description: 'Get current air quality',
+    help: 'aqi 98102',
+    name: 'aqi',
+    execute: async (message, args) => {
+        if (!Environment.weatherAPIKey) {
+            message.channel.send('forecast feature not enabled');
+        }
+        // escape if we don't have args
+        if (!args?.[1]) {
+            message.channel.send('Please provide a location');
+            return;
+        }
+        const location = args?.[1];
+        const isZip = isNumber(location) && location.length == 5;
+        if (!isZip) {
+            message.channel.send('Invalid ZIP');
+            return;
+        }
+        const airQuality = (await getAirQualityByZip(location));
+        if (!airQuality?.[0]) {
+            message.channel.send('Invalid response');
+            return;
+        }
+
+        const forecast = (await getAirQualityForecastByZip(location))?.filter(f =>
+            f.DateForecast === airQuality[0].DateObserved
+        )?.[0];
+        const embed = new MessageEmbed({
+            title: `Air quality for ${airQuality[0].ReportingArea}, ${airQuality[0].StateCode}`,
+            fields: [
+                {
+                    name: 'Observed at:',
+                    value: `${airQuality[0].DateObserved}, ${airQuality[0].HourObserved}:00`,
+                    inline: false
+                },
+                ...airQuality.map(f => {
+                    return {
+                        name: `${f.ParameterName}`,
+                        value: `**${f.AQI}** - ${f.Category.Name}`,
+                        inline: true
+                    }
+                }),
+                {
+                    name: 'Description',
+                    value: forecast?.Discussion ? `${forecast.Discussion}` : `No forecast description`,
+                }
+            ]
+        });
+        message.channel.send(embed);
+
+    }
+}
+
+const buildQueryStringForAirQuality = (location: string) => {
+    return new URLSearchParams({
+        format: 'application/json',
+        zipCode: location,
+        distance: '50',
+        API_KEY: Environment.airQualityAPIKey
+    });
+}
+
+const getAirQualityByZip = async (zip: string) => {
+    const queryString = buildQueryStringForAirQuality(zip);
+    const uri = `${Endpoints.airQualityCurrentByZipURL}?${queryString}`
+    return await callAPI<AirQualityCurrentResponse>(uri);
+};
+
+const getAirQualityForecastByZip = async (zip: string) => {
+    const queryString = buildQueryStringForAirQuality(zip);
+    const uri = `${Endpoints.airQualityForecastByZipURL}?${queryString}`
+    return await callAPI<AirQualityForecastResponse>(uri);
+};

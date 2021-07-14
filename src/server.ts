@@ -5,7 +5,7 @@ import { Client, TextChannel } from 'discord.js'
 import { each } from 'underscore';
 import { Http2ServerRequest, Http2ServerResponse } from 'http2';
 import { MTGCommand } from './commands/mtgCommands';
-import { ForecastCommand, WeatherCommand } from './commands/weatherCommands';
+import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
 import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand, botInfoCommand } from './commands/utilCommands';
 import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { abeLeaves, newAccountJoins } from './commands/joinLeaveCommands';
@@ -25,6 +25,7 @@ const commands = [
     valheimServerCommand,
     pingCommand,
     botInfoCommand,
+    AirQualityCommand,
     Help
 ].reduce((map, obj) => {
     map[obj.name] = obj;
