@@ -1,16 +1,15 @@
 import { VoiceState } from "discord.js";
-import { Environment, VoiceConstants } from "../utils/constants";
+import { ChannelIds, Environment, VoiceConstants } from "../utils/constants";
 
 const { Permissions } = VoiceConstants;
 
 export const handleVoiceStatusUpdate = (oldState: VoiceState, newState: VoiceState) => {
-    const groupName = 'user-voice-channels'
 
     // check for bot
     if (oldState?.member?.user?.bot) return;
 
     // if user has joined the test channel, do the thing
-    if (newState?.member?.voice?.channel?.name == 'Join to create channel') {
+    if (newState?.member?.voice?.channel?.id == ChannelIds.VOICE_CREATE) {
         createVoiceChannelForMember(newState);
     }
     // if user has left a channel (no newstate.voiceChannel), delete it if it's empty
@@ -22,9 +21,9 @@ export const handleVoiceStatusUpdate = (oldState: VoiceState, newState: VoiceSta
             newState?.channelID != oldState?.channelID
         ) &&
         //and you're not leaving the initial join channel
-        oldState?.channel?.name != 'Join to create channel' &&
+        oldState?.channel?.id != ChannelIds.VOICE_CREATE &&
         //and you ARE leaving a channel in the group
-        oldState?.channel?.parent?.name == groupName
+        oldState?.channel?.parent?.id == ChannelIds.USER_VOICE_GROUP
     ) {
         // THEN delete the old channel
         deleteEmptyMemberVoiceChannel(oldState)
@@ -38,7 +37,7 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
     }
     const user = guild.member(state.member?.user!);
     const user_channel_name = `${user?.nickname ?? user?.user.username}'s voice chat`;
-    const category_channel = guild.channels.cache.find(channel => channel.name === VoiceConstants.groupName);
+    const category_channel = guild.channels.cache.find(channel => channel.id === ChannelIds.USER_VOICE_GROUP);
     // find channel group
     if (category_channel) {
 
@@ -71,7 +70,7 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
 };
 
 export const deleteEmptyMemberVoiceChannel = (state: VoiceState) => {
-    if (state?.channel?.members?.array()?.length == 0 && state?.channel?.parent?.name == VoiceConstants.groupName) {
+    if (state?.channel?.members?.array()?.length == 0 && state?.channel?.parent?.id == ChannelIds.USER_VOICE_GROUP) {
         state?.channel?.delete();
     }
 };
