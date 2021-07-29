@@ -1,5 +1,6 @@
 import { Client, Message, TextChannel } from 'discord.js';
 import { each } from 'underscore';
+import { ChannelIds } from '../utils/constants';
 
 export const deleteMessages = async (message: Message) => {
     try {
@@ -19,7 +20,7 @@ export const deleteMessages = async (message: Message) => {
 
 export const clearChannel = async (client: Client) => {
     each(client.guilds.cache.array(), async (guild) => {
-        const rantChannel = guild.channels.cache.find(ch => ch.name == 'rant') as TextChannel;
+        const rantChannel = guild.channels.cache.find(ch => ch.id == ChannelIds.RANT) as TextChannel;
         const last = await rantChannel.messages.fetch({ limit: 1 });
         if (!last.array()?.[0]) {
             return;

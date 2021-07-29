@@ -15,6 +15,13 @@ export module Config {
     export const prefix = '$';
 }
 
+export module ChannelIds {
+    export const RANT = '804639001226379294';
+    export const VOICE_CREATE = '788552426906845185';
+    export const USER_VOICE_GROUP = '788552301182320640';
+    export const DEBUG = '541322708844281867';
+}
+
 export module AppConfiguration {
     export const BOT_RELEASE_VERSION = process.env['botReleaseVersion'] || undefined;
     export const BOT_RELEASE_REASON = process.env['botReleaseReason'] || undefined;

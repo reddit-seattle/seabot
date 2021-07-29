@@ -1,4 +1,4 @@
-import { Config, Environment } from './utils/constants';
+import { ChannelIds, Config, Environment } from './utils/constants';
 import { Command } from './models/Command';
 import { schedule } from 'node-cron';
 import { Client, TextChannel } from 'discord.js'
@@ -55,7 +55,7 @@ client.on('guildMemberAdd', newAccountJoins);
 
 //handle messages
 client.on('message', async (message) => {
-    if (message.channel instanceof TextChannel && message?.channel?.name == 'rant') {
+    if (message.channel instanceof TextChannel && message?.channel?.id == ChannelIds.RANT) {
         deleteMessages(message);
         return;
     }
@@ -103,7 +103,7 @@ client.on('ready', async () => {
     if (DEBUG) {
         //try to announce to servers when you go online
         each(client.guilds.cache.array(), (guild) => {
-            const debugChannel = guild.channels.cache.find(ch => ch.name == 'debug') as TextChannel;
+            const debugChannel = guild.channels.cache.find(ch => ch.id == ChannelIds.DEBUG) as TextChannel;
             debugChannel && debugChannel.send("SEAbot online!");
         });
     }
