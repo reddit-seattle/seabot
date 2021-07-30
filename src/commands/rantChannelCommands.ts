@@ -21,8 +21,11 @@ export const deleteMessages = async (message: Message) => {
 export const clearChannel = async (client: Client) => {
     each(client.guilds.cache.array(), async (guild) => {
         const rantChannel = guild.channels.cache.find(ch => ch.id == ChannelIds.RANT) as TextChannel;
-        const last = await rantChannel.messages.fetch({ limit: 1 });
-        if (!last.array()?.[0]) {
+        if(!rantChannel) {
+            return;
+        }
+        const last = await rantChannel?.messages.fetch({ limit: 1 });
+        if (!last?.array()?.[0]) {
             return;
         }
         const msg = last.array()[0];

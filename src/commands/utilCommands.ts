@@ -45,51 +45,55 @@ export const botInfoCommand: Command = {
         const { client } = message;
         const { uptime } = client;
         const { versions, arch } = process;
-        message.channel.send(new MessageEmbed({
-            title: 'SEABot Status',
-            description: 'Latest release and uptime info',
-            fields: [
-                {
-                    name: 'Version info',
-                    value: `Node: ${versions.node}, V8: ${versions.v8}, OpenSSL: ${versions.openssl}`,
-                    inline: false
-                },
-                {
-                    name: 'Release number',
-                    value: `${AppConfiguration.BOT_RELEASE_VERSION}`,
-                    inline: true
-                },
-                {
-                    name: 'Release Description',
-                    value: `${AppConfiguration.BOT_RELEASE_DESCRIPTION}`,
-                    inline: true
-                },
-                {
-                    name: 'Release Commit',
-                    value: `${AppConfiguration.BOT_RELEASE_COMMIT}`,
-                    inline: true
-                },
-                {
-                    name: 'Architecture',
-                    value: `${arch}`,
-                    inline: true
-                },
-                {
-                    name: 'Release Method',
-                    value: `${AppConfiguration.BOT_RELEASE_REASON}`,
-                    inline: true
-                },
-                {
-                    name: 'Process Uptime',
-                    value: `${(process_uptime / 60 / 60).toFixed(2)} hours`,
-                    inline: true
-                },
-                {
-                    name: 'Client Uptime',
-                    value: `${(uptime! / 60 / 60).toFixed(2)} hours`,
-                    inline: true
-                },
+        message.channel.send({
+            embeds: [
+                new MessageEmbed({
+                    title: 'SEABot Status',
+                    description: 'Latest release and uptime info',
+                    fields: [
+                        {
+                            name: 'Version info',
+                            value: `Node: ${versions.node}, V8: ${versions.v8}, OpenSSL: ${versions.openssl}`,
+                            inline: false
+                        },
+                        {
+                            name: 'Release number',
+                            value: `${AppConfiguration.BOT_RELEASE_VERSION}`,
+                            inline: true
+                        },
+                        {
+                            name: 'Release Description',
+                            value: `${AppConfiguration.BOT_RELEASE_DESCRIPTION}`,
+                            inline: true
+                        },
+                        {
+                            name: 'Release Commit',
+                            value: `${AppConfiguration.BOT_RELEASE_COMMIT}`,
+                            inline: true
+                        },
+                        {
+                            name: 'Architecture',
+                            value: `${arch}`,
+                            inline: true
+                        },
+                        {
+                            name: 'Release Method',
+                            value: `${AppConfiguration.BOT_RELEASE_REASON}`,
+                            inline: true
+                        },
+                        {
+                            name: 'Process Uptime',
+                            value: `${(process_uptime / 60 / 60).toFixed(2)} hours`,
+                            inline: true
+                        },
+                        {
+                            name: 'Client Uptime',
+                            value: `${(uptime! / 60 / 60).toFixed(2)} hours`,
+                            inline: true
+                        },
+                    ]
+                })
             ]
-        }));
+        });
     }
 }

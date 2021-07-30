@@ -122,7 +122,7 @@ export const ForecastCommand: Command = {
             const embed = weekly
                 ? buildWeeklyResponse(forecastReponse as WeeklyForecastResponse, title)
                 : buildForecastResponse(forecastReponse as ForecastResponse, title);
-            message.channel.send(embed);
+            message.channel.send({embeds: [embed]});
 
         }
         else {
@@ -193,7 +193,7 @@ export const WeatherCommand: Command = {
             const windDir = arr[(val % 16)];
             const weather = `${weatherResponse.weather[0].description}, ${weatherResponse.main.humidity}% humidity. Winds ${windDir} @ ${weatherResponse.wind.speed} mph`;
             richEmbed.addField(`${weatherResponse.main.temp}° F`, weather);
-            message.channel.send(richEmbed);
+            message.channel.send({embeds: [richEmbed]});
         }
         else {
             message.channel.send('Please provide a location')
@@ -250,7 +250,7 @@ export const AirQualityCommand: Command = {
                 }
             ]
         });
-        message.channel.send(embed);
+        message.channel.send({embeds: [embed]});
 
     }
 }

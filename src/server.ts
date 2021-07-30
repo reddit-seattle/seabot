@@ -13,7 +13,7 @@ import { Help } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
 import { GetMessageArgs } from './utils/helpers';
 
-const client: Client = new Client();
+const client = new Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] });
 
 // TODO: common command loader
 const commands = [
@@ -112,7 +112,7 @@ client.on('ready', async () => {
         console.log(guild.name);
     });
 
-    client.user?.setPresence({ activity: { name: 'bot stuff' }, status: 'online' })
+    client.user?.setPresence({ activities: [{ name: 'bot stuff' }], status: 'online' })
     startCronJobs();
 });
 
