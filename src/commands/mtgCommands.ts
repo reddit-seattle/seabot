@@ -32,7 +32,7 @@ export const MTGCommand: Command = {
         });
         emitter.on('error', console.log);
         emitter.on('end', () => {
-            message.channel.send(cardFound ? richEmbed : `No cards found for ${cardName}`);
+            message.channel.send(cardFound ? {embeds: [richEmbed]} : `No cards found for ${cardName}`);
         });
     }
 }

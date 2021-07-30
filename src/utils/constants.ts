@@ -56,8 +56,7 @@ export module Environment {
     export const airQualityAPIKey = process.env['airQualityAPIKey'] || undefined;
 }
 export module VoiceConstants {
-    export const groupName = 'user-voice-channels'
-    export const VOICE_TYPE = 'voice';
+    export const VOICE_TYPE = 2;
     export const enum Permissions {
         MOVE = 'MOVE_MEMBERS',
         MUTE = 'MUTE_MEMBERS',

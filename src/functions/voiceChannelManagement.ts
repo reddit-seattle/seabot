@@ -1,4 +1,5 @@
 import { VoiceState } from "discord.js";
+import { ChannelTypes } from "discord.js/typings/enums";
 import { ChannelIds, Environment, VoiceConstants } from "../utils/constants";
 
 const { Permissions } = VoiceConstants;
@@ -18,7 +19,7 @@ export const handleVoiceStatusUpdate = (oldState: VoiceState, newState: VoiceSta
             //leaving voice (disconnect)
             !newState.member?.voice?.channel || // or
             //switching channel
-            newState?.channelID != oldState?.channelID
+            newState?.channelId != oldState?.channelId
         ) &&
         //and you're not leaving the initial join channel
         oldState?.channel?.id != ChannelIds.VOICE_CREATE &&
@@ -35,7 +36,7 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
     if (!state?.member?.user || !state?.member?.user.id) {
         return;
     }
-    const user = guild.member(state.member?.user!);
+    const user = guild.members.cache.get(state?.member?.user?.id);
     const user_channel_name = `${user?.nickname ?? user?.user.username}'s voice chat`;
     const category_channel = guild.channels.cache.find(channel => channel.id === ChannelIds.USER_VOICE_GROUP);
     // find channel group

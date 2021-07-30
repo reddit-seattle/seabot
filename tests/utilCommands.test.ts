@@ -3,7 +3,7 @@ import { ServerInfo, Strings } from '../src/utils/constants';
 import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from "../src/commands/utilCommands";
 
 const id = '1';
-const client = new Client();
+const client = new Client({intents: ['GUILDS', 'GUILD_MESSAGES']});
 const guild = new Guild(
   client,
   { id }
