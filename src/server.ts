@@ -54,7 +54,7 @@ client.on('guildMemberRemove', abeLeaves);
 client.on('guildMemberAdd', newAccountJoins);
 
 //handle messages
-client.on('message', async (message) => {
+client.on('messageCreate', async (message) => {
     if (message.channel instanceof TextChannel && message?.channel?.id == ChannelIds.RANT) {
         deleteMessages(message);
         return;
