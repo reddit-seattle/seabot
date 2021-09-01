@@ -4,7 +4,7 @@ import { Config, RoleIds, Strings } from '../utils/constants';
 import { botInfoCommand, coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from "../commands/utilCommands";
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from '../commands/weatherCommands';
 import { MTGCommand } from '../commands/mtgCommands';
-import { HueInit, HueSet } from "./hueCommands";
+import { HueEnable, HueInit, HueSet } from "./hueCommands";
 
 // TODO: common command loader
 const commands: Command[] = [
@@ -18,7 +18,8 @@ const commands: Command[] = [
     AirQualityCommand,
     botInfoCommand,
     HueSet,
-    HueInit
+    HueInit,
+    HueEnable
 ];
 
 export const Help: Command = {
@@ -28,7 +29,10 @@ export const Help: Command = {
     async execute(message: Message, args?: string[]) {
 
         // filter admin commands to only mods
-        const filteredCommands = commands.filter(command => command?.adminOnly && !message.member?.roles.cache.has(RoleIds.MOD));
+        const filteredCommands = commands.filter(command =>
+            !command?.adminOnly ||
+            (command?.adminOnly && message.member?.roles.cache.has(RoleIds.MOD))
+        );
 
         const embed = new MessageEmbed({
             title: `SeaBot Help`,

@@ -52,3 +52,18 @@ export const HueInit: Command = {
       );
   },
 };
+
+export const HueEnable: Command = {
+  name: "hueFeature",
+  help: "hueFeature enable|disable",
+  adminOnly: true,
+  description: "enables or disables the hue command features",
+  async execute(message: Message, args?: string[]) {
+    const arg = args?.[1];
+    const enabled = (arg == 'enable');
+    if(arg) {
+      process.env[Environment.Constants.hueEnabled] = (enabled) ? 'true' : 'false';
+      message.channel.send(`Hue commands: ${enabled ? 'enabled' : 'disabled'}`)
+    }
+  },
+};

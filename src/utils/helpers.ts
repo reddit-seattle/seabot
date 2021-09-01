@@ -40,6 +40,11 @@ export const SetHueTokens = async (code: string): Promise<SetHueTokenResult> => 
 
 export const HueInitialize = async (message: Message) => {
     const { hueClientId, hueClientSecret, Constants } = Environment;
+    const enabled = process.env[Environment.Constants.hueEnabled] == 'true';
+    if(!enabled) {
+        message.channel.send('Hue commands are currently disabled. Ask burn to turn them on pretty please');
+        return;
+    }
     const hueAccessToken = process.env[Constants.hueAccessToken];
     const hueRefreshToken = process.env[Constants.hueRefreshToken];
     const remote = NodeHue.api.createRemote(hueClientId!, hueClientSecret!);

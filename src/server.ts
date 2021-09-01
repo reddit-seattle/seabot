@@ -13,7 +13,7 @@ import { abeLeaves, newAccountJoins } from './commands/joinLeaveCommands';
 import { Help } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
 import { GetMessageArgs, SetHueTokens } from './utils/helpers';
-import { HueInit, HueSet } from './commands/hueCommands';
+import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 
 const client = new Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] });
 
@@ -30,7 +30,8 @@ const commands = [
     AirQualityCommand,
     Help,
     HueInit,
-    HueSet
+    HueSet,
+    HueEnable
 ].reduce((map, obj) => {
     map[obj.name.toLowerCase()] = obj;
     return map;

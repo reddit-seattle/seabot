@@ -58,6 +58,7 @@ export module Environment {
     export module Constants {
         export const hueAccessToken = 'hueAccessToken';
         export const hueRefreshToken = 'hueRefreshToken'
+        export const hueEnabled = 'hueEnabled'
     }
     export const botToken = process.env['botToken'] || undefined;
     export const DEBUG = process.env['seabotDEBUG'] || undefined;
