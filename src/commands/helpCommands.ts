@@ -1,9 +1,10 @@
 import { Message, MessageEmbed } from "discord.js";
 import { Command } from '../models/Command';
-import { Config, Strings } from '../utils/constants';
+import { Config, RoleIds, Strings } from '../utils/constants';
 import { botInfoCommand, coffeeCommand, pingCommand, teaCommand, valheimServerCommand } from "../commands/utilCommands";
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from '../commands/weatherCommands';
 import { MTGCommand } from '../commands/mtgCommands';
+import { HueInit, HueSet } from "./hueCommands";
 
 // TODO: common command loader
 const commands: Command[] = [
@@ -15,7 +16,9 @@ const commands: Command[] = [
     WeatherCommand,
     MTGCommand,
     AirQualityCommand,
-    botInfoCommand
+    botInfoCommand,
+    HueSet,
+    HueInit
 ];
 
 export const Help: Command = {
@@ -23,12 +26,16 @@ export const Help: Command = {
     help: 'help',
     description: 'Display SeaBot help',
     async execute(message: Message, args?: string[]) {
+
+        // filter admin commands to only mods
+        const filteredCommands = commands.filter(command => command?.adminOnly && !message.member?.roles.cache.has(RoleIds.MOD));
+
         const embed = new MessageEmbed({
             title: `SeaBot Help`,
             description: 'Commands',
             color: 111111,
             fields: [
-                ...commands.map(command => {
+                ...filteredCommands.map(command => {
                     return {
                         name: command.name,
                         value: `${command.description}\nExample: ${Config.prefix}${command.help}`,

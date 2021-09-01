@@ -1,9 +1,10 @@
-import { ChannelIds, Config, Environment } from './utils/constants';
-import { Command } from './models/Command';
-import { schedule } from 'node-cron';
 import { Client, TextChannel } from 'discord.js'
+import express from 'express';
+import { schedule } from 'node-cron';
 import { each } from 'underscore';
-import { Http2ServerRequest, Http2ServerResponse } from 'http2';
+
+import { ChannelIds, Config, Environment, RoleIds } from './utils/constants';
+import { Command } from './models/Command';
 import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
 import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand, botInfoCommand } from './commands/utilCommands';
@@ -11,7 +12,8 @@ import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { abeLeaves, newAccountJoins } from './commands/joinLeaveCommands';
 import { Help } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
-import { GetMessageArgs } from './utils/helpers';
+import { GetMessageArgs, SetHueTokens } from './utils/helpers';
+import { HueInit, HueSet } from './commands/hueCommands';
 
 const client = new Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] });
 
@@ -26,9 +28,11 @@ const commands = [
     pingCommand,
     botInfoCommand,
     AirQualityCommand,
-    Help
+    Help,
+    HueInit,
+    HueSet
 ].reduce((map, obj) => {
-    map[obj.name] = obj;
+    map[obj.name.toLowerCase()] = obj;
     return map;
 }, {} as { [id: string]: Command });
 
@@ -77,10 +81,16 @@ client.on('messageCreate', async (message) => {
 
     //send it
     const args = GetMessageArgs(message);
-    const command = commands?.[args?.[0]]
+    const command = commands?.[args?.[0]?.toLowerCase()];
 
     try {
-        command?.execute(message, args)
+        if(command?.adminOnly && !message.member?.roles.cache.has(RoleIds.MOD)){
+            message.channel.send('nice try, loser');
+            return;
+        }
+        else {
+            command?.execute(message, args);
+        }
     }
     catch (e: any) {
         console.dir(e);
@@ -98,28 +108,48 @@ const startCronJobs = () => {
     })
 }
 
-const DEBUG = false;
 client.on('ready', async () => {
-    if (DEBUG) {
-        //try to announce to servers when you go online
-        each(client.guilds.cache.array(), (guild) => {
-            const debugChannel = guild.channels.cache.find(ch => ch.id == ChannelIds.DEBUG) as TextChannel;
-            debugChannel && debugChannel.send("SEAbot online!");
-        });
-    }
     console.log('connected to servers:');
     each(client.guilds.cache.array(), (guild) => {
         console.log(guild.name);
     });
-
     client.user?.setPresence({ activities: [{ name: 'bot stuff' }], status: 'online' })
     startCronJobs();
 });
 
 //stupid fix for azure app service containers requiring a response to port 8080
-var http = require('http');
-http.createServer(function (req: Http2ServerRequest, res: Http2ServerResponse) {
+const webApp = express();
+webApp.get('/', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.write('yeet');
+    res.write('nothing to see here');
     res.end();
-}).listen(8080);
+});
+// hue auth flow configuration
+webApp.get('/seabot_hue', async (req, res) => {
+    try{
+        const { code, state } = req?.query;
+        if(!state || state != Environment.hueState){
+            throw new Error('Invalid state value');
+        }
+        const result = await SetHueTokens(code as string);
+        if(result?.success) {
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.write(`Successfully set Hue access and refresh tokens!`);
+            res.end();
+        }
+        else {
+            throw new Error(result.error);
+        }
+    }
+    catch(e: any) {
+        res.writeHead(400, { 'Content-Type': 'text/plain' });
+        res.write(`
+            Something (bad) happened trying to get auth code / set tokens:</br>
+            ${JSON.stringify(e)}`
+        );
+        res.end();
+    }
+});
+
+webApp.listen(8080);
+
