@@ -10,11 +10,16 @@ export module Endpoints {
     export const airQualityForecastByZipURL = 'https://www.airnowapi.org/aq/forecast/zipCode/';
     export const airQualityCurrentByZipURL = 'https://www.airnowapi.org/aq/observation/zipCode/current';
 }
-
+export module Hue {
+    export const HUE_GO_ID = '9';
+    export const HUE_GO_UNIQUE_ID = '00:17:88:01:09:80:e5:38-0b';
+}
 export module Config {
     export const prefix = '$';
 }
-
+export module RoleIds {
+    export const MOD = '370946173902520342';
+}
 export module ChannelIds {
     export const RANT = '804639001226379294';
     export const VOICE_CREATE = '788552426906845185';
@@ -50,10 +55,19 @@ export module Strings {
 }
 
 export module Environment {
+    export module Constants {
+        export const hueAccessToken = 'hueAccessToken';
+        export const hueRefreshToken = 'hueRefreshToken'
+        export const hueEnabled = 'hueEnabled'
+    }
     export const botToken = process.env['botToken'] || undefined;
     export const DEBUG = process.env['seabotDEBUG'] || undefined;
     export const weatherAPIKey = process.env['weatherAPIKey'] || undefined;
     export const airQualityAPIKey = process.env['airQualityAPIKey'] || undefined;
+    export const hueClientId = process.env['hueClientId'] || undefined;
+    export const hueAppId = process.env['hueAppId'] || undefined;
+    export const hueClientSecret = process.env['hueClientSecret'] || undefined;
+    export const hueState = process.env['hueState'] || undefined;
 }
 export module VoiceConstants {
     export const VOICE_TYPE = 2;
