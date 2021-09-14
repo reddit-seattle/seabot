@@ -6,18 +6,19 @@ import { HueInitialize } from "../utils/helpers";
 
 export const HueSet: Command = {
   name: "hueSet",
-  help: "hueSet 0000FF",
+  help: "hueSet #5eab07",
   description: "Changes Burn's hue light to a specific hex color",
   async execute(message: Message, args?: string[]) {
-    if(!args?.[1] || !RegExp('^[0-9A-F]{6}$', 'i').test(args[1])) {
-        message.channel.send('Please choose a hex color (no # please).')
+    const hex = args?.[1]?.replace(/^#/, '');
+    if(!hex || !RegExp('^[0-9A-F]{6}$', 'i').test(hex)) {
+        message.channel.send('Please choose a valid hex color.')
         return;
     }
     const hueApi = await HueInitialize(message);
     if(hueApi) {
         const light = await hueApi.lights.getLight(Hue.HUE_GO_ID);
         if(light){
-            var aRgbHex = args?.[1].match(/.{1,2}/g);
+            var aRgbHex = hex.match(/.{1,2}/g);
             var aRgb = [
                 parseInt(aRgbHex?.[0]!, 16),
                 parseInt(aRgbHex?.[1]!, 16),
@@ -29,7 +30,7 @@ export const HueSet: Command = {
               .brightness(100)
               .rgb(aRgb);
             await hueApi.lights.setLightState(Hue.HUE_GO_ID, state);
-    
+
         }
     }
   },
