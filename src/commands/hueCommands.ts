@@ -9,7 +9,7 @@ export const HueSet: Command = {
   help: "hueSet 0000FF",
   description: "Changes Burn's hue light to a specific hex color",
   async execute(message: Message, args?: string[]) {
-    const hex = args?.[1] && args[1].replace(/^#/, '');
+    const hex = args?.[1]?.replace(/^#/, '');
     if(!hex || !RegExp('^[0-9A-F]{6}$', 'i').test(hex)) {
         message.channel.send('Please choose a valid hex color.')
         return;
