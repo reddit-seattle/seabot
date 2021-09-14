@@ -6,7 +6,7 @@ import { HueInitialize } from "../utils/helpers";
 
 export const HueSet: Command = {
   name: "hueSet",
-  help: "hueSet 0000FF",
+  help: "hueSet #5eab07",
   description: "Changes Burn's hue light to a specific hex color",
   async execute(message: Message, args?: string[]) {
     const hex = args?.[1]?.replace(/^#/, '');
