@@ -1,5 +1,4 @@
 import { VoiceState } from "discord.js";
-import { ChannelTypes } from "discord.js/typings/enums";
 import { ChannelIds, Environment, VoiceConstants } from "../utils/constants";
 
 const { Permissions } = VoiceConstants;
