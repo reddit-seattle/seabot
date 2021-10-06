@@ -15,7 +15,7 @@ import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
 import { GetMessageArgs, SetHueTokens } from './utils/helpers';
 import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 
-const client = new Client({ intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_VOICE_STATES'] });
+const client = new Client({ intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_VOICE_STATES', 'GUILD_MEMBERS'] });
 
 // TODO: common command loader
 const commands = [
