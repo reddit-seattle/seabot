@@ -5,6 +5,7 @@ import { botInfoCommand, coffeeCommand, pingCommand, teaCommand, valheimServerCo
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from '../commands/weatherCommands';
 import { MTGCommand } from '../commands/mtgCommands';
 import { HueEnable, HueInit, HueSet } from "./hueCommands";
+import { RJSays } from "./rjCommands";
 
 // TODO: common command loader
 const commands: Command[] = [
@@ -19,7 +20,8 @@ const commands: Command[] = [
     botInfoCommand,
     HueSet,
     HueInit,
-    HueEnable
+    HueEnable,
+    RJSays
 ];
 
 export const Help: Command = {

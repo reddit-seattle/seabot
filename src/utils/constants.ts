@@ -54,6 +54,23 @@ export module Strings {
     export const feedbackText = 'See an issue? Want to request a feature?';
 }
 
+export module Emoji {
+    export module RJ {
+        export const rj = '<:rj:907523806149632070>';
+        export const rj2 = '<:rj2:907524086811492364>';
+        export const rj3 = '<:rj3:907524275936837652>';
+        export const rj4 = '<:rj4:907525187401035778>';
+        export const partyrj = '<a:partyrj:908213205409619968>';
+
+    }
+    export const tsktsk = '<a:tsktsk:907698722635399218>';
+    export const fingerguns = '<:fingerguns:901378901908017152>';
+    export const krakenjersey = '<:krakenjersey:882102376385900564>';
+    export const ohno = '<:ohno:774349924841553940>';
+    export const ohnoreverse = '<:ohnoreverse:904473411026292827>';
+    export const lachancla = '<:lachancla:852649414698729493>';
+}
+
 export module Environment {
     export module Constants {
         export const hueAccessToken = 'hueAccessToken';
