@@ -14,6 +14,7 @@ import { Help } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
 import { GetMessageArgs, SetHueTokens } from './utils/helpers';
 import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
+import { RJSays } from './commands/rjCommands';
 
 const client = new Client({ intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_VOICE_STATES', 'GUILD_MEMBERS'] });
 
@@ -31,7 +32,8 @@ const commands = [
     Help,
     HueInit,
     HueSet,
-    HueEnable
+    HueEnable,
+    RJSays
 ].reduce((map, obj) => {
     map[obj.name.toLowerCase()] = obj;
     return map;
