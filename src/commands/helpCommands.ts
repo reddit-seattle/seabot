@@ -31,10 +31,16 @@ export const Help: Command = {
     async execute(message: Message, args?: string[]) {
 
         // filter admin commands to only mods
-        const filteredCommands = commands.filter(command =>
+        let filteredCommands = commands.filter(command =>
             !command?.adminOnly ||
             (command?.adminOnly && message.member?.roles.cache.has(RoleIds.MOD))
         );
+
+        // try only showing help for a single command if the user specifies one that matches
+        const argCommand = filteredCommands.find(command => command.name.toLowerCase() == args?.[0]?.toLowerCase());
+        if(argCommand) {
+            filteredCommands == [argCommand];
+        }
 
         const embed = new MessageEmbed({
             title: `SeaBot Help`,

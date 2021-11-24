@@ -9,7 +9,7 @@ export const HueSet: Command = {
   help: "hueSet #5eab07",
   description: "Changes Burn's hue light to a specific hex color",
   async execute(message: Message, args?: string[]) {
-    const hex = args?.[1]?.replace(/^#/, '');
+    const hex = args?.[0]?.replace(/^#/, '');
     if(!hex || !RegExp('^[0-9A-F]{6}$', 'i').test(hex)) {
         message.channel.send('Please choose a valid hex color.')
         return;
@@ -60,7 +60,7 @@ export const HueEnable: Command = {
   adminOnly: true,
   description: "enables or disables the hue command features",
   async execute(message: Message, args?: string[]) {
-    const arg = args?.[1];
+    const arg = args?.[0];
     const enabled = (arg == 'enable');
     if(arg) {
       process.env[Environment.Constants.hueEnabled] = (enabled) ? 'true' : 'false';

@@ -64,7 +64,7 @@ client.on('guildMemberAdd', newAccountJoins);
 client.on('messageCreate', async (message) => {
     if (message.channel instanceof TextChannel && message?.channel?.id == ChannelIds.RANT) {
         deleteMessages(message);
-        return;
+        // return; // maybe we should allow other commands in #rant
     }
     else if (message.content === 'SEA') {
         message.channel.send('HAWKS!')
@@ -82,10 +82,13 @@ client.on('messageCreate', async (message) => {
     if (!message.content.startsWith(Config.prefix) || message.author.bot) return;
 
 
+    const args = SplitMessageIntoArgs(message);
+    
+    //grab actual command and separate it from args
+    const commandArg = args?.shift()?.toLowerCase() || '';
+    const command = commands?.[commandArg];
+    
     //send it
-    const args = GetMessageArgs(message);
-    const command = commands?.[args?.[0]?.toLowerCase()];
-
     try {
         if(command?.adminOnly && !message.member?.roles.cache.has(RoleIds.MOD)){
             message.channel.send('nice try, loser');
