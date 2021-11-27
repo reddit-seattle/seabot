@@ -10,6 +10,13 @@ export module Endpoints {
     export const airQualityForecastByZipURL = 'https://www.airnowapi.org/aq/forecast/zipCode/';
     export const airQualityCurrentByZipURL = 'https://www.airnowapi.org/aq/observation/zipCode/current';
 }
+
+export module REGEX {
+    export const EMOJI = /<a?:.[^:]+:(\d+)>/g;
+    export const ROLE = /<@&(\d+)>/g;
+    export const CHANNEL = /<#(\d+)>/g;
+    export const USER = /<@!(\d+)>/g;
+}
 export module Hue {
     export const HUE_GO_ID = '9';
     export const HUE_GO_UNIQUE_ID = '00:17:88:01:09:80:e5:38-0b';
@@ -54,6 +61,10 @@ export module Strings {
     export const feedbackText = 'See an issue? Want to request a feature?';
 }
 
+export module EmojiIDs {
+    export const LMGTFY = '912904317848133692';
+    export const GOOGLE = '912890880875200532';
+}
 export module Emoji {
     export module RJ {
         export const rj = '<:rj:907523806149632070>';

@@ -31,7 +31,7 @@ export const RJSays: Command = {
     help: "rj list",
     description: "makes funny little RJ emotes",
     async execute(message: Message, args?: string[]) {
-    if (!args?.[1]) {
+    if (!args?.[0]) {
         const options = _.unique(Object.values(RJStrings));
         const val = _.random(options.length - 1);
         message.channel.send(options[val]);
@@ -40,7 +40,6 @@ export const RJSays: Command = {
     // dynamically adds `list` command
     RJStrings["list"] = `RJ knows: ${Object.keys(RJStrings).join(", ")}`;
 
-    args.shift();
     const input = args?.join(" ").toLowerCase() || "";
     message.channel.send(RJStrings?.[input] ?? "RJ does not know that command");
   },
