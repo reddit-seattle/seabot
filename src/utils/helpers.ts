@@ -1,5 +1,5 @@
-import { Message } from "discord.js"
-import { Config, Environment } from "./constants";
+import { Message, PartialMessage } from "discord.js"
+import { Config, Environment, REGEX } from "./constants";
 import { v3 as NodeHue } from 'node-hue-api';
 
 /**
@@ -16,6 +16,38 @@ export const SplitMessageIntoArgs: (message: Message) => string[] = (message) =>
 // https://www.typescriptlang.org/docs/handbook/advanced-types.html#index-types
 export function getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
     return o[propertyName]; // o[propertyName] is of type T[K]
+}
+
+export const replaceMentions: (message: Message | PartialMessage) => string = (message) => {
+    let { content } = message;
+    content = content ? content : '';
+
+    const userMatches = Array.from(content.matchAll(REGEX.USER));
+    const roleMatches = Array.from(content.matchAll(REGEX.ROLE));
+    const channelMatches = Array.from(content.matchAll(REGEX.CHANNEL));
+    const emojiMatches = Array.from(content.matchAll(REGEX.EMOJI));
+
+    userMatches.forEach((match, ix) => {
+        const id = match[1] as `${bigint}`;
+        const username = message.client.users.cache.get(id)?.username ?? 'user';
+        content = content!.replace(match[0], username);
+    });
+    roleMatches?.forEach((match, ix) => {
+        const id = match[1] as `${bigint}`;
+        const role = message.guild?.roles.cache.get(id)?.name ?? 'role';
+        content = content!.replace(match[0], role);
+    });
+    channelMatches?.forEach((match, ix) => {
+        const id = match[1] as `${bigint}`;
+        const channel = message.guild?.channels.cache.get(id)?.name ?? 'channel';
+        content = content!.replace(match[0], channel);
+    });
+    emojiMatches?.forEach((match, ix) => {
+        const id = match[1] as `${bigint}`;
+        const emoji = message.guild?.emojis.cache.get(id)?.name ?? 'emoji';
+        content = content!.replace(match[0], emoji);
+    });
+    return content;
 }
 
 export interface SetHueTokenResult {
