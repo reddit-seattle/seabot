@@ -1,5 +1,4 @@
 import { Client, Message, TextChannel } from 'discord.js';
-import { each } from 'underscore';
 import { ChannelIds } from '../utils/constants';
 
 export const deleteMessages = async (message: Message) => {
@@ -8,9 +7,9 @@ export const deleteMessages = async (message: Message) => {
         if (msgs.size < 10) {
             return;
         }
-        const msg = msgs.array()[8];
-        const previous = (await message.channel.messages.fetch({ before: msg.id, limit: 50 }));
-        (message.channel as TextChannel)?.bulkDelete(previous.array(), true);
+        const msg = msgs.at(8);
+        const previous = (await message.channel.messages.fetch({ before: msg?.id, limit: 50 }));
+        (message.channel as TextChannel)?.bulkDelete(previous, true);
     }
     catch (e) {
         console.dir(e);
@@ -19,22 +18,21 @@ export const deleteMessages = async (message: Message) => {
 };
 
 export const clearChannel = async (client: Client) => {
-    each(client.guilds.cache.array(), async (guild) => {
+    client.guilds.cache.forEach(async (guild) => {
         const rantChannel = guild.channels.cache.find(ch => ch.id == ChannelIds.RANT) as TextChannel;
         if(!rantChannel) {
             return;
         }
-        const last = await rantChannel?.messages.fetch({ limit: 1 });
-        if (!last?.array()?.[0]) {
+        const last = (await rantChannel?.messages.fetch({ limit: 1 })).first();
+        if (!last) {
             return;
         }
-        const msg = last.array()[0];
         const date = new Date();
-        const hours_since = (date.getTime() - msg.createdAt.getTime()) / 1000 / 60 / 60;
+        const hours_since = (date.getTime() - last.createdAt.getTime()) / 1000 / 60 / 60;
         if (hours_since > 1) {
             //last message is over an hour old, kill it all
             const previous = (await rantChannel.messages.fetch({ limit: 50 }));
-            rantChannel.bulkDelete(previous.array(), true);
+            rantChannel.bulkDelete(previous, true);
             // rantChannel.send('Messages here will be deleted as new messages are typed. The channel will be cleared if no messages are sent within one hour.');
 
         }

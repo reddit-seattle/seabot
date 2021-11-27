@@ -1,4 +1,4 @@
-import { VoiceState } from "discord.js";
+import { VoiceChannel, VoiceState } from "discord.js";
 import { ChannelIds, Environment, VoiceConstants } from "../utils/constants";
 
 const { Permissions } = VoiceConstants;
@@ -64,13 +64,13 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
             ]
         }).then(channel => {
             // add user to channel
-            state?.member?.voice?.setChannel(channel);
+            state?.member?.voice?.setChannel(channel as VoiceChannel);
         });
     }
 };
 
 export const deleteEmptyMemberVoiceChannel = (state: VoiceState) => {
-    if (state?.channel?.members?.array()?.length == 0 && state?.channel?.parent?.id == ChannelIds.USER_VOICE_GROUP) {
+    if (state?.channel?.members?.size == 0 && state?.channel?.parent?.id == ChannelIds.USER_VOICE_GROUP) {
         state?.channel?.delete();
     }
 };
