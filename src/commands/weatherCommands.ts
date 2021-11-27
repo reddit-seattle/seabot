@@ -103,12 +103,12 @@ export const ForecastCommand: Command = {
             return;
         }
         // escape if we don't have more than just $forecast
-        if (!args?.[1]) {
+        if (!args?.[0]) {
             message.channel.send('Please provide a location');
             return;
         }
         const weekly = args?.[args.length - 1] === 'weekly'; // currently only supports "weekly"
-        const location = args?.slice(1, weekly ? -1 : undefined)?.join(' ');
+        const location = args?.slice(0, weekly ? -1 : undefined)?.join(' ');
         const isZip = isNumber(location);
         if (!!location) {
             const forecastReponse = await (isZip ? getForecastByZip(location, weekly) : getForecastByLocation(location, weekly));
@@ -171,12 +171,12 @@ export const WeatherCommand: Command = {
             message.channel.send('forecast feature not enabled');
         }
         // escape if we don't have more than just $weather
-        if (!args?.[1]) {
+        if (!args?.[0]) {
             message.channel.send('Please provide a location');
             return;
         }
         // join all args besides $weather into a string to search
-        const location = args?.slice(1)?.join(' ');
+        const location = args?.slice(0)?.join(' ');
         const isZip = isNumber(location);
         if (!!location) {
             const weatherResponse = await (isZip ? getCurrentWeatherByZip(location) : getCurrentWeatherByLocation(location));
@@ -210,11 +210,11 @@ export const AirQualityCommand: Command = {
             message.channel.send('forecast feature not enabled');
         }
         // escape if we don't have args
-        if (!args?.[1]) {
+        if (!args?.[0]) {
             message.channel.send('Please provide a location');
             return;
         }
-        const location = args?.[1];
+        const location = args?.[0];
         const isZip = isNumber(location) && location.length == 5;
         if (!isZip) {
             message.channel.send('Invalid ZIP');

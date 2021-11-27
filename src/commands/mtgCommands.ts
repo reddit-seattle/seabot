@@ -6,14 +6,18 @@ export const MTGCommand: Command = {
     description: 'Find MTG cards by name (inclusive, so try to be specific)',
     help: 'mtg cheatyface',
     name: 'mtg',
-    execute: (message: Message) => {
+    execute: (message: Message, args?: string[]) => {
         let cardFound = false;
         let hasImage = false;
         let cardNames: { [id: string]: boolean } = {};
 
-        const queryStrings = message.content.split(' ');
-        queryStrings.shift();
-        const cardName = queryStrings.join(' ');
+
+        const cardName = args?.join(' ');
+
+        if(!cardName) {
+            message.channel.send('No card name provided.');
+            return;
+        }
         const richEmbed = new MessageEmbed()
             .setTitle(`Card results for ${cardName}`);
         const emitter = card.all({ name: cardName });

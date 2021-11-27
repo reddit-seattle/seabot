@@ -13,8 +13,8 @@ Pull requests will be reviewed but please, be gentle.
 ## Running a SEABot
 If you do (for whatever reason) decide to fork/clone/run this amazing bot on your own machine or environment, you'll need to perform the following steps initially:
 1. Clone the repo
-2. `npm i` to install all dependant packages
-3. `tsc` to compile beautiful typescript code into unintelligble javascript in the `dist/` folder
+2. `npm i` to install all dependent packages
+3. `tsc` to compile beautiful typescript code into unintelligible javascript in the `dist/` folder
 4. `npm start` or `node ./dist/server.js` to start the bot.
 
 ## Environment Variables
