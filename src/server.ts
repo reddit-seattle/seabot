@@ -154,7 +154,7 @@ const startCronJobs = () => {
 
 client.on('ready', async () => {
     console.log('connected to servers:');
-    each(client.guilds.cache.array(), (guild) => {
+    client.guilds.cache.forEach(guild => {
         console.log(guild.name);
     });
     client.user?.setPresence({ activities: [{ name: 'bot stuff' }], status: 'online' })
