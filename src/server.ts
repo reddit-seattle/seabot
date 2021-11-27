@@ -12,7 +12,7 @@ import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { abeLeaves, newAccountJoins } from './commands/joinLeaveCommands';
 import { Help } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
-import { GetMessageArgs, SetHueTokens } from './utils/helpers';
+import { SplitMessageIntoArgs, SetHueTokens } from './utils/helpers';
 import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 import { RJSays } from './commands/rjCommands';
 

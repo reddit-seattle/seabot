@@ -39,7 +39,7 @@ export const Help: Command = {
         // try only showing help for a single command if the user specifies one that matches
         const argCommand = filteredCommands.find(command => command.name.toLowerCase() == args?.[0]?.toLowerCase());
         if(argCommand) {
-            filteredCommands == [argCommand];
+            filteredCommands = [argCommand];
         }
 
         const embed = new MessageEmbed({
