@@ -5,16 +5,13 @@
   "main": "dist/server.js",
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
-    "discord.js": "^13.0.0-dev.2675b08.1627646567",
+    "discord.js": "^13.3.1",
     "dotenv": "8.2.0",
     "express": "^4.17.1",
     "moment": "^2.29.1",
-    "mtgsdk": "^0.4.3",
     "node-cron": "^3.0.0",
     "node-fetch": "^2.6.1",
     "node-hue-api": "^5.0.0-beta.8",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.4",
     "underscore": "^1.12.1"
   },
   "devDependencies": {

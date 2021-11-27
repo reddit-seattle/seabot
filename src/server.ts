@@ -4,8 +4,8 @@ import { schedule } from 'node-cron';
 import { each } from 'underscore';
 
 import { ChannelIds, Config, Environment, RoleIds } from './utils/constants';
-import { Command, CommandDictionary, ReactionCommand, ReactionCommandDictionary } from './models/Command';
-import { MTGCommand } from './commands/mtgCommands';
+import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
+// import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
 import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand, botInfoCommand } from './commands/utilCommands';
 import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
@@ -29,7 +29,7 @@ const client = new Client({
 
 // TODO: common command loader
 const commands: CommandDictionary = [
-    MTGCommand,
+    // MTGCommand,
     WeatherCommand,
     ForecastCommand,
     teaCommand,
@@ -126,6 +126,7 @@ client.on('messageCreate', async (message) => {
 client.on('messageReactionAdd', async (reaction) => {
     const {message, emoji} = reaction;
     const alreadyReacted =  (reaction.count && reaction.count > 1) == true;
+    // this prevents the same reaction command from firing multiple times
     if(!emoji.id || alreadyReacted) {
         return;
     }
