@@ -93,6 +93,57 @@ const isNumber = (location: string) => {
     return !isNaN(parseInt(location));
 }
 
+const buildForecastResponse = (response: any, title: string): MessageEmbed => {
+    const richEmbed = new MessageEmbed()
+        .setTitle(title);
+    let { list } = response;
+    each(list.slice(0, 5), (record) => {
+        const time = moment.unix(record.dt).utcOffset(-8).format("HH:mm");
+        const weather = `${record.main.temp}° F - ${record.weather[0].description}, ${record.main.humidity}% humidity`;
+        richEmbed.addField(time, weather, false);
+    });
+    return richEmbed;
+}
+
+const buildWeeklyResponse = (response: WeeklyForecastResponse, title: string): MessageEmbed => {
+
+    const richEmbed = new MessageEmbed()
+        .setTitle(title);
+    let { list } = response;
+    each(list.slice(0, 7), (record) => {
+        const date = moment.unix(record.dt).utcOffset(-8).format("dddd MMMM Do, YYYY");
+        const weather = `
+            Low ${record.temp.min}° - High ${record.temp.max}°
+            ${record.weather[0].description}
+            Sunrise: ${moment.unix(record.sunrise).format("HH:mm")}
+            Sunset: ${moment.unix(record.sunset).format("HH:mm")}
+        `;
+        richEmbed.addField(date, weather, false);
+    });
+    return richEmbed;
+}
+
+const buildQueryStringForAirQuality = (location: string) => {
+    return new URLSearchParams({
+        format: 'application/json',
+        zipCode: location,
+        distance: '50',
+        API_KEY: Environment.airQualityAPIKey
+    });
+}
+
+const getAirQualityByZip = async (zip: string) => {
+    const queryString = buildQueryStringForAirQuality(zip);
+    const uri = `${Endpoints.airQualityCurrentByZipURL}?${queryString}`
+    return await callAPI<AirQualityCurrentResponse>(uri);
+};
+
+const getAirQualityForecastByZip = async (zip: string) => {
+    const queryString = buildQueryStringForAirQuality(zip);
+    const uri = `${Endpoints.airQualityForecastByZipURL}?${queryString}`
+    return await callAPI<AirQualityForecastResponse>(uri);
+};
+
 export const ForecastCommand: Command = {
     description: 'Get weather forecast in 3-hour intervals',
     help: 'forecast [98102 | Seattle] {optional: `weekly`}',
@@ -130,37 +181,6 @@ export const ForecastCommand: Command = {
         }
     }
 }
-
-const buildForecastResponse = (response: any, title: string): MessageEmbed => {
-    const richEmbed = new MessageEmbed()
-        .setTitle(title);
-    let { list } = response;
-    each(list.slice(0, 5), (record) => {
-        const time = moment.unix(record.dt).utcOffset(-8).format("HH:mm");
-        const weather = `${record.main.temp}° F - ${record.weather[0].description}, ${record.main.humidity}% humidity`;
-        richEmbed.addField(time, weather, false);
-    });
-    return richEmbed;
-}
-
-const buildWeeklyResponse = (response: WeeklyForecastResponse, title: string): MessageEmbed => {
-
-    const richEmbed = new MessageEmbed()
-        .setTitle(title);
-    let { list } = response;
-    each(list.slice(0, 7), (record) => {
-        const date = moment.unix(record.dt).utcOffset(-8).format("dddd MMMM Do, YYYY");
-        const weather = `
-            Low ${record.temp.min}° - High ${record.temp.max}°
-            ${record.weather[0].description}
-            Sunrise: ${moment.unix(record.sunrise).format("HH:mm")}
-            Sunset: ${moment.unix(record.sunset).format("HH:mm")}
-        `;
-        richEmbed.addField(date, weather, false);
-    });
-    return richEmbed;
-}
-
 
 export const WeatherCommand: Command = {
     description: 'Get current weather',
@@ -254,24 +274,3 @@ export const AirQualityCommand: Command = {
 
     }
 }
-
-const buildQueryStringForAirQuality = (location: string) => {
-    return new URLSearchParams({
-        format: 'application/json',
-        zipCode: location,
-        distance: '50',
-        API_KEY: Environment.airQualityAPIKey
-    });
-}
-
-const getAirQualityByZip = async (zip: string) => {
-    const queryString = buildQueryStringForAirQuality(zip);
-    const uri = `${Endpoints.airQualityCurrentByZipURL}?${queryString}`
-    return await callAPI<AirQualityCurrentResponse>(uri);
-};
-
-const getAirQualityForecastByZip = async (zip: string) => {
-    const queryString = buildQueryStringForAirQuality(zip);
-    const uri = `${Endpoints.airQualityForecastByZipURL}?${queryString}`
-    return await callAPI<AirQualityForecastResponse>(uri);
-};
