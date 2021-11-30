@@ -1,7 +1,8 @@
 import { Client, TextChannel } from 'discord.js'
+import { REST } from '@discordjs/rest';
+import { RESTPostAPIApplicationCommandsJSONBody, Routes } from 'discord-api-types/v9';
 import express from 'express';
 import { schedule } from 'node-cron';
-import { each } from 'underscore';
 
 import { ChannelIds, Config, Environment, RoleIds } from './utils/constants';
 import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
@@ -16,6 +17,7 @@ import { SplitMessageIntoArgs, SetHueTokens } from './utils/helpers';
 import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 import { RJSays } from './commands/rjCommands';
 import { googleReact, lmgtfyReact } from './commands/reactionCommands';
+import { exit } from 'process';
 
 const client = new Client({
   intents: [
@@ -59,17 +61,20 @@ const reactionCommands: ReactionCommandDictionary = [
 }, {} as ReactionCommandDictionary);
 
 const { botToken } = Environment;
-
 //MAIN
 
 //check for bot token
 if (!botToken || botToken == '') {
     console.log(`env var "botToken" missing`);
+    exit(1);
 }
 else {
     //login and go
     client.login(botToken);
 }
+
+//hook up api
+const rest = new REST({ version: '9' }).setToken(botToken);
 
 //handle voice connections
 client.on('voiceStateUpdate', handleVoiceStatusUpdate);
@@ -152,6 +157,38 @@ const startCronJobs = () => {
     })
 }
 
+const registerAllSlashCommands = async (client: Client) => {
+    client.guilds.cache.forEach(async guild => {
+        const slashCommands: RESTPostAPIApplicationCommandsJSONBody[] = [];
+        for(const commandName in commands) {
+            const command = commands[commandName];
+            if(command?.slashCommandDescription) {
+                console.log(`adding ${command.name} slash command registration`)
+               slashCommands.push(command.slashCommandDescription().toJSON())
+            }
+        }
+        console.log('all commands: ')
+        console.dir(slashCommands);
+        const result = await rest.put(
+            Routes.applicationGuildCommands(client.user!.id, guild.id),
+            {
+                body: slashCommands
+            }
+        )
+        console.dir(result);
+
+    });
+}
+
+client.on("interactionCreate", async interaction => {
+    if(!interaction.isCommand()) return;
+
+    const command = commands?.[interaction.commandName];
+    if(command) {
+        command.executeSlashCommand?.(interaction);
+    };
+})
+
 client.on('ready', async () => {
     console.log('connected to servers:');
     client.guilds.cache.forEach(guild => {
@@ -159,6 +196,7 @@ client.on('ready', async () => {
     });
     client.user?.setPresence({ activities: [{ name: 'bot stuff' }], status: 'online' })
     startCronJobs();
+    registerAllSlashCommands(client);
 });
 
 //stupid fix for azure app service containers requiring a response to port 8080
