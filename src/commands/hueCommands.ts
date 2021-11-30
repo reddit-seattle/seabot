@@ -9,15 +9,15 @@ export const HueSet: Command = {
   help: "hueSet #5eab07",
   description: "Changes Burn's hue light to a specific hex color",
   async execute(message: Message, args?: string[]) {
-    const hex = args?.[0]?.replace(/^#/, '');
-    if(!hex || !RegExp('^[0-9A-F]{6}$', 'i').test(hex)) {
-        message.channel.send('Please choose a valid hex color.')
-        return;
-    }
     const hueApi = await HueInitialize(message);
     if(hueApi) {
         const light = await hueApi.lights.getLight(Hue.HUE_GO_ID);
         if(light){
+            const hex = args?.[0]?.replace(/^#/, "");
+            if (!hex || !RegExp("^[0-9A-F]{6}$", "i").test(hex)) {
+              message.channel.send("Please choose a valid hex color.");
+              return;
+            }
             var aRgbHex = hex.match(/.{1,2}/g);
             var aRgb = [
                 parseInt(aRgbHex?.[0]!, 16),
