@@ -2,6 +2,7 @@ import _ from "underscore";
 import { Message } from "discord.js";
 import { Command } from "../models/Command";
 import { Emoji } from "../utils/constants";
+import { SlashCommandBuilder } from "@discordjs/builders";
 
 const RJStrings: {[id: string]: string} = {
     'sad': `${Emoji.RJ.rj4}`,
@@ -31,16 +32,43 @@ export const RJSays: Command = {
     help: "rj list",
     description: "makes funny little RJ emotes",
     async execute(message: Message, args?: string[]) {
-    if (!args?.[0]) {
+        if (!args?.[0]) {
+            const options = _.unique(Object.values(RJStrings));
+            const val = _.random(options.length - 1);
+            message.channel.send(options[val]);
+            return;
+        }
+        // dynamically adds `list` command
+        RJStrings["list"] = `RJ knows: ${Object.keys(RJStrings).join(", ")}`;
+
+        const input = args?.join(" ").toLowerCase() || "";
+        message.channel.send(RJStrings?.[input] ?? "RJ does not know that command");
+  },
+  slashCommandDescription: () => {
+      return new SlashCommandBuilder()
+        .setName('rj')
+        .setDescription('makes funny little RJ emotes')
+        .addStringOption(option => {
+            option.setName('emote')
+            .setDescription('which emote would you like');
+            Object.keys(RJStrings).forEach(emoji => {
+                option.addChoice(emoji, emoji);
+            });
+            return option;
+        }
+            
+        );
+  },
+  executeSlashCommand: (interaction) => {
+      const emote = interaction.options.getString('emote');
+      if(!emote) {
         const options = _.unique(Object.values(RJStrings));
         const val = _.random(options.length - 1);
-        message.channel.send(options[val]);
+        interaction.reply(options[val]);
         return;
-    }
-    // dynamically adds `list` command
-    RJStrings["list"] = `RJ knows: ${Object.keys(RJStrings).join(", ")}`;
-
-    const input = args?.join(" ").toLowerCase() || "";
-    message.channel.send(RJStrings?.[input] ?? "RJ does not know that command");
-  },
+      }
+      else{
+        interaction.reply(RJStrings?.[emote.toLowerCase()] ?? "RJ does not know that command");
+      }
+  }
 };
