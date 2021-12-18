@@ -1,4 +1,5 @@
-import { Client, MessageEmbed } from "discord.js";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { MessageEmbed } from "discord.js";
 import { Command } from "../models/Command";
 import { ServerInfo, Strings, AppConfiguration } from "../utils/constants";
 
@@ -6,21 +7,44 @@ export const pingCommand: Command = {
     name: 'ping',
     help: 'ping',
     description: 'ping',
-    execute: (message) => message.channel.send('pong!')
+    execute: (message) => message.channel.send('pong!'),
+    slashCommandDescription: () => {
+        return new SlashCommandBuilder()
+            .setName('ping')
+            .setDescription('ping')
+    },
+    executeSlashCommand: (interaction) => {
+        interaction.reply('pong!')
+    }
 }
-
 export const teaCommand: Command = {
     name: 'tea',
     help: 'tea',
     description: 'ask for tea',
-    execute: (message) => message.channel.send(Strings.teapot)
+    execute: (message) => message.channel.send(Strings.teapot),
+    slashCommandDescription: () => {
+        return new SlashCommandBuilder()
+            .setName('tea')
+            .setDescription('ask for tea')
+    },
+    executeSlashCommand: (interaction) => {
+        interaction.reply(Strings.teapot)
+    }
 }
 
 export const coffeeCommand: Command = {
     name: 'coffee',
     help: 'coffee',
     description: 'ask for coffee',
-    execute: (message) => message.channel.send(Strings.coffee)
+    execute: (message) => message.channel.send(Strings.coffee),
+    slashCommandDescription: () => {
+        return new SlashCommandBuilder()
+            .setName('coffee')
+            .setDescription('ask for coffee')
+    },
+    executeSlashCommand: (interaction) => {
+        interaction.reply(Strings.coffee)
+    }
 }
 
 export const valheimServerCommand: Command = {
@@ -33,7 +57,21 @@ export const valheimServerCommand: Command = {
         ip: \`${ServerInfo.Valheim.ipAddress}\`
         password: \`${ServerInfo.Valheim.access}\`
         `
-    )
+    ),
+    slashCommandDescription: () => {
+        return new SlashCommandBuilder()
+            .setName('valheim')
+            .setDescription('show valheim server info')
+    },
+    executeSlashCommand: (interaction) => {
+        interaction.reply(
+            `**Valheim Dedicated Server Information**:
+            server: \`${ServerInfo.Valheim.serverName}\`
+            ip: \`${ServerInfo.Valheim.ipAddress}\`
+            password: \`${ServerInfo.Valheim.access}\`
+            `
+        )
+    }
 }
 
 export const botInfoCommand: Command = {
@@ -95,5 +133,67 @@ export const botInfoCommand: Command = {
                 })
             ]
         });
-    }
+    },
+    slashCommandDescription: () => {
+        return new SlashCommandBuilder()
+            .setName('status')
+            .setDescription('show useless seabot info')
+    },
+    executeSlashCommand: (interaction) => {
+        const process_uptime = Math.floor(process.uptime());
+        const { client } = interaction;
+        const { uptime } = client;
+        const { versions, arch } = process;
+        interaction.reply({
+            embeds: [
+                new MessageEmbed({
+                    title: 'SEABot Status',
+                    description: 'Latest release and uptime info',
+                    fields: [
+                        {
+                            name: 'Version info',
+                            value: `Node: ${versions.node}, V8: ${versions.v8}, OpenSSL: ${versions.openssl}`,
+                            inline: false
+                        },
+                        {
+                            name: 'Release number',
+                            value: `${AppConfiguration.BOT_RELEASE_VERSION}`,
+                            inline: true
+                        },
+                        {
+                            name: 'Release Description',
+                            value: `${AppConfiguration.BOT_RELEASE_DESCRIPTION}`,
+                            inline: true
+                        },
+                        {
+                            name: 'Release Commit',
+                            value: `${AppConfiguration.BOT_RELEASE_COMMIT}`,
+                            inline: true
+                        },
+                        {
+                            name: 'Architecture',
+                            value: `${arch}`,
+                            inline: true
+                        },
+                        {
+                            name: 'Release Method',
+                            value: `${AppConfiguration.BOT_RELEASE_REASON}`,
+                            inline: true
+                        },
+                        {
+                            name: 'Process Uptime',
+                            value: `${(process_uptime / 60 / 60).toFixed(2)} hours`,
+                            inline: true
+                        },
+                        {
+                            name: 'Client Uptime',
+                            value: `${(uptime! / 60 / 60).toFixed(2)} hours`,
+                            inline: true
+                        },
+                    ]
+                })
+            ]
+        });
+    },
+    
 }

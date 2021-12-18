@@ -105,4 +105,4 @@ export const HueInitialize = async (message: Message) => {
           message.channel.send("Error connecting with access tokens, Burn may need to run `$hueInit`.");
         }
     }
-  };
+};
