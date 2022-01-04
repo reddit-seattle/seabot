@@ -91,8 +91,8 @@ export module Environment {
     }
     export const botToken = process.env['botToken'] || undefined;
     export const DEBUG = process.env['seabotDEBUG'] || undefined;
-    export const weatherAPIKey = process.env['weatherAPIKey'] || undefined;
-    export const airQualityAPIKey = process.env['airQualityAPIKey'] || undefined;
+    export const weatherAPIKey = process.env['weatherAPIKey'] || '';
+    export const airQualityAPIKey = process.env['airQualityAPIKey'] || '';
     export const hueClientId = process.env['hueClientId'] || undefined;
     export const hueAppId = process.env['hueAppId'] || undefined;
     export const hueClientSecret = process.env['hueClientSecret'] || undefined;
