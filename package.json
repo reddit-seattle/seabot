@@ -31,8 +31,9 @@
   },
   "scripts": {
     "test": "jest --runInBand --forceExit",
-    "start": "npm i && tsc && node dist/server.js",
-    "launch": "npm i --no-optional && tsc && npm start"
+    "tsc": "tsc",
+    "start": "npm i && npm run tsc && node dist/server.js",
+    "launch": "npm i --no-optional && npm run tsc && npm start"
   },
   "repository": {
     "type": "git",
