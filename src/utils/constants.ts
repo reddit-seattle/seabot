@@ -80,6 +80,7 @@ export module Emoji {
     export const ohno = '<:ohno:774349924841553940>';
     export const ohnoreverse = '<:ohnoreverse:904473411026292827>';
     export const lachancla = '<:lachancla:852649414698729493>';
+    export const stupidsponge = '<:stupidsponge:627172014548975626>';
 }
 
 export module Environment {
