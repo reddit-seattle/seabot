@@ -106,3 +106,14 @@ export const HueInitialize = async (message: Message) => {
         }
     }
 };
+
+export const toSarcasticCase = (text: string) => {
+    const chars = text.split('');
+    let charAt = 0;
+    return chars.map((char) => {
+        if (char.match(/[a-zA-z]/)) {
+            return ++charAt % 2 == 1 ? char.toLowerCase(): char.toUpperCase();
+        }
+        return char;
+    }).join('');
+}

@@ -1,7 +1,8 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { MessageEmbed } from "discord.js";
 import { Command } from "../models/Command";
-import { ServerInfo, Strings, AppConfiguration } from "../utils/constants";
+import { ServerInfo, Strings, AppConfiguration, Config, Emoji } from "../utils/constants";
+import { replaceMentions, toSarcasticCase } from "../utils/helpers";
 
 export const pingCommand: Command = {
     name: 'ping',
@@ -196,4 +197,29 @@ export const botInfoCommand: Command = {
         });
     },
     
+}
+
+export const sarcasmText: Command = {
+    name: 'sarcasm',
+    help: 'sarcasm text',
+    description: 'make text sArCaStIc',
+    execute: (message, args) => {
+        const content = replaceMentions(message).replace(`${Config.prefix}sarcasm `, '');
+        message.channel.send(`${Emoji.stupidsponge} ${toSarcasticCase(content)} ${Emoji.stupidsponge}`);
+    },
+    slashCommandDescription: () => {
+        return new SlashCommandBuilder()
+            .setName('sarcasm')
+            .setDescription('make text sArCaStIc')
+            .addStringOption(option => {
+                return option.setName('text')
+                .setDescription('text to sArCaStIcIzE')
+                .setRequired(true)
+            })
+    },
+    executeSlashCommand: (interaction) => {
+        const string = interaction.options.getString('text') ?? null;
+        string && interaction.reply(toSarcasticCase(string))
+        string && interaction.reply(`${Emoji.stupidsponge} ${toSarcasticCase(string)} ${Emoji.stupidsponge}`);
+    }
 }
