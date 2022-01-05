@@ -29,9 +29,10 @@ jobs:
           
       - name: install
         run: |
-          npm i
-          npm i -g typescript
+          npm ci
+          npm run tsc
       - name: build
-        run: tsc  
-      - name: test
-        run: npm test -- --coverage 
+        run: tsc 
+      # Tests are pointless at this point anyway 
+      # - name: test
+      #   run: npm test -- --coverage 
