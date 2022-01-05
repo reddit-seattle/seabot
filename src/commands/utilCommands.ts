@@ -219,7 +219,6 @@ export const sarcasmText: Command = {
     },
     executeSlashCommand: (interaction) => {
         const string = interaction.options.getString('text') ?? null;
-        string && interaction.reply(toSarcasticCase(string))
         string && interaction.reply(`${Emoji.stupidsponge} ${toSarcasticCase(string)} ${Emoji.stupidsponge}`);
     }
 }
