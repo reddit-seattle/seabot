@@ -11,6 +11,13 @@ export module Endpoints {
     export const airQualityCurrentByZipURL = 'https://www.airnowapi.org/aq/observation/zipCode/current';
 }
 
+export module API {
+    export module Endpoints {
+        export const HUE_AUTH = '/seabot_hue';
+        export const DISCORD_AUTH = '/discord_auth';
+    }
+}
+
 export module REGEX {
     export const EMOJI = /<a?:.[^:]+:(\d+)>/g;
     export const ROLE = /<@&(\d+)>/g;

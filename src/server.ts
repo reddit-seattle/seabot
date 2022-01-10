@@ -4,7 +4,7 @@ import { RESTPostAPIApplicationCommandsJSONBody, Routes } from 'discord-api-type
 import express from 'express';
 import { schedule } from 'node-cron';
 
-import { ChannelIds, Config, Environment, RoleIds } from './utils/constants';
+import { API, ChannelIds, Config, Environment, RoleIds } from './utils/constants';
 import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
 // import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
@@ -18,6 +18,8 @@ import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 import { RJSays } from './commands/rjCommands';
 import { googleReact, lmgtfyReact } from './commands/reactionCommands';
 import { exit } from 'process';
+import { hueInit } from './http_handlers/hueHandlers';
+import { discordAuth } from './http_handlers/discordHandler';
 
 const client = new Client({
   intents: [
@@ -208,31 +210,8 @@ webApp.get('/', (req, res) => {
     res.end();
 });
 // hue auth flow configuration
-webApp.get('/seabot_hue', async (req, res) => {
-    try{
-        const { code, state } = req?.query;
-        if(!state || state != Environment.hueState){
-            throw new Error('Invalid state value');
-        }
-        const result = await SetHueTokens(code as string);
-        if(result?.success) {
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.write(`Successfully set Hue access and refresh tokens!`);
-            res.end();
-        }
-        else {
-            throw new Error(result.error);
-        }
-    }
-    catch(e: any) {
-        res.writeHead(400, { 'Content-Type': 'text/plain' });
-        res.write(`
-            Something (bad) happened trying to get auth code / set tokens:</br>
-            ${JSON.stringify(e)}`
-        );
-        res.end();
-    }
-});
+webApp.get(API.Endpoints.HUE_AUTH, hueInit);
+webApp.get(API.Endpoints.DISCORD_AUTH, discordAuth)
 
 webApp.listen(8080);
 
