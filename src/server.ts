@@ -21,6 +21,8 @@ import { exit } from 'process';
 import { hueInit } from './http_handlers/hueHandlers';
 import { discordAuth } from './http_handlers/discordHandler';
 
+import Next from 'next';
+
 const client = new Client({
   intents: [
     "GUILDS",
@@ -202,16 +204,19 @@ client.on('ready', async () => {
     registerAllSlashCommands(client);
 });
 
-//stupid fix for azure app service containers requiring a response to port 8080
-const webApp = express();
-webApp.get('/', (req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.write('nothing to see here');
-    res.end();
+const dev = process.env.NODE_ENV !== 'production'
+const app = Next({
+    dev,
+    dir: './seabot_web'
 });
-// hue auth flow configuration
-webApp.get(API.Endpoints.HUE_AUTH, hueInit);
-webApp.get(API.Endpoints.DISCORD_AUTH, discordAuth)
-
-webApp.listen(8080);
+const handle = app.getRequestHandler()
+app.prepare().then(() => {
+    const webApp = express();
+    webApp.get(API.Endpoints.DISCORD_AUTH, discordAuth)
+    webApp.get(API.Endpoints.HUE_AUTH, hueInit);
+    webApp.get('*', (req, res) => {
+        return handle(req, res);
+    });
+    webApp.listen(8080);
+});
 

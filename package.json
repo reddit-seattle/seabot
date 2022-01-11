@@ -15,11 +15,17 @@
     "node-cron": "^3.0.0",
     "node-fetch": "^2.6.1",
     "node-hue-api": "^5.0.0-beta.8",
-    "underscore": "^1.12.1"
+    "underscore": "^1.12.1",
+    "next": "12.0.7",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/node": "^14.14.34",
+    "@types/react": "17.0.38",
+    "eslint": "8.6.0",
+    "eslint-config-next": "12.0.7",
     "@types/node-cron": "^2.0.3",
     "@types/node-fetch": "^2.5.8",
     "@types/node-hue-api": "^2.3.2",
@@ -29,7 +35,11 @@
   "scripts": {
     "tsc": "tsc",
     "start": "npm ci && npm run tsc && node dist/server.js",
-    "launch": "npm i --no-optional && npm run tsc && npm start"
+    "launch": "npm i --no-optional && npm run tsc && npm start",
+    "next:dev": "next dev seabot_web",
+    "next:build": "next build seabot_web",
+    "next:start": "next start seabot_web",
+    "next:lint": "next lint seabot_web"
   },
   "repository": {
     "type": "git",
