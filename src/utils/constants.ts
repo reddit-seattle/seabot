@@ -104,6 +104,8 @@ export module Environment {
     export const hueAppId = process.env['hueAppId'] || undefined;
     export const hueClientSecret = process.env['hueClientSecret'] || undefined;
     export const hueState = process.env['hueState'] || undefined;
+    export const clientId = process.env['clientId'] || undefined;
+    export const clientSecret = process.env['clientSecret'] || undefined;
 }
 export module VoiceConstants {
     export const VOICE_TYPE = 2;

@@ -210,13 +210,27 @@ const app = Next({
     dir: './seabot_web'
 });
 const handle = app.getRequestHandler()
+
+import fs from 'fs';
+import https from 'https';
 app.prepare().then(() => {
     const webApp = express();
     webApp.get(API.Endpoints.DISCORD_AUTH, discordAuth)
     webApp.get(API.Endpoints.HUE_AUTH, hueInit);
-    webApp.get('*', (req, res) => {
+    webApp.all('*', (req, res) => {
         return handle(req, res);
     });
-    webApp.listen(8080);
+    if(Environment.DEBUG) {
+        console.log('local dev')
+        https.createServer({
+            key: fs.readFileSync('./rootCA.key'),
+            cert: fs.readFileSync('./rootCA.pem'),
+            passphrase: 'localdev'
+        }, webApp).listen(8080);
+    }
+    else {
+        console.log('prod')
+        webApp.listen(8080);
+    }
 });
 
