@@ -34,6 +34,9 @@ export module Config {
 export module RoleIds {
     export const MOD = '370946173902520342';
 }
+export module GuildIds {
+    export const Seattle = '370945003566006272'
+}
 export module ChannelIds {
     export const RANT = '804639001226379294';
     export const VOICE_CREATE = '788552426906845185';
@@ -104,6 +107,7 @@ export module Environment {
     export const hueAppId = process.env['hueAppId'] || undefined;
     export const hueClientSecret = process.env['hueClientSecret'] || undefined;
     export const hueState = process.env['hueState'] || undefined;
+    export const JWT_SEED = process.env['JWT_SEED'] || '';
     export const clientId = process.env['clientId'] || undefined;
     export const clientSecret = process.env['clientSecret'] || undefined;
 }

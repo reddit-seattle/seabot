@@ -168,19 +168,19 @@ const registerAllSlashCommands = async (client: Client) => {
         for(const commandName in commands) {
             const command = commands[commandName];
             if(command?.slashCommandDescription) {
-                console.log(`adding ${command.name} slash command registration`)
+                // console.log(`adding ${command.name} slash command registration`)
                slashCommands.push(command.slashCommandDescription().toJSON())
             }
         }
-        console.log('all commands: ')
-        console.dir(slashCommands);
+        // console.log('all commands: ')
+        // console.dir(slashCommands);
         const result = await rest.put(
             Routes.applicationGuildCommands(client.user!.id, guild.id),
             {
                 body: slashCommands
             }
         )
-        console.dir(result);
+        // console.dir(result);
 
     });
 }
