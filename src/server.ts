@@ -131,9 +131,9 @@ client.on('messageCreate', async (message) => {
 
 client.on('messageReactionAdd', async (reaction) => {
     const {message, emoji} = reaction;
-    const alreadyReacted =  (reaction.count && reaction.count > 1) == true;
+    const alreadyReacted = (reaction.count && reaction.count > 1) == true;
     // this prevents the same reaction command from firing multiple times
-    if(!emoji.id || alreadyReacted) {
+    if(message.author?.bot || !emoji.id || alreadyReacted) {
         return;
     }
     try{
