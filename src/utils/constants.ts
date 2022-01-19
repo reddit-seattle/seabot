@@ -110,6 +110,7 @@ export module Environment {
     export const JWT_SEED = process.env['JWT_SEED'] || '';
     export const clientId = process.env['clientId'] || undefined;
     export const clientSecret = process.env['clientSecret'] || undefined;
+    export const BASE_URL = process.env['NEXTAUTH_URL'] || '';
 }
 export module VoiceConstants {
     export const VOICE_TYPE = 2;

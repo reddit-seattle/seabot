@@ -222,6 +222,8 @@ app.prepare().then(() => {
     });
     if(Environment.DEBUG) {
         console.log('local dev')
+        // ignore self signed cert for local dev
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         https.createServer({
             key: fs.readFileSync('./rootCA.key'),
             cert: fs.readFileSync('./rootCA.pem'),

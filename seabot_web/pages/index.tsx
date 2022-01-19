@@ -3,6 +3,7 @@ import useSWR from 'swr';
 import { useSession, signIn, signOut } from "next-auth/react"
 import fetch from 'node-fetch'
 import { ChangeEvent, useEffect, useState } from 'react';
+import { Channel } from 'discord.js';
 
 const Home: NextPage = () => {
   const [selectedChannel, setSelectedChannel] = useState('');
@@ -37,16 +38,12 @@ const Home: NextPage = () => {
         <button onClick={() => signOut()}>Sign out</button> <br />
         Signed in as {session?.user?.name}
         <br />
-        profile:
-        <br />
-        {JSON.stringify(profile)}
-        <br />
         channels:
         <br />
         <select onChange={(event) => handleChannelSelection(event)}>
-          {channels?.map((chan: {channelId: string, channelName: string}) => {
+          {channels?.map((chan: Channel) => {
             console.dir(chan);
-            return <option key={chan.channelId} value={chan.channelId}>{chan.channelName}</option>;
+            return <option key={chan.id} value={chan.id}>{chan.name}</option>;
           })}
         </select>
         <input type={"text"} onChange={(evt) => handleMessageTextChange(evt)}/>
