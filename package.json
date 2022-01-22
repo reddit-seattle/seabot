@@ -13,7 +13,7 @@
     "express": "^4.17.1",
     "moment": "^2.29.1",
     "node-cron": "^3.0.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.1.1",
     "node-hue-api": "^5.0.0-beta.8",
     "underscore": "^1.12.1"
   },
