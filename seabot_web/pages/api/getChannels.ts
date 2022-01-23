@@ -16,7 +16,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     });
     res.status(200).json(JSON.stringify(channels));
     res.end();
-    // });
   } else {
     res.status(401);
     res.end();

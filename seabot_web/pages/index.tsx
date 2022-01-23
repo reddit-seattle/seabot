@@ -1,9 +1,9 @@
 import type { NextPage } from 'next'
 import useSWR from 'swr';
-import { useSession, signIn, signOut } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import fetch from 'node-fetch'
-import { ChangeEvent, useEffect, useState } from 'react';
-import { Channel } from 'discord.js';
+import { ChangeEvent, useState } from 'react';
+import { NonThreadGuildBasedChannel } from 'discord.js';
 
 const Home: NextPage = () => {
   const [selectedChannel, setSelectedChannel] = useState('');
@@ -11,7 +11,6 @@ const Home: NextPage = () => {
 
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
   const { data: session } = useSession();
-  const {data: profile, error} = useSWR('/api/getProfile', fetcher);
   const {data: channels, error: error2} = useSWR('/api/getChannels', fetcher);
 
   const handleChannelSelection = async (event: ChangeEvent<HTMLSelectElement>) => {
@@ -41,8 +40,7 @@ const Home: NextPage = () => {
         channels:
         <br />
         <select onChange={(event) => handleChannelSelection(event)}>
-          {channels?.map((chan: Channel) => {
-            console.dir(chan);
+          {channels?.map((chan: NonThreadGuildBasedChannel) => {
             return <option key={chan.id} value={chan.id}>{chan.name}</option>;
           })}
         </select>
@@ -53,8 +51,8 @@ const Home: NextPage = () => {
   }
   return (
     <>
-      Not signed in <br />
-      <button onClick={() => signIn()}>Sign in</button>
+      Welcome to Seabot!<br/>
+      You can read more about me <a href="https://github.com/reddit-seattle/seabot">on my github page</a><br/>
     </>
   )
 }
