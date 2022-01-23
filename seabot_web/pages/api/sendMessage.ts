@@ -3,8 +3,7 @@ import { TextChannel } from 'discord.js'
 import { ClientHandler } from '../../apiUtils/clientHandler';
 import { getSession } from 'next-auth/react';
 
-
-
+// this lets me talk as seabot - to test using discordjs client as a backend service client
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const session = await getSession({ req });
     

@@ -13,13 +13,12 @@ import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { abeLeaves, newAccountJoins } from './commands/joinLeaveCommands';
 import { Help, ReactionHelp } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
-import { SplitMessageIntoArgs, SetHueTokens } from './utils/helpers';
+import { SplitMessageIntoArgs } from './utils/helpers';
 import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 import { RJSays } from './commands/rjCommands';
 import { googleReact, lmgtfyReact } from './commands/reactionCommands';
 import { exit } from 'process';
 import { hueInit } from './http_handlers/hueHandlers';
-import { discordAuth } from './http_handlers/discordHandler';
 
 import Next from 'next';
 
@@ -66,7 +65,6 @@ const reactionCommands: ReactionCommandDictionary = [
 }, {} as ReactionCommandDictionary);
 
 const { botToken } = Environment;
-//MAIN
 
 //check for bot token
 if (!botToken || botToken == '') {
@@ -108,7 +106,6 @@ client.on('messageCreate', async (message) => {
 
     //bad bot
     if (!message.content.startsWith(Config.prefix) || message.author.bot) return;
-
 
     const args = SplitMessageIntoArgs(message);
     
@@ -168,26 +165,20 @@ const registerAllSlashCommands = async (client: Client) => {
         for(const commandName in commands) {
             const command = commands[commandName];
             if(command?.slashCommandDescription) {
-                // console.log(`adding ${command.name} slash command registration`)
                slashCommands.push(command.slashCommandDescription().toJSON())
             }
         }
-        // console.log('all commands: ')
-        // console.dir(slashCommands);
-        const result = await rest.put(
+        await rest.put(
             Routes.applicationGuildCommands(client.user!.id, guild.id),
             {
                 body: slashCommands
             }
         )
-        // console.dir(result);
-
     });
 }
 
 client.on("interactionCreate", async interaction => {
     if(!interaction.isCommand()) return;
-
     const command = commands?.[interaction.commandName];
     if(command) {
         command.executeSlashCommand?.(interaction);
@@ -221,7 +212,7 @@ app.prepare().then(() => {
         return handle(req, res);
     });
     if(Environment.DEBUG) {
-        console.log('local dev')
+        console.log('launching server on local dev')
         // ignore self signed cert for local dev
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         https.createServer({
@@ -231,7 +222,7 @@ app.prepare().then(() => {
         }, webApp).listen(8080);
     }
     else {
-        console.log('prod')
+        console.log('launching server in production')
         webApp.listen(8080);
     }
 });

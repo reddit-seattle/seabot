@@ -14,7 +14,6 @@ export module Endpoints {
 export module API {
     export module Endpoints {
         export const HUE_AUTH = '/seabot_hue';
-        export const DISCORD_AUTH = '/discord_auth';
     }
 }
 
