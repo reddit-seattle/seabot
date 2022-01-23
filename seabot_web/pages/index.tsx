@@ -14,11 +14,9 @@ const Home: NextPage = () => {
   const {data: channels, error: error2} = useSWR('/api/getChannels', fetcher);
 
   const handleChannelSelection = async (event: ChangeEvent<HTMLSelectElement>) => {
-    console.log(`selected value - ${event.target.value}`)
     setSelectedChannel(event.target.value)
   };
   const handleMessageTextChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    console.log(`selected value - ${event.target.value}`)
     setMessage(event.target.value)
   };
   const sendMessage = async () => {
@@ -35,10 +33,8 @@ const Home: NextPage = () => {
     return (
       <>
         <button onClick={() => signOut()}>Sign out</button> <br />
-        Signed in as {session?.user?.name}
-        <br />
-        channels:
-        <br />
+        Signed in as {session?.user?.name}<br />
+        channels:<br />
         <select onChange={(event) => handleChannelSelection(event)}>
           {channels?.map((chan: NonThreadGuildBasedChannel) => {
             return <option key={chan.id} value={chan.id}>{chan.name}</option>;
