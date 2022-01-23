@@ -206,7 +206,6 @@ import fs from 'fs';
 import https from 'https';
 app.prepare().then(() => {
     const webApp = express();
-    webApp.get(API.Endpoints.DISCORD_AUTH, discordAuth)
     webApp.get(API.Endpoints.HUE_AUTH, hueInit);
     webApp.all('*', (req, res) => {
         return handle(req, res);
