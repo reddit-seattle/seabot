@@ -226,12 +226,12 @@ export const sarcasmText: Command = {
 export const whoopsCommand: Command = {
     description: 'whoops',
     name: 'whoops',
-    help: 'whoops :butt: butt -> whoops my butt fell out :butt:',
+    help: 'whoops my butt :butt: -> whoops my butt fell out :butt:',
     execute: (message: Message, args?: string[]) => {
-        const emoji = args?.shift();
+        const emoji = args?.pop();
         if (!emoji) return;
         const text = args?.join(' ');
-        if (!text) return;
+        if (!text || text === '') return;
         message.channel.send(Strings.whoops(text, emoji));
     },
     slashCommandDescription: () => {
@@ -240,16 +240,16 @@ export const whoopsCommand: Command = {
             .setDescription('whoops my emoji fell out')
             .addStringOption(option => {
                 return option
-                    .setName('emote')
-                    .setDescription('the thing that\'s falling out')
-                    .setRequired(true);
-                })
-                .addStringOption(option => {
-                    return option
                     .setName('object')
-                    .setDescription('what fell out')
+                    .setDescription('what fell out (include `my`, `the`, etc)')
                     .setRequired(true);
-                });
+            })
+            .addStringOption(option => {
+                return option
+                    .setName('emote')
+                    .setDescription('what does it look like (emote / ascii)')
+                    .setRequired(true);
+            });
     },
     executeSlashCommand: (interaction) => {
         const emoji = interaction.options.getString('emote', true);
