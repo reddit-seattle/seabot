@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
 import { Command, ReactionCommand } from '../models/Command';
 import { Config, RoleIds, Strings } from '../utils/constants';
-import { botInfoCommand, coffeeCommand, pingCommand, sarcasmText, teaCommand, valheimServerCommand } from "../commands/utilCommands";
+import { botInfoCommand, coffeeCommand, pingCommand, sarcasmText, teaCommand, valheimServerCommand, whoopsCommand } from "../commands/utilCommands";
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from '../commands/weatherCommands';
 // import { MTGCommand } from '../commands/mtgCommands';
 import { HueEnable, HueInit, HueSet } from "./hueCommands";
@@ -23,7 +23,8 @@ const commands: Command[] = [
     HueInit,
     HueEnable,
     RJSays,
-    sarcasmText
+    sarcasmText,
+    whoopsCommand
 ];
 
 const reactions: ReactionCommand[] = [

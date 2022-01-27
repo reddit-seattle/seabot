@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { MessageEmbed } from "discord.js";
+import { Message, MessageEmbed } from "discord.js";
 import { Command } from "../models/Command";
 import { ServerInfo, Strings, AppConfiguration, Config, Emoji } from "../utils/constants";
 import { replaceMentions, toSarcasticCase } from "../utils/helpers";
@@ -220,5 +220,40 @@ export const sarcasmText: Command = {
     executeSlashCommand: (interaction) => {
         const string = interaction.options.getString('text') ?? null;
         string && interaction.reply(`${Emoji.stupidsponge} ${toSarcasticCase(string)} ${Emoji.stupidsponge}`);
+    }
+}
+
+export const whoopsCommand: Command = {
+    description: 'whoops',
+    name: 'whoops',
+    help: 'whoops :butt: butt -> whoops my butt fell out :butt:',
+    execute: (message: Message, args?: string[]) => {
+        const emoji = args?.shift();
+        if (!emoji) return;
+        const text = args?.join(' ');
+        if (!text) return;
+        message.channel.send(Strings.whoops(text, emoji));
+    },
+    slashCommandDescription: () => {
+        return new SlashCommandBuilder()
+            .setName('whoops')
+            .setDescription('whoops my emoji fell out')
+            .addStringOption(option => {
+                return option
+                    .setName('emote')
+                    .setDescription('the thing that\'s falling out')
+                    .setRequired(true);
+                })
+                .addStringOption(option => {
+                    return option
+                    .setName('object')
+                    .setDescription('what fell out')
+                    .setRequired(true);
+                });
+    },
+    executeSlashCommand: (interaction) => {
+        const emoji = interaction.options.getString('emote', true);
+        const object = interaction.options.getString('object', true);
+        interaction.reply(Strings.whoops(object, emoji));
     }
 }
