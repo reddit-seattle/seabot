@@ -8,7 +8,7 @@ import { ChannelIds, Config, Environment, RoleIds } from './utils/constants';
 import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
 // import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
-import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand, botInfoCommand, sarcasmText } from './commands/utilCommands';
+import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand, botInfoCommand, sarcasmText, whoopsCommand } from './commands/utilCommands';
 import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { abeLeaves, newAccountJoins } from './commands/joinLeaveCommands';
 import { Help, ReactionHelp } from './commands/helpCommands';
@@ -46,7 +46,8 @@ const commands: CommandDictionary = [
     HueSet,
     HueEnable,
     RJSays,
-    sarcasmText
+    sarcasmText,
+    whoopsCommand,
 ].reduce((map, obj) => {
     map[obj.name.toLowerCase()] = obj;
     return map;
