@@ -3,7 +3,7 @@ import { Command, ReactionCommand } from '../models/Command';
 import { Config, RoleIds, Strings } from '../utils/constants';
 import { botInfoCommand, coffeeCommand, pingCommand, sarcasmText, teaCommand, valheimServerCommand, whoopsCommand } from "../commands/utilCommands";
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from '../commands/weatherCommands';
-// import { MTGCommand } from '../commands/mtgCommands';
+import { MTGCommand } from '../commands/mtgCommands';
 import { HueEnable, HueInit, HueSet } from "./hueCommands";
 import { RJSays } from "./rjCommands";
 import { googleReact, lmgtfyReact } from "./reactionCommands";
@@ -16,7 +16,7 @@ const commands: Command[] = [
     valheimServerCommand,
     ForecastCommand,
     WeatherCommand,
-    // MTGCommand,
+    MTGCommand,
     AirQualityCommand,
     botInfoCommand,
     HueSet,
