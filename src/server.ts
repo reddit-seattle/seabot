@@ -6,7 +6,7 @@ import { schedule } from 'node-cron';
 
 import { ChannelIds, Config, Environment, RoleIds } from './utils/constants';
 import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
-// import { MTGCommand } from './commands/mtgCommands';
+ import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
 import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand, botInfoCommand, sarcasmText, whoopsCommand } from './commands/utilCommands';
 import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
@@ -31,7 +31,7 @@ const client = new Client({
 
 // TODO: common command loader
 const commands: CommandDictionary = [
-    // MTGCommand,
+    MTGCommand,
     WeatherCommand,
     ForecastCommand,
     teaCommand,
