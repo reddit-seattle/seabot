@@ -4,7 +4,7 @@ import { RESTPostAPIApplicationCommandsJSONBody, Routes } from 'discord-api-type
 import express from 'express';
 import { schedule } from 'node-cron';
 
-import { ChannelIds, Config, Environment, RoleIds } from './utils/constants';
+import { ChannelIds, Config, Emoji, Environment, RoleIds } from './utils/constants';
 import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
  import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
@@ -87,15 +87,18 @@ client.on('guildMemberAdd', newAccountJoins);
 
 //handle messages
 client.on('messageCreate', async (message) => {
+
+    //bad bot
+    if (message.author.bot) return;
+    
     if (message.channel instanceof TextChannel && message?.channel?.id == ChannelIds.RANT) {
         deleteMessages(message);
-        // return; // maybe we should allow other commands in #rant
     }
-    else if (message.content === 'SEA') {
+    if (message.content === 'SEA') {
         message.channel.send('HAWKS!')
         return;
     }
-    else if (message.content.toLowerCase().includes('tbf') || message.content.toLowerCase().includes('to be fair')) {
+    if (message.content.toLowerCase().includes('tbf') || message.content.toLowerCase().includes('to be fair')) {
         // we use tbf more than we should, tbf
         if (Math.random() >= 0.75) {
             message.channel.send('https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631');
@@ -105,8 +108,8 @@ client.on('messageCreate', async (message) => {
         message.react(Emoji.bisbopt);
     }
 
-    //bad bot
-    if (!message.content.startsWith(Config.prefix) || message.author.bot) return;
+    // TODO: Deprecate non-slash commands
+    if(!message.content.startsWith(Config.prefix)) return;
 
 
     const args = SplitMessageIntoArgs(message);
