@@ -100,7 +100,9 @@ client.on('messageCreate', async (message) => {
         if (Math.random() >= 0.75) {
             message.channel.send('https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631');
         }
-        return;
+    }
+    if (message.content.toLowerCase().includes('bisbopt')) {
+        message.react(Emoji.bisbopt);
     }
 
     //bad bot
