@@ -68,9 +68,9 @@ export module Strings {
     　　　/ 　 へ＼
     　　 /　　/　＼＼fell out
     　　 ﾚ　ノ　　 ヽつ
-    　　/　) )💦
-    　 /　/|　     ${emoji} 
-    　(　(ヽ.
+    　　/　) )
+    　 /　/|　💦 
+    　(　(ヽ.　　${emoji}
     　|　|、＼
     　| 丿 ＼ ⌒)
     　| |　　) /
