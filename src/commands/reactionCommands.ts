@@ -15,7 +15,7 @@ export const googleReact: ReactionCommand = {
             return;
         }
         const resultantContent = replaceMentions(message);
-        message.channel.send(`https://www.google.com/search?q=${encodeURIComponent(resultantContent)}`);
+        message.reply(`https://www.google.com/search?q=${encodeURIComponent(resultantContent)}`);
     }
 }
 
