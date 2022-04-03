@@ -8,7 +8,7 @@ export interface Command {
     adminOnly?: boolean;
     description: string;
     help?: string;
-    execute: (message: Message, args?: string[]) => void;
+    execute?: (message: Message, args?: string[]) => void;
     slashCommandDescription?:  () => Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
     executeSlashCommand?: (options:  CommandInteraction) => void;
 }

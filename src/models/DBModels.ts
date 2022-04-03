@@ -5,3 +5,9 @@ export interface Award {
     awardedOn: Date;
     message?: string;
 }
+
+export interface Incident {
+    id?: string;
+    occurrence: Date;
+    note?: string;
+}

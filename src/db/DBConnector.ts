@@ -1,5 +1,5 @@
 // @ts-check
-import { Container, CosmosClient, Database, Resource, SqlQuerySpec } from "@azure/cosmos"
+import { Container, CosmosClient, Database, SqlQuerySpec } from "@azure/cosmos"
 
 export default class DBConnector<T> {
 
@@ -40,7 +40,7 @@ export default class DBConnector<T> {
       throw new Error('Collection is not initialized.')
     }
     const { resources } = await this.container.items.query<T>(querySpec).fetchAll()
-    return resources
+    return resources;
   }
 
   async addItem(item: T) {
@@ -55,8 +55,8 @@ export default class DBConnector<T> {
     if (!this.container) {
       throw new Error('Collection is not initialized.')
     }
-    const { resource } = await this.container.item(itemId).read<T>()
-    return resource
+    const { resource } = await this.container.item(itemId).read<T>();
+    return resource;
   }
   
   async deleteItem(itemId: string) {
@@ -65,5 +65,13 @@ export default class DBConnector<T> {
     }
     const { resource } = await this.container.item(itemId).delete<T>();
     return resource;
+  }
+
+  async getLastItem() {
+    const items = await this.find({
+      // query last incident by cosmos timestamp descending
+      query: 'SELECT TOP 1 * from c ORDER BY c._ts DESC'
+    });
+    return items?.[0];
   }
 }

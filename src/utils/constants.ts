@@ -1,4 +1,6 @@
 import { SqlQuerySpec } from '@azure/cosmos';
+import { ApplicationCommandPermissionData } from 'discord.js';
+import { ApplicationCommandPermissionTypes } from 'discord.js/typings/enums';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -6,6 +8,7 @@ export module Database {
     export const DATABASE_ID = 'seabot';
     export module Containers {
         export const AWARDS = 'Awards';
+        export const INCIDENTS = 'Incidents';
     }
     export module Queries {
         export const AWARDS_BY_USER = (userId: string): SqlQuerySpec => {
@@ -47,6 +50,7 @@ export module Config {
 }
 export module RoleIds {
     export const MOD = '370946173902520342';
+    export const EVERYONE = '370945003566006272';
 }
 export module ChannelIds {
     export const RANT = '804639001226379294';
@@ -157,4 +161,17 @@ export module ServerInfo {
         export const ipAddress = '20.57.179.81';
         export const access = process.env['valheim_server_password']
     }
+}
+
+export module SlashCommandRoleConfigs {
+    export const MOD_ONLY: ApplicationCommandPermissionData[] = [{
+            id: RoleIds.MOD,
+            type: ApplicationCommandPermissionTypes.ROLE,
+            permission: true,
+        },
+        {
+            id: RoleIds.EVERYONE,
+            type: ApplicationCommandPermissionTypes.ROLE,
+            permission: false,
+        }]
 }

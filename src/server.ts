@@ -40,12 +40,21 @@ const cosmosClient = new CosmosClient({
 });
 
 const awardConnector = new DBConnector<Award>(cosmosClient, Database.DATABASE_ID, Database.Containers.AWARDS)
+const incidentConnector = new DBConnector<Incident>(cosmosClient, Database.DATABASE_ID, Database.Containers.INCIDENTS)
 
 awardConnector.init()
   .catch(err => {
     console.error(err)
     console.error(
       'There was an error connecting to the award container.'
+    )
+});
+
+incidentConnector.init()
+.catch(err => {
+    console.error(err)
+    console.error(
+      'There was an error connecting to the incident container.'
     )
 });
 
@@ -70,8 +79,7 @@ const commands: CommandDictionary = [
     RJSays,
     sarcasmText,
     whoopsCommand,
-    new GiveAwardCommand(awardConnector),
-    new ShowAwardsCommand(awardConnector)
+    new IncidentCommand(incidentConnector)
 ].reduce((map, obj) => {
     map[obj.name.toLowerCase()] = obj;
     return map;
@@ -144,7 +152,7 @@ client.on('messageCreate', async (message) => {
             channel.send('nice try, loser');
             return;
         }
-        else {
+        else if (command?.execute){
             command?.execute(message, args);
         }
     }
