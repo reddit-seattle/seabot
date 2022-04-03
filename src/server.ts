@@ -90,21 +90,23 @@ client.on('messageCreate', async (message) => {
 
     //bad bot
     if (message.author.bot) return;
+
+    const { channel, content } = message;
     
-    if (message.channel instanceof TextChannel && message?.channel?.id == ChannelIds.RANT) {
+    if (channel instanceof TextChannel && channel?.id == ChannelIds.RANT) {
         deleteMessages(message);
     }
     if (message.content === 'SEA') {
-        message.channel.send('HAWKS!')
+        channel.send('HAWKS!')
         return;
     }
-    if (message.content.toLowerCase().includes('tbf') || message.content.toLowerCase().includes('to be fair')) {
+    if (content.toLowerCase().includes('tbf') || content.toLowerCase().includes('to be fair')) {
         // we use tbf more than we should, tbf
         if (Math.random() >= 0.75) {
-            message.channel.send('https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631');
+            channel.send('https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631');
         }
     }
-    if (message.content.toLowerCase().includes('bisbopt')) {
+    if (content.toLowerCase().includes('bisbopt')) {
         message.react(Emoji.bisbopt);
     }
 
@@ -121,7 +123,7 @@ client.on('messageCreate', async (message) => {
     //send it
     try {
         if(command?.adminOnly && !message.member?.roles.cache.has(RoleIds.MOD)){
-            message.channel.send('nice try, loser');
+            channel.send('nice try, loser');
             return;
         }
         else {
