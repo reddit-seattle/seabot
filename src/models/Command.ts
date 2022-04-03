@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CacheType, CommandInteraction, CommandInteractionOptionResolver, Message, PartialMessage } from "discord.js";
+import { CommandInteraction, Message, PartialMessage } from "discord.js";
 
 
 //TODO - expand interface to have a 'canExecute' method to check args and return help message

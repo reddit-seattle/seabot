@@ -1,5 +1,26 @@
+import { SqlQuerySpec } from '@azure/cosmos';
 import dotenv from 'dotenv';
 dotenv.config();
+
+export module Database {
+    export const DATABASE_ID = 'seabot';
+    export module Containers {
+        export const AWARDS = 'Awards';
+    }
+    export module Queries {
+        export const AWARDS_BY_USER = (userId: string): SqlQuerySpec => {
+            return {
+                query: 'SELECT * FROM Awards a where a.awardedTo = @userId',
+                parameters: [
+                    {
+                        name: '@userId',
+                        value: userId
+                    }
+                ]
+            }
+        }
+    }
+}
 
 export module Endpoints {
     export const currentWeatherURL = 'https://api.openweathermap.org/data/2.5/weather'
@@ -32,6 +53,8 @@ export module ChannelIds {
     export const VOICE_CREATE = '788552426906845185';
     export const USER_VOICE_GROUP = '788552301182320640';
     export const DEBUG = '541322708844281867';
+    export const GEOGUESSER = '370999118685798400';
+    export const MOD_LOG = '634526832816816128';
 }
 
 export module AppConfiguration {
@@ -115,6 +138,8 @@ export module Environment {
     export const hueAppId = process.env['hueAppId'] || undefined;
     export const hueClientSecret = process.env['hueClientSecret'] || undefined;
     export const hueState = process.env['hueState'] || undefined;
+    export const cosmosHost = process.env['cosmosHost'] || '';
+    export const cosmosAuthKey = process.env['cosmosAuthKey'] || '';
 }
 export module VoiceConstants {
     export const VOICE_TYPE = 2;

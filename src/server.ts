@@ -4,7 +4,7 @@ import { RESTPostAPIApplicationCommandsJSONBody, Routes } from 'discord-api-type
 import express from 'express';
 import { schedule } from 'node-cron';
 
-import { ChannelIds, Config, Emoji, Environment, RoleIds } from './utils/constants';
+import { ChannelIds, Config, Database, Emoji, Environment, RoleIds } from './utils/constants';
 import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
  import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
@@ -18,6 +18,10 @@ import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 import { RJSays } from './commands/rjCommands';
 import { googleReact, lmgtfyReact } from './commands/reactionCommands';
 import { exit } from 'process';
+import { CosmosClient } from '@azure/cosmos';
+import DBConnector from './db/DBConnector';
+import { Award } from './models/DBModels';
+import { GiveAwardCommand, ShowAwardsCommand } from './commands/databaseCommands';
 
 const client = new Client({
   intents: [
@@ -28,6 +32,24 @@ const client = new Client({
     "GUILD_MESSAGE_REACTIONS",
   ],
 });
+
+// database
+const cosmosClient = new CosmosClient({
+    endpoint: Environment.cosmosHost,
+    key: Environment.cosmosAuthKey
+});
+
+const awardConnector = new DBConnector<Award>(cosmosClient, Database.DATABASE_ID, Database.Containers.AWARDS)
+
+awardConnector.init()
+  .catch(err => {
+    console.error(err)
+    console.error(
+      'There was an error connecting to the award container.'
+    )
+});
+
+//#region commands
 
 // TODO: common command loader
 const commands: CommandDictionary = [
@@ -48,6 +70,8 @@ const commands: CommandDictionary = [
     RJSays,
     sarcasmText,
     whoopsCommand,
+    new GiveAwardCommand(awardConnector),
+    new ShowAwardsCommand(awardConnector)
 ].reduce((map, obj) => {
     map[obj.name.toLowerCase()] = obj;
     return map;
@@ -61,7 +85,7 @@ const reactionCommands: ReactionCommandDictionary = [
     map[obj.emojiId.toLowerCase()] = obj;
     return map;
 }, {} as ReactionCommandDictionary);
-
+//#endregion
 const { botToken } = Environment;
 //MAIN
 
@@ -78,13 +102,7 @@ else {
 //hook up api
 const rest = new REST({ version: '9' }).setToken(botToken);
 
-//handle voice connections
-client.on('voiceStateUpdate', handleVoiceStatusUpdate);
-
-//join/leave
-client.on('guildMemberRemove', abeLeaves);
-client.on('guildMemberAdd', newAccountJoins);
-
+// #region interaction handling
 //handle messages
 client.on('messageCreate', async (message) => {
 
@@ -157,6 +175,22 @@ client.on('messageReactionAdd', async (reaction) => {
     }
 });
 
+client.on("interactionCreate", async interaction => {
+    if(!interaction.isCommand()) return;
+
+    const command = commands?.[interaction.commandName];
+    if(command) {
+        command.executeSlashCommand?.(interaction);
+    };
+})
+
+//handle voice connections
+client.on('voiceStateUpdate', handleVoiceStatusUpdate);
+//join/leave
+client.on('guildMemberRemove', abeLeaves);
+client.on('guildMemberAdd', newAccountJoins);
+// #endregion
+
 //log errors to the console because i don't have anywhere better to store them for now
 client.on('error', console.error);
 
@@ -189,15 +223,6 @@ const registerAllSlashCommands = async (client: Client) => {
     });
 }
 
-client.on("interactionCreate", async interaction => {
-    if(!interaction.isCommand()) return;
-
-    const command = commands?.[interaction.commandName];
-    if(command) {
-        command.executeSlashCommand?.(interaction);
-    };
-})
-
 client.on('ready', async () => {
     console.log('connected to servers:');
     client.guilds.cache.forEach(guild => {
@@ -208,6 +233,7 @@ client.on('ready', async () => {
     registerAllSlashCommands(client);
 });
 
+// #region express routes
 //stupid fix for azure app service containers requiring a response to port 8080
 const webApp = express();
 webApp.get('/', (req, res) => {
@@ -243,4 +269,4 @@ webApp.get('/seabot_hue', async (req, res) => {
 });
 
 webApp.listen(8080);
-
+// #endregion
