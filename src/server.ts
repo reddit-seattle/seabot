@@ -4,7 +4,7 @@ import { RESTPostAPIApplicationCommandsJSONBody, Routes } from 'discord-api-type
 import express from 'express';
 import { schedule } from 'node-cron';
 
-import { ChannelIds, Config, Emoji, Environment, RoleIds } from './utils/constants';
+import { ChannelIds, Config, Database, Emoji, Environment, RoleIds } from './utils/constants';
 import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
  import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
@@ -18,6 +18,10 @@ import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 import { RJSays } from './commands/rjCommands';
 import { googleReact, lmgtfyReact } from './commands/reactionCommands';
 import { exit } from 'process';
+import { CosmosClient } from '@azure/cosmos';
+import DBConnector from './db/DBConnector';
+import { Award, Incident } from './models/DBModels';
+import { IncidentCommand } from './commands/databaseCommands';
 
 const client = new Client({
   intents: [
@@ -28,6 +32,24 @@ const client = new Client({
     "GUILD_MESSAGE_REACTIONS",
   ],
 });
+
+// database
+const cosmosClient = new CosmosClient({
+    endpoint: Environment.cosmosHost,
+    key: Environment.cosmosAuthKey
+});
+
+const incidentConnector = new DBConnector<Incident>(cosmosClient, Database.DATABASE_ID, Database.Containers.INCIDENTS);
+
+incidentConnector.init()
+.catch(err => {
+    console.error(err)
+    console.error(
+      'There was an error connecting to the incident container.'
+    )
+});
+
+//#region commands
 
 // TODO: common command loader
 const commands: CommandDictionary = [
@@ -48,6 +70,7 @@ const commands: CommandDictionary = [
     RJSays,
     sarcasmText,
     whoopsCommand,
+    new IncidentCommand(incidentConnector)
 ].reduce((map, obj) => {
     map[obj.name.toLowerCase()] = obj;
     return map;
@@ -61,7 +84,7 @@ const reactionCommands: ReactionCommandDictionary = [
     map[obj.emojiId.toLowerCase()] = obj;
     return map;
 }, {} as ReactionCommandDictionary);
-
+//#endregion
 const { botToken } = Environment;
 //MAIN
 
@@ -78,33 +101,29 @@ else {
 //hook up api
 const rest = new REST({ version: '9' }).setToken(botToken);
 
-//handle voice connections
-client.on('voiceStateUpdate', handleVoiceStatusUpdate);
-
-//join/leave
-client.on('guildMemberRemove', abeLeaves);
-client.on('guildMemberAdd', newAccountJoins);
-
+// #region interaction handling
 //handle messages
 client.on('messageCreate', async (message) => {
 
     //bad bot
     if (message.author.bot) return;
+
+    const { channel, content } = message;
     
-    if (message.channel instanceof TextChannel && message?.channel?.id == ChannelIds.RANT) {
+    if (channel instanceof TextChannel && channel?.id == ChannelIds.RANT) {
         deleteMessages(message);
     }
     if (message.content === 'SEA') {
-        message.channel.send('HAWKS!')
+        channel.send('HAWKS!')
         return;
     }
-    if (message.content.toLowerCase().includes('tbf') || message.content.toLowerCase().includes('to be fair')) {
+    if (content.toLowerCase().includes('tbf') || content.toLowerCase().includes('to be fair')) {
         // we use tbf more than we should, tbf
         if (Math.random() >= 0.75) {
-            message.channel.send('https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631');
+            channel.send('https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631');
         }
     }
-    if (message.content.toLowerCase().includes('bisbopt')) {
+    if (content.toLowerCase().includes('bisbopt')) {
         message.react(Emoji.bisbopt);
     }
 
@@ -121,10 +140,10 @@ client.on('messageCreate', async (message) => {
     //send it
     try {
         if(command?.adminOnly && !message.member?.roles.cache.has(RoleIds.MOD)){
-            message.channel.send('nice try, loser');
+            channel.send('nice try, loser');
             return;
         }
-        else {
+        else if (command?.execute){
             command?.execute(message, args);
         }
     }
@@ -155,6 +174,22 @@ client.on('messageReactionAdd', async (reaction) => {
     }
 });
 
+client.on("interactionCreate", async interaction => {
+    if(!interaction.isCommand()) return;
+
+    const command = commands?.[interaction.commandName];
+    if(command) {
+        command.executeSlashCommand?.(interaction);
+    };
+})
+
+//handle voice connections
+client.on('voiceStateUpdate', handleVoiceStatusUpdate);
+//join/leave
+client.on('guildMemberRemove', abeLeaves);
+client.on('guildMemberAdd', newAccountJoins);
+// #endregion
+
 //log errors to the console because i don't have anywhere better to store them for now
 client.on('error', console.error);
 
@@ -171,30 +206,40 @@ const registerAllSlashCommands = async (client: Client) => {
             const command = commands[commandName];
             if(command?.slashCommandDescription) {
                 console.log(`adding ${command.name} slash command registration`)
-               slashCommands.push(command.slashCommandDescription().toJSON())
+                const desc = command.slashCommandDescription();
+                slashCommands.push(desc.toJSON());
             }
         }
-        console.log('all commands: ')
-        console.dir(slashCommands);
         const result = await rest.put(
             Routes.applicationGuildCommands(client.user!.id, guild.id),
             {
                 body: slashCommands
             }
-        )
+        );
         console.dir(result);
+        // TODO: sort out slash command permissions
+        // result.forEach(async res => {
+            //if nobody can access this
+            // if(!res.default_permission)
+            // {
+            //   //at least let mods access it
+            //   const permissions: ApplicationCommandPermissionData[] = [...SlashCommandRoleConfigs.MOD_ONLY];
+            //   // get the command by id
+            //   const cmd = await guild.commands.fetch(res.id);
+            //   // add our special perms
+            //   const permResult = await cmd?.permissions.set({ permissions });
+            //   if (permResult) {
+            //     console.log(
+            //       "Gave MOD access to the following command: " + res.name
+            //     );
+            //     console.dir(permResult);
+            //   }
+            // }
+        // });
+        
 
     });
 }
-
-client.on("interactionCreate", async interaction => {
-    if(!interaction.isCommand()) return;
-
-    const command = commands?.[interaction.commandName];
-    if(command) {
-        command.executeSlashCommand?.(interaction);
-    };
-})
 
 client.on('ready', async () => {
     console.log('connected to servers:');
@@ -206,6 +251,7 @@ client.on('ready', async () => {
     registerAllSlashCommands(client);
 });
 
+// #region express routes
 //stupid fix for azure app service containers requiring a response to port 8080
 const webApp = express();
 webApp.get('/', (req, res) => {
@@ -241,4 +287,4 @@ webApp.get('/seabot_hue', async (req, res) => {
 });
 
 webApp.listen(8080);
-
+// #endregion

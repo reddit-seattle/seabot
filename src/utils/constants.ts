@@ -1,5 +1,29 @@
+import { SqlQuerySpec } from '@azure/cosmos';
+import { ApplicationCommandPermissionData } from 'discord.js';
+import { ApplicationCommandPermissionTypes } from 'discord.js/typings/enums';
 import dotenv from 'dotenv';
 dotenv.config();
+
+export module Database {
+    export const DATABASE_ID = 'seabot';
+    export module Containers {
+        export const AWARDS = 'Awards';
+        export const INCIDENTS = 'Incidents';
+    }
+    export module Queries {
+        export const AWARDS_BY_USER = (userId: string): SqlQuerySpec => {
+            return {
+                query: 'SELECT * FROM Awards a where a.awardedTo = @userId',
+                parameters: [
+                    {
+                        name: '@userId',
+                        value: userId
+                    }
+                ]
+            }
+        }
+    }
+}
 
 export module Endpoints {
     export const currentWeatherURL = 'https://api.openweathermap.org/data/2.5/weather'
@@ -26,12 +50,14 @@ export module Config {
 }
 export module RoleIds {
     export const MOD = '370946173902520342';
+    export const EVERYONE = '370945003566006272';
 }
 export module ChannelIds {
     export const RANT = '804639001226379294';
     export const VOICE_CREATE = '788552426906845185';
     export const USER_VOICE_GROUP = '788552301182320640';
     export const DEBUG = '541322708844281867';
+    export const MOD_LOG = '634526832816816128';
 }
 
 export module AppConfiguration {
@@ -115,6 +141,8 @@ export module Environment {
     export const hueAppId = process.env['hueAppId'] || undefined;
     export const hueClientSecret = process.env['hueClientSecret'] || undefined;
     export const hueState = process.env['hueState'] || undefined;
+    export const cosmosHost = process.env['cosmosHost'] || '';
+    export const cosmosAuthKey = process.env['cosmosAuthKey'] || '';
 }
 export module VoiceConstants {
     export const VOICE_TYPE = 2;
@@ -132,4 +160,17 @@ export module ServerInfo {
         export const ipAddress = '20.57.179.81';
         export const access = process.env['valheim_server_password']
     }
+}
+
+export module SlashCommandRoleConfigs {
+    export const MOD_ONLY: ApplicationCommandPermissionData[] = [{
+            id: RoleIds.MOD,
+            type: ApplicationCommandPermissionTypes.ROLE,
+            permission: true,
+        },
+        {
+            id: RoleIds.EVERYONE,
+            type: ApplicationCommandPermissionTypes.ROLE,
+            permission: false,
+        }]
 }
