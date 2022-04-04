@@ -57,7 +57,6 @@ export module ChannelIds {
     export const VOICE_CREATE = '788552426906845185';
     export const USER_VOICE_GROUP = '788552301182320640';
     export const DEBUG = '541322708844281867';
-    export const GEOGUESSER = '370999118685798400';
     export const MOD_LOG = '634526832816816128';
 }
 

@@ -20,8 +20,8 @@ import { googleReact, lmgtfyReact } from './commands/reactionCommands';
 import { exit } from 'process';
 import { CosmosClient } from '@azure/cosmos';
 import DBConnector from './db/DBConnector';
-import { Award } from './models/DBModels';
-import { GiveAwardCommand, ShowAwardsCommand } from './commands/databaseCommands';
+import { Award, Incident } from './models/DBModels';
+import { IncidentCommand } from './commands/databaseCommands';
 
 const client = new Client({
   intents: [
@@ -39,16 +39,7 @@ const cosmosClient = new CosmosClient({
     key: Environment.cosmosAuthKey
 });
 
-const awardConnector = new DBConnector<Award>(cosmosClient, Database.DATABASE_ID, Database.Containers.AWARDS)
-const incidentConnector = new DBConnector<Incident>(cosmosClient, Database.DATABASE_ID, Database.Containers.INCIDENTS)
-
-awardConnector.init()
-  .catch(err => {
-    console.error(err)
-    console.error(
-      'There was an error connecting to the award container.'
-    )
-});
+const incidentConnector = new DBConnector<Incident>(cosmosClient, Database.DATABASE_ID, Database.Containers.INCIDENTS);
 
 incidentConnector.init()
 .catch(err => {
@@ -215,18 +206,37 @@ const registerAllSlashCommands = async (client: Client) => {
             const command = commands[commandName];
             if(command?.slashCommandDescription) {
                 console.log(`adding ${command.name} slash command registration`)
-               slashCommands.push(command.slashCommandDescription().toJSON())
+                const desc = command.slashCommandDescription();
+                slashCommands.push(desc.toJSON());
             }
         }
-        console.log('all commands: ')
-        console.dir(slashCommands);
         const result = await rest.put(
             Routes.applicationGuildCommands(client.user!.id, guild.id),
             {
                 body: slashCommands
             }
-        )
+        );
         console.dir(result);
+        // TODO: sort out slash command permissions
+        // result.forEach(async res => {
+            //if nobody can access this
+            // if(!res.default_permission)
+            // {
+            //   //at least let mods access it
+            //   const permissions: ApplicationCommandPermissionData[] = [...SlashCommandRoleConfigs.MOD_ONLY];
+            //   // get the command by id
+            //   const cmd = await guild.commands.fetch(res.id);
+            //   // add our special perms
+            //   const permResult = await cmd?.permissions.set({ permissions });
+            //   if (permResult) {
+            //     console.log(
+            //       "Gave MOD access to the following command: " + res.name
+            //     );
+            //     console.dir(permResult);
+            //   }
+            // }
+        // });
+        
 
     });
 }

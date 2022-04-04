@@ -6,7 +6,7 @@ import { Award, Incident } from "../models/DBModels";
 import { Database, RoleIds } from "../utils/constants";
 
 
-// #region awards
+// #region awards - WIP
 
 enum AwardSubCommandType {
     GIVE = 'give',
@@ -29,7 +29,6 @@ export class AwardsCommand implements Command {
         const cmd = new SlashCommandBuilder()
             .setName('award')
             .setDescription('Give and list awards')
-            .setDefaultPermission(false);
             cmd.addSubcommand(cmd => {
                 return cmd
                 .setName(AwardSubCommandType.GIVE)
@@ -81,7 +80,7 @@ export class AwardsCommand implements Command {
             if(result?.id) {
                 await interaction.followUp({content: 'Award granted!', ephemeral: true});
             }
-            // interaction.guild?.systemChannel?.send(`${user.username} has been given an award!`)
+            interaction.guild?.systemChannel?.send(`${user.username} has been given an award!`)
         }
         else if(cmd === AwardSubCommandType.LIST) {
             const user = interaction.options.getUser('user', false);
@@ -164,14 +163,16 @@ export class IncidentCommand implements Command {
         else if(cmd === IncidentSubCommandTypes.NEW) {
             // private response
             await interaction.deferReply({ephemeral: true});
-            // make sure the user is allowed
+
+            // mod only
             const { member } = interaction;
             if((member?.roles as GuildMemberRoleManager).cache.has(RoleIds.MOD)) {
                 //create a new incident
                 const incident: Incident = {
                     occurrence: new Date(),
                     note: interaction.options.getString('note') ?? undefined
-                }
+                };
+                // db transaction
                 const result = await this.connector.addItem(incident);
                 if(result){
                     //make a statement confirming db transaction
@@ -180,14 +181,17 @@ export class IncidentCommand implements Command {
                     interaction.guild?.systemChannel?.send(`Congratulations! It has now been \`0\` days since our last incident!\n***${result.note}***`);
                 }
                 else {
+                    // db transaction failed
                     interaction.followUp('Error creating incident record');
                 }
             }
             else {
+                // non-mod tried to add a new incident
                 interaction.followUp('You cannot perform this action. Ping a mod');
             }
         }
-        else{
+        else {
+            // idk somehow you used the command without a subcommand
             interaction.followUp('Subcommand required. RTFM');
         }
     }
