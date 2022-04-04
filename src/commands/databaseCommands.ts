@@ -135,6 +135,7 @@ export class IncidentCommand implements Command {
         .addSubcommand(cmd =>
             cmd.setName('new')
             .setDescription('indicates that a new incident has occurred')
+            .addStringOption(option => option.setName('link').setDescription('message link to start of incident'))
             .addStringOption(option => option.setName('note').setDescription('what went down'))
         )
         return cmd;
@@ -156,7 +157,7 @@ export class IncidentCommand implements Command {
             const daysSince = timeSince / (1000 * 60 * 60 * 24);
             // tell everyone
             interaction.followUp({
-                content: `It has been ${Math.round(daysSince)} day${daysSince > 1 ? 's' : ''} since the last incident.\n***${incident.note ?? 'No note provided for this incident.'}***`,
+                content: `It has been ${Math.round(daysSince)} day${daysSince > 1 ? 's' : ''} since the last incident.\n***${incident.note ?? 'No note provided for this incident.'}***${incident.link ? `\n${incident.link}` : ``}`,
                 ephemeral: false
             });
         }
@@ -178,7 +179,7 @@ export class IncidentCommand implements Command {
                     //make a statement confirming db transaction
                     interaction.followUp(`Created incident id ${result.id}: ${result.note} at ${result.occurrence}`);
                     //let everyone know we've reset to 0
-                    interaction.guild?.systemChannel?.send(`Congratulations! It has now been \`0\` days since our last incident!\n***${result.note}***`);
+                    interaction.guild?.systemChannel?.send(`Congratulations! It has now been \`0\` days since our last incident!\n***${result.note ?? 'No note provided for this incident.'}***${result.link ? `\n${result.link}` : ``}`);
                 }
                 else {
                     // db transaction failed
