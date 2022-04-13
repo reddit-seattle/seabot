@@ -4,24 +4,25 @@ import { RESTPostAPIApplicationCommandsJSONBody, Routes } from 'discord-api-type
 import express from 'express';
 import { schedule } from 'node-cron';
 
-import { ChannelIds, Config, Database, Emoji, Environment, RoleIds } from './utils/constants';
+import { ChannelIds, Database, Environment } from './utils/constants';
 import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
  import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
-import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand, botInfoCommand, sarcasmText, whoopsCommand } from './commands/utilCommands';
+import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand, botInfoCommand, sarcasmText, whoopsCommand, SourceCommand } from './commands/utilCommands';
 import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { abeLeaves, newAccountJoins } from './commands/joinLeaveCommands';
 import { Help, ReactionHelp } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
-import { SplitMessageIntoArgs, SetHueTokens } from './utils/helpers';
+import { SetHueTokens } from './utils/helpers';
 import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 import { RJSays } from './commands/rjCommands';
 import { googleReact, lmgtfyReact } from './commands/reactionCommands';
 import { exit } from 'process';
 import { CosmosClient } from '@azure/cosmos';
 import DBConnector from './db/DBConnector';
-import { Award, Incident } from './models/DBModels';
+import { Incident } from './models/DBModels';
 import { IncidentCommand } from './commands/databaseCommands';
+import { processMessageReactions } from './utils/reaccs';
 
 const client = new Client({
   intents: [
@@ -70,6 +71,7 @@ const commands: CommandDictionary = [
     RJSays,
     sarcasmText,
     whoopsCommand,
+    SourceCommand,
     new IncidentCommand(incidentConnector)
 ].reduce((map, obj) => {
     map[obj.name.toLowerCase()] = obj;
@@ -123,34 +125,8 @@ client.on('messageCreate', async (message) => {
             channel.send('https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631');
         }
     }
-    if (content.toLowerCase().includes('bisbopt')) {
-        message.react(Emoji.bisbopt);
-    }
 
-    // TODO: Deprecate non-slash commands
-    if(!message.content.startsWith(Config.prefix)) return;
-
-
-    const args = SplitMessageIntoArgs(message);
-    
-    //grab actual command and separate it from args
-    const commandArg = args?.shift()?.toLowerCase() || '';
-    const command = commands?.[commandArg];
-    
-    //send it
-    try {
-        if(command?.adminOnly && !message.member?.roles.cache.has(RoleIds.MOD)){
-            channel.send('nice try, loser');
-            return;
-        }
-        else if (command?.execute){
-            command?.execute(message, args);
-        }
-    }
-    catch (e: any) {
-        console.dir(e);
-        message.react('💩');
-    }
+    await processMessageReactions(message);
 
 });
 
