@@ -20,8 +20,9 @@ import { googleReact, lmgtfyReact } from './commands/reactionCommands';
 import { exit } from 'process';
 import { CosmosClient } from '@azure/cosmos';
 import DBConnector from './db/DBConnector';
-import { Award, Incident } from './models/DBModels';
+import { Incident } from './models/DBModels';
 import { IncidentCommand } from './commands/databaseCommands';
+import { processMessageReactions } from './utils/reaccs';
 
 const client = new Client({
   intents: [
@@ -123,34 +124,8 @@ client.on('messageCreate', async (message) => {
             channel.send('https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631');
         }
     }
-    if (content.toLowerCase().includes('bisbopt')) {
-        message.react(Emoji.bisbopt);
-    }
 
-    // TODO: Deprecate non-slash commands
-    if(!message.content.startsWith(Config.prefix)) return;
-
-
-    const args = SplitMessageIntoArgs(message);
-    
-    //grab actual command and separate it from args
-    const commandArg = args?.shift()?.toLowerCase() || '';
-    const command = commands?.[commandArg];
-    
-    //send it
-    try {
-        if(command?.adminOnly && !message.member?.roles.cache.has(RoleIds.MOD)){
-            channel.send('nice try, loser');
-            return;
-        }
-        else if (command?.execute){
-            command?.execute(message, args);
-        }
-    }
-    catch (e: any) {
-        console.dir(e);
-        message.react('💩');
-    }
+    await processMessageReactions(message);
 
 });
 
