@@ -11,7 +11,7 @@ const messageReactions: MessageReaction[] = [
     {
         reaction: '🚪',
         searchText: 'hodor',
-        trim: false
+        trim: true
     },
     {
         reaction: Emoji.bisbopt,
@@ -48,18 +48,12 @@ export const processMessageReactions = (message: Message) => {
     })
 }
 
-export const stringMatch =(content:string, searchText: string, trim?: boolean) => {
+export const stringMatch = (content:string, searchText: string, trim?: boolean) => {
+    searchText = searchText.toLowerCase();
+    content = content.toLowerCase();
     if(trim) {
-        const query = searchText.trim().replace(' ', '').toLowerCase();
-        const trimmedContent = content.trim().replace(' ', '').toLowerCase();
-        if(trimmedContent.indexOf(query) > -1) {
-            return true;
-        }
+        searchText = searchText.replace(/\s+/g, '');
+        content = content.replace(/\s+/g, '');
     }
-    else {
-        if(content.indexOf(searchText) > -1) {
-            return true;
-        }
-    }
-
+    return content.indexOf(searchText) > -1;
 }
