@@ -4,16 +4,16 @@ import { RESTPostAPIApplicationCommandsJSONBody, Routes } from 'discord-api-type
 import express from 'express';
 import { schedule } from 'node-cron';
 
-import { ChannelIds, Config, Database, Emoji, Environment, RoleIds } from './utils/constants';
+import { ChannelIds, Database, Environment } from './utils/constants';
 import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
  import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
-import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand, botInfoCommand, sarcasmText, whoopsCommand } from './commands/utilCommands';
+import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand, botInfoCommand, sarcasmText, whoopsCommand, SourceCommand } from './commands/utilCommands';
 import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { abeLeaves, newAccountJoins } from './commands/joinLeaveCommands';
 import { Help, ReactionHelp } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
-import { SplitMessageIntoArgs, SetHueTokens } from './utils/helpers';
+import { SetHueTokens } from './utils/helpers';
 import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 import { RJSays } from './commands/rjCommands';
 import { googleReact, lmgtfyReact } from './commands/reactionCommands';
@@ -71,6 +71,7 @@ const commands: CommandDictionary = [
     RJSays,
     sarcasmText,
     whoopsCommand,
+    SourceCommand,
     new IncidentCommand(incidentConnector)
 ].reduce((map, obj) => {
     map[obj.name.toLowerCase()] = obj;
