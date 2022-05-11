@@ -1,9 +1,10 @@
+import { Resource } from "@azure/cosmos";
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { Message, CommandInteraction, MessageEmbed, GuildMemberRoleManager } from "discord.js";
+import { Message, CommandInteraction, MessageEmbed, GuildMemberRoleManager, PartialMessage, CacheType, Interaction } from "discord.js";
 import DBConnector from "../db/DBConnector";
-import { Command } from "../models/Command";
-import { Award, Incident } from "../models/DBModels";
-import { Database, RoleIds } from "../utils/constants";
+import { Command, ReactionCommand } from "../models/Command";
+import { Award, ChanclaConfig, Config, Incident } from "../models/DBModels";
+import { ChannelIds, Database, EmojiIDs, RoleIds } from "../utils/constants";
 
 
 // #region awards - WIP
@@ -198,3 +199,76 @@ export class IncidentCommand implements Command {
     }
 }
 // #endregion
+
+export class ChanclaCommand implements ReactionCommand {
+    private connector: DBConnector<Config>;
+    name: string = 'chancla';
+    constructor(connector: DBConnector<Config>) {
+        this.connector = connector;
+    }
+    description = 'Hit \'em with la chancla';
+    help = 'chancla';
+    adminOnly = false;
+    emojiId: string = EmojiIDs.LACHANCLA;
+    removeReaction = false;
+    execute = async (message: Message | PartialMessage) => {
+        const {member, author} = message;
+        if(author?.bot || message.channelId == ChannelIds.HALL_OF_SHAME){
+            return;
+        }
+        if(member?.id) {
+            let config = await this.connector.runSPROC('addchancla', [member.id]);
+            console.dir(config);
+        }
+    }
+}
+
+export class ShowChanclasCommand implements Command {
+    private connector: DBConnector<Config>;
+    name: string = 'chancla';
+    constructor(connector: DBConnector<Config>) {
+        this.connector = connector;
+    }
+    description = 'Hit \'em with la chancla';
+    help = 'chancla';
+    adminOnly = false;
+    emojiId: string = EmojiIDs.LACHANCLA;
+    removeReaction = false;
+    slashCommandDescription = () => {
+        const cmd = new SlashCommandBuilder()
+            .setName('chancla')
+            .setDescription('hit em with la chancla');
+            cmd.addSubcommand(sub => 
+                sub
+                .setName('score')
+                .setDescription('Show your chancla score')
+                .addUserOption(option => 
+                    option.setName('user')
+                    .setDescription('who to show chancla scores for')
+                    .setRequired(false)
+                )
+            );
+        return cmd;
+    };
+    executeSlashCommand = async (interaction: CommandInteraction) => {
+        //currently only 'score'
+        await interaction.deferReply({ephemeral: false});
+        const cmd = interaction.options.getSubcommand(true);
+        const lookup = interaction.options.getUser('user', false);
+        const memberId = lookup ? lookup.id : interaction.member?.user.id;
+        if(memberId) {
+            try{
+            const config = await this.connector.find({
+                query: 'SELECT * FROM root r where r.id = "0"'
+            });
+            if(!config?.[0]){interaction.followUp({ephemeral: true, content: 'something went wrong :('})}
+            const num = (config?.[0] as unknown as ChanclaConfig).users[memberId] ?? 'No';
+            await interaction.followUp( {ephemeral: false, content: `${num} chanclas for ${lookup? lookup.username : interaction.user.username}`})
+            }
+            catch(ex: any){interaction.followUp({ephemeral: true, content: 'something went wrong :('})}
+            finally {
+
+            }
+        }
+    }
+}

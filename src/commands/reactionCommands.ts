@@ -8,6 +8,7 @@ export const googleReact: ReactionCommand = {
     removeReaction: false,
     emojiId: EmojiIDs.GOOGLE,
     name: 'google',
+    limit: true,
     description: `react to a post to google its contents`,
     execute: async (message: Message | PartialMessage) => {
         const { content } = message;
@@ -28,6 +29,7 @@ export const lmgtfyReact: ReactionCommand = {
     removeReaction: false,
     emojiId: EmojiIDs.LMGTFY,
     name: 'lmgtfy',
+    limit: true,
     description: `react to a post to help someone google its contents`,
     execute: async (message: Message | PartialMessage) => {
         const { content } = message;

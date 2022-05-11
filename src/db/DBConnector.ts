@@ -55,10 +55,18 @@ export default class DBConnector<T> {
     if (!this.container) {
       throw new Error('Collection is not initialized.')
     }
-    const { resource } = await this.container.item(itemId).read<T>();
+    const result = await this.container.item(itemId).read<T>();
+    return result.resource;
+  }
+
+  async updateItem(itemId: string, item: T) {
+    if (!this.container) {
+      throw new Error('Collection is not initialized.')
+    }
+    const { resource } = await this.container.item(itemId).replace<T>(item);
     return resource;
   }
-  
+
   async deleteItem(itemId: string) {
     if (!this.container) {
       throw new Error('Collection is not initialized.')
@@ -73,5 +81,17 @@ export default class DBConnector<T> {
       query: 'SELECT TOP 1 * from c ORDER BY c._ts DESC'
     });
     return items?.[0];
+  }
+  async runSPROC(sprocName: string, data:any[]) {
+    if(!this.container) {
+      throw new Error('Collection is not initialized')
+    }
+    try{
+    const {resource} = await this.container.scripts.storedProcedure(sprocName).execute('0',data);
+    return resource;
+    }
+    catch(e: any) {
+      console.dir(e);
+    }
   }
 }

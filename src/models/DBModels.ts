@@ -12,3 +12,11 @@ export interface Incident {
     note?: string;
     link?: string;
 }
+
+export interface  Config {
+    id?: string;
+}
+export interface ChanclaConfig extends Config {
+    id: string;
+    users: {[id: string]: number}
+}

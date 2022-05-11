@@ -20,8 +20,8 @@ import { googleReact, lmgtfyReact } from './commands/reactionCommands';
 import { exit } from 'process';
 import { CosmosClient } from '@azure/cosmos';
 import DBConnector from './db/DBConnector';
-import { Incident } from './models/DBModels';
-import { IncidentCommand } from './commands/databaseCommands';
+import { Config, Incident } from './models/DBModels';
+import { ChanclaCommand, IncidentCommand, ShowChanclasCommand } from './commands/databaseCommands';
 import { processMessageReactions } from './utils/reaccs';
 
 const client = new Client({
@@ -41,8 +41,15 @@ const cosmosClient = new CosmosClient({
 });
 
 const incidentConnector = new DBConnector<Incident>(cosmosClient, Database.DATABASE_ID, Database.Containers.INCIDENTS);
-
 incidentConnector.init()
+.catch(err => {
+    console.error(err)
+    console.error(
+        'There was an error connecting to the incident container.'
+        )
+    });
+const configConnector = new DBConnector<Config>(cosmosClient, Database.DATABASE_ID, Database.Containers.CONFIGS);
+configConnector.init()
 .catch(err => {
     console.error(err)
     console.error(
@@ -72,7 +79,8 @@ const commands: CommandDictionary = [
     sarcasmText,
     whoopsCommand,
     SourceCommand,
-    new IncidentCommand(incidentConnector)
+    new IncidentCommand(incidentConnector),
+    new ShowChanclasCommand(configConnector)
 ].reduce((map, obj) => {
     map[obj.name.toLowerCase()] = obj;
     return map;
@@ -81,7 +89,8 @@ const commands: CommandDictionary = [
 
 const reactionCommands: ReactionCommandDictionary = [
     googleReact,
-    lmgtfyReact
+    lmgtfyReact,
+    new ChanclaCommand(configConnector)
 ].reduce((map, obj) => {
     map[obj.emojiId.toLowerCase()] = obj;
     return map;
@@ -132,13 +141,17 @@ client.on('messageCreate', async (message) => {
 
 client.on('messageReactionAdd', async (reaction) => {
     const {message, emoji} = reaction;
+    console.dir(emoji);
     const alreadyReacted = (reaction.count && reaction.count > 1) == true;
     // this prevents the same reaction command from firing multiple times
-    if(message.author?.bot || !emoji.id || alreadyReacted) {
+    if(message.author?.bot || !emoji.id) {
         return;
     }
     try{
         const command = reactionCommands?.[emoji.id];
+        if(!command || (command?.limit && alreadyReacted)) {
+            return;
+        }
         command?.execute(message);
         if(command?.removeReaction) {
             await reaction.remove();

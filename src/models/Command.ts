@@ -18,6 +18,7 @@ export interface ReactionCommand extends Command {
     emojiId: string;
     removeReaction?: boolean;
     execute: (message: Message | PartialMessage) => void;
+    limit?: boolean;
 }
 
 export interface ReactionCommandDictionary { [id: string]: ReactionCommand }

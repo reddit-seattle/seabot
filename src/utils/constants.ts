@@ -9,6 +9,7 @@ export module Database {
     export module Containers {
         export const AWARDS = 'Awards';
         export const INCIDENTS = 'Incidents';
+        export const CONFIGS = 'Configs';
     }
     export module Queries {
         export const AWARDS_BY_USER = (userId: string): SqlQuerySpec => {
@@ -57,6 +58,7 @@ export module ChannelIds {
     export const VOICE_CREATE = '788552426906845185';
     export const USER_VOICE_GROUP = '788552301182320640';
     export const DEBUG = '541322708844281867';
+    export const HALL_OF_SHAME='932533757636902912';
     export const MOD_LOG = '634526832816816128';
 }
 
@@ -107,6 +109,7 @@ export module Strings {
 export module EmojiIDs {
     export const LMGTFY = '912904317848133692';
     export const GOOGLE = '912890880875200532';
+    export const LACHANCLA = '852649414698729493';
 }
 export module Emoji {
     export module RJ {
