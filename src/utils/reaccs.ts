@@ -16,6 +16,11 @@ const messageReactions: MessageReaction[] = [
     {
         reaction: Emoji.bisbopt,
         searchText: 'bisbopt'
+    },
+    {
+        reaction: '🦆',
+        searchText: 'duck',
+        trim: true
     }
 ]
 
