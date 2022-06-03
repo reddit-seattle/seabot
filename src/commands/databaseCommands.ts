@@ -157,7 +157,7 @@ export class IncidentCommand implements Command {
             const daysSince = timeSince / (1000 * 60 * 60 * 24);
             // tell everyone
             interaction.followUp({
-                content: `It has been ${Math.round(daysSince)} day${daysSince > 1 ? 's' : ''} since the last incident.\n***${incident.note ?? 'No note provided for this incident.'}***${incident.link ? `\n${incident.link}` : ``}`,
+                content: `It has been ${Math.round(daysSince)} day${daysSince === 1 ? '' : 's'} since the last incident.\n***${incident.note ?? 'No note provided for this incident.'}***${incident.link ? `\n${incident.link}` : ``}`,
                 ephemeral: false
             });
         }
@@ -171,7 +171,8 @@ export class IncidentCommand implements Command {
                 //create a new incident
                 const incident: Incident = {
                     occurrence: new Date(),
-                    note: interaction.options.getString('note') ?? undefined
+                    note: interaction.options.getString('note') ?? undefined,
+                    link: interaction.options.getString('link') ?? undefined
                 };
                 // db transaction
                 const result = await this.connector.addItem(incident);

@@ -189,12 +189,19 @@ export const whoopsCommand: Command = {
                     .setName('emote')
                     .setDescription('what does it look like (emote / ascii)')
                     .setRequired(true);
+            })
+            .addStringOption(option => {
+                return option
+                    .setName('bottomtext')
+                    .setDescription('optional, replaces `fell off`')
+                    .setRequired(false);
             });
     },
     executeSlashCommand: (interaction) => {
         const emoji = interaction.options.getString('emote', true);
         const object = interaction.options.getString('object', true);
-        interaction.reply(Strings.whoops(object, emoji));
+        const bottomText = interaction.options.getString('bottomtext', false);
+        interaction.reply(Strings.whoops(object, emoji, bottomText || undefined));
     }
 }
 

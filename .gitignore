@@ -63,3 +63,7 @@ typings/
 
 # dist / build output
 dist
+
+# local cert stuffs
+*.key
+*.pem
