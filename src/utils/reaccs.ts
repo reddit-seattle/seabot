@@ -1,6 +1,7 @@
 import { Message } from "discord.js"
 import { isArray } from "underscore";
 import { Emoji } from "./constants";
+import { replaceMentions } from "./helpers";
 export type MessageReaction = {
     reaction: string;
     searchText: string | string[] | RegExp;
@@ -30,7 +31,7 @@ const messageReactions: MessageReaction[] = [
 ]
 
 export const processMessageReactions = (message: Message) => {
-    const {content} = message;
+    const content = replaceMentions(message);
     messageReactions.forEach(async reacc => {
         //check regex
         const {reaction, searchText, trim} = reacc;
