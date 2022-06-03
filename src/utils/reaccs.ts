@@ -21,6 +21,11 @@ const messageReactions: MessageReaction[] = [
         reaction: '🦆',
         searchText: 'duck',
         trim: true
+    },
+    {
+        reaction: Emoji.nice,
+        searchText: '69',
+        trim: true
     }
 ]
 
