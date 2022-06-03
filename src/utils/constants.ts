@@ -39,7 +39,7 @@ export module REGEX {
     export const EMOJI = /<a?:.[^:]+:(\d+)>/g;
     export const ROLE = /<@&(\d+)>/g;
     export const CHANNEL = /<#(\d+)>/g;
-    export const USER = /<@!(\d+)>/g;
+    export const USER = /<@(\d+)>/g;
 }
 export module Hue {
     export const HUE_GO_ID = '9';
