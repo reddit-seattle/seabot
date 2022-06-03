@@ -85,14 +85,14 @@ export module Strings {
     export const coffee = '`HTTP ERR: 418 - I am a teapot`';
     export const newIssueURL = 'https://github.com/reddit-seattle/seabot/issues/new/choose';
     export const feedbackText = 'See an issue? Want to request a feature?';
-    export const whoops = (text: string, emoji: string) => `
+    export const whoops = (text: string, emoji: string, bottomtext?: string) => `
     whoops
     ⊂ヽ
     　 ＼＼ ${text}
     　　 ＼( ͡° ͜ʖ ͡°)
     　　　 >　⌒ヽ
     　　　/ 　 へ＼
-    　　 /　　/　＼＼fell out
+    　　 /　　/　＼＼${bottomtext ?? 'fell out'}
     　　 ﾚ　ノ　　 ヽつ
     　　/　) )
     　 /　/|　💦 
