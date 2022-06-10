@@ -58,6 +58,15 @@ export module ChannelIds {
     export const USER_VOICE_GROUP = '788552301182320640';
     export const DEBUG = '541322708844281867';
     export const MOD_LOG = '634526832816816128';
+    export const TELEMETRY_CATEGORIES = [
+        '370945003566006273',//main
+        '804629889852112917',//current events
+        '804629571210838086',//social
+        '370998781887381504',//gaming
+        '804630054268043264',//media
+        '438427622490243094',//hobbies
+        '371743134478237696',//sports
+    ]
 }
 
 export module AppConfiguration {
@@ -133,9 +142,10 @@ export module Environment {
         export const hueAccessToken = 'hueAccessToken';
         export const hueRefreshToken = 'hueRefreshToken'
         export const hueEnabled = 'hueEnabled'
+        export const telemetryEventHub = 'messages'
     }
     export const botToken = process.env['botToken'] || undefined;
-    export const DEBUG = process.env['seabotDEBUG'] || undefined;
+    export const DEBUG = process.env['seabotDEBUG'] || false;
     export const weatherAPIKey = process.env['weatherAPIKey'] || '';
     export const airQualityAPIKey = process.env['airQualityAPIKey'] || '';
     export const hueClientId = process.env['hueClientId'] || undefined;
@@ -144,6 +154,9 @@ export module Environment {
     export const hueState = process.env['hueState'] || undefined;
     export const cosmosHost = process.env['cosmosHost'] || '';
     export const cosmosAuthKey = process.env['cosmosAuthKey'] || '';
+    export const ehConnectionString = process.env['ehConnectionString'] || '';
+    export const sendTelemetry = process.env['sendTelemetry'] || false;
+
 }
 export module VoiceConstants {
     export const VOICE_TYPE = 2;
