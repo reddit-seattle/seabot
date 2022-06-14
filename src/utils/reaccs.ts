@@ -11,8 +11,7 @@ export type MessageReaction = {
 const messageReactions: MessageReaction[] = [
     {
         reaction: '🚪',
-        searchText: 'hodor',
-        trim: true
+        searchText: 'hodor'
     },
     {
         reaction: Emoji.bisbopt,
@@ -20,8 +19,7 @@ const messageReactions: MessageReaction[] = [
     },
     {
         reaction: '🦆',
-        searchText: 'duck',
-        trim: true
+        searchText: 'duck'
     },
     {
         reaction: Emoji.nice,
