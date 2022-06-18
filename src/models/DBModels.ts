@@ -12,3 +12,10 @@ export interface Incident {
     note?: string;
     link?: string;
 }
+
+export interface Telemetry {
+    channelId: string;
+    COUNT_channelId: number,
+    Window_End_Time: Date;
+    id?: string;
+}
