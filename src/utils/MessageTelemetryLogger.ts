@@ -31,14 +31,12 @@ export class MessageTelemetryLogger {
         }
 
         const {
-            id: messageId,
             createdTimestamp: timestamp,
             channelId,
         } = message;
         // try add
         const added = this.batch?.tryAdd({
             body: {
-                messageId,
                 channelId,
                 timestamp,
             },
