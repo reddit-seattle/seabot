@@ -148,7 +148,9 @@ client.on('messageCreate', async (message) => {
     
     // will only log message ID, channel ID, and timestamp
     // only logs message telemetry in specific categories
-    await logger.logMessageTelemetry(message);
+    if(Environment.sendTelemetry) {
+        await logger.logMessageTelemetry(message);
+    }
     
     if (channel instanceof TextChannel && channel?.id == ChannelIds.RANT) {
         deleteMessages(message);
