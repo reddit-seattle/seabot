@@ -219,3 +219,25 @@ export const SourceCommand: Command = {
         interaction.reply(`Look at my insides!\n${repoURL}`);
     }
 }
+
+export const SpeakCommand: Command = {
+    adminOnly: true,
+    name: 'speak',
+    description: 'Gives SeaBot a voice!',
+    slashCommandDescription: () => {
+        return new SlashCommandBuilder()
+            .setName('speak')
+            .setDescription('Give SeaBot a voice!')
+            .setDefaultPermission(false)
+            .addStringOption(opt => 
+                opt.setName('text')
+                    .setDescription('what to say')
+                    .setRequired(true))
+    },
+    executeSlashCommand: async (interaction) => {
+        const { options, channel } = interaction;
+        const text = options.getString('text', true);
+        await interaction.reply({content: text, ephemeral: true});
+        await channel?.send(text);
+    }   
+}
