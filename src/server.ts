@@ -8,7 +8,17 @@ import { ChannelIds, Database, Environment } from './utils/constants';
 import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
  import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
-import { coffeeCommand, pingCommand, teaCommand, valheimServerCommand, botInfoCommand, sarcasmText, whoopsCommand, SourceCommand } from './commands/utilCommands';
+import {
+    coffeeCommand,
+    pingCommand,
+    teaCommand,
+    valheimServerCommand,
+    botInfoCommand,
+    sarcasmText,
+    whoopsCommand,
+    SourceCommand,
+    SpeakCommand,
+} from "./commands/utilCommands";
 import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { abeLeaves, newAccountJoins } from './commands/joinLeaveCommands';
 import { Help, ReactionHelp } from './commands/helpCommands';
@@ -20,8 +30,8 @@ import { googleReact, lmgtfyReact } from './commands/reactionCommands';
 import { exit } from 'process';
 import { CosmosClient } from '@azure/cosmos';
 import DBConnector from './db/DBConnector';
-import { Incident } from './models/DBModels';
-import { IncidentCommand } from './commands/databaseCommands';
+import { Incident, Telemetry } from './models/DBModels';
+import { IncidentCommand, TelemetryCommand } from './commands/databaseCommands';
 import { processMessageReactions } from './utils/reaccs';
 
 import { EventHubProducerClient } from '@azure/event-hubs'
@@ -44,13 +54,29 @@ const cosmosClient = new CosmosClient({
     key: Environment.cosmosAuthKey
 });
 
-const incidentConnector = new DBConnector<Incident>(cosmosClient, Database.DATABASE_ID, Database.Containers.INCIDENTS);
-
+const incidentConnector = new DBConnector<Incident>(
+    cosmosClient,
+    Database.DATABASE_ID,
+    Database.Containers.INCIDENTS
+);
+const telemetryConnector = new DBConnector<Telemetry>(
+    cosmosClient,
+    Database.DATABASE_ID,
+    Database.Containers.TELEMETRY
+);
 incidentConnector.init()
 .catch(err => {
     console.error(err)
     console.error(
       'There was an error connecting to the incident container.'
+    )
+});
+
+telemetryConnector.init()
+.catch(err => {
+    console.error(err)
+    console.error(
+      'There was an error connecting to the telemetry container.'
     )
 });
 
@@ -76,6 +102,8 @@ const commands: CommandDictionary = [
     sarcasmText,
     whoopsCommand,
     SourceCommand,
+    SpeakCommand,
+    new TelemetryCommand(telemetryConnector),
     new IncidentCommand(incidentConnector)
 ].reduce((map, obj) => {
     map[obj.name.toLowerCase()] = obj;
@@ -203,27 +231,6 @@ const registerAllSlashCommands = async (client: Client) => {
             }
         );
         console.dir(result);
-        // TODO: sort out slash command permissions
-        // result.forEach(async res => {
-            //if nobody can access this
-            // if(!res.default_permission)
-            // {
-            //   //at least let mods access it
-            //   const permissions: ApplicationCommandPermissionData[] = [...SlashCommandRoleConfigs.MOD_ONLY];
-            //   // get the command by id
-            //   const cmd = await guild.commands.fetch(res.id);
-            //   // add our special perms
-            //   const permResult = await cmd?.permissions.set({ permissions });
-            //   if (permResult) {
-            //     console.log(
-            //       "Gave MOD access to the following command: " + res.name
-            //     );
-            //     console.dir(permResult);
-            //   }
-            // }
-        // });
-        
-
     });
 }
 

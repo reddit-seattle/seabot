@@ -9,6 +9,7 @@ export module Database {
     export module Containers {
         export const AWARDS = 'Awards';
         export const INCIDENTS = 'Incidents';
+        export const TELEMETRY = 'MessageTelemetry';
     }
     export module Queries {
         export const AWARDS_BY_USER = (userId: string): SqlQuerySpec => {
@@ -18,6 +19,20 @@ export module Database {
                     {
                         name: '@userId',
                         value: userId
+                    }
+                ]
+            }
+        }
+        export const TELEMETRY: SqlQuerySpec = {
+            query: 'SELECT * FROM MessageTelemetry',
+        }
+        export const TELEMETRY_BY_CHANNEL = (channelId: string): SqlQuerySpec => {
+            return {
+                query: 'SELECT * FROM MessageTelemetry t where t.channelId = @channelId',
+                parameters: [
+                    {
+                        name: '@channelId',
+                        value: channelId
                     }
                 ]
             }
