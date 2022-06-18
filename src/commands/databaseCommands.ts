@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { Message, CommandInteraction, MessageEmbed, GuildMemberRoleManager } from "discord.js";
-import _ from "underscore";
 import moment from "moment";
 import DBConnector from "../db/DBConnector";
 import { Command } from "../models/Command";

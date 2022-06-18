@@ -146,8 +146,8 @@ client.on('messageCreate', async (message) => {
 
     const { channel, content } = message;
     
-    // will only log message ID, channel ID, and timestamp
-    // only logs message telemetry in specific categories
+    // will only log channel ID and timestamp
+    // only logs message telemetry (if enabled) in specific categories
     if(Environment.sendTelemetry) {
         await logger.logMessageTelemetry(message);
     }
