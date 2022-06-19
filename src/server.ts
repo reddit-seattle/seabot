@@ -23,7 +23,6 @@ import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { abeLeaves, newAccountJoins } from './commands/joinLeaveCommands';
 import { Help, ReactionHelp } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
-import { SetHueTokens } from './utils/helpers';
 import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 import { RJSays } from './commands/rjCommands';
 import { googleReact, lmgtfyReact } from './commands/reactionCommands';
@@ -36,6 +35,9 @@ import { processMessageReactions } from './utils/reaccs';
 
 import { EventHubProducerClient } from '@azure/event-hubs'
 import { MessageTelemetryLogger } from './utils/MessageTelemetryLogger';
+import { HueWebHandler } from './web/handlers/hueHandlers';
+import { DefaultHandler } from './web/handlers/defaultHandler';
+import { ChannelTelemetryHandler, RootTelemetryHandler } from './web/handlers/telemetryHandlers';
 const eventHubMessenger = new EventHubProducerClient(Environment.ehConnectionString, Environment.Constants.telemetryEventHub);
 
 const client = new Client({
@@ -250,37 +252,12 @@ client.on('ready', async () => {
 // #region express routes
 //stupid fix for azure app service containers requiring a response to port 8080
 const webApp = express();
-webApp.get('/', (req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.write('nothing to see here');
-    res.end();
-});
+webApp.get('/', DefaultHandler);
 // hue auth flow configuration
-webApp.get('/seabot_hue', async (req, res) => {
-    try{
-        const { code, state } = req?.query;
-        if(!state || state != Environment.hueState){
-            throw new Error('Invalid state value');
-        }
-        const result = await SetHueTokens(code as string);
-        if(result?.success) {
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.write(`Successfully set Hue access and refresh tokens!`);
-            res.end();
-        }
-        else {
-            throw new Error(result.error);
-        }
-    }
-    catch(e: any) {
-        res.writeHead(400, { 'Content-Type': 'text/plain' });
-        res.write(`
-            Something (bad) happened trying to get auth code / set tokens:</br>
-            ${JSON.stringify(e)}`
-        );
-        res.end();
-    }
-});
+webApp.get('/seabot_hue', HueWebHandler);
+
+webApp.get('/telemetry', (req, res) => RootTelemetryHandler(client, telemetryConnector, req, res))
+webApp.get('/telemetry/:channelId', (req, res) => ChannelTelemetryHandler(client, telemetryConnector, req.params.channelId, req, res))
 
 webApp.listen(8080);
 // #endregion
