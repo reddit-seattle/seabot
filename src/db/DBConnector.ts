@@ -37,7 +37,8 @@ export default class DBConnector<T> {
 
   async find(querySpec: string | SqlQuerySpec) {
     if (!this.container) {
-      throw new Error('Collection is not initialized.')
+      console.log('Collection is not initialized.');
+      return [];
     }
     const { resources } = await this.container.items.query<T>(querySpec).fetchAll()
     return resources;
@@ -45,7 +46,8 @@ export default class DBConnector<T> {
 
   async addItem(item: T) {
     if (!this.container) {
-      throw new Error('Collection is not initialized.')
+      console.log('Collection is not initialized.');
+      return null;
     }
     const { resource } = await this.container.items.create<T>(item)
     return resource;
@@ -53,7 +55,8 @@ export default class DBConnector<T> {
 
   async getItem(itemId: string) {
     if (!this.container) {
-      throw new Error('Collection is not initialized.')
+      console.log('Collection is not initialized.');
+      return null;
     }
     const { resource } = await this.container.item(itemId).read<T>();
     return resource;
@@ -61,7 +64,8 @@ export default class DBConnector<T> {
   
   async deleteItem(itemId: string) {
     if (!this.container) {
-      throw new Error('Collection is not initialized.')
+      console.log('Collection is not initialized.');
+      return null;
     }
     const { resource } = await this.container.item(itemId).delete<T>();
     return resource;
