@@ -83,6 +83,7 @@ export const TelemetryMultiLineChart = (
         svg.append("path")
             // @ts-ignore
             .attr("d", lineGen(data[channel]))
+            .attr("title", channelMappings[channel])
             .attr("stroke", color)
             .attr("stroke-width", 2)
             .attr("fill", "none");
@@ -105,7 +106,7 @@ export const TelemetryMultiLineChart = (
                 <td style="background-color: ${colors[channel]}; width: 100px;">____________</td>
                 <td>${channelMappings[channel]}</td>
             </tr>`;
-        })}
+        }).join('')}
         </table>
 
     </html>`;
