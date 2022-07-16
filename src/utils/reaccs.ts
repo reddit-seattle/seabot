@@ -1,6 +1,6 @@
 import { Message } from "discord.js"
 import { isArray } from "underscore";
-import { Emoji } from "./constants";
+import { Emoji, REGEX } from "./constants";
 import { replaceMentions } from "./helpers";
 export type MessageReaction = {
     reaction: string;
@@ -57,12 +57,15 @@ export const processMessageReactions = (message: Message) => {
     })
 }
 
-export const stringMatch = (content:string, searchText: string, trim?: boolean) => {
+export const stringMatch = (content:string, searchText: string, trim?: boolean, enableLinks?: boolean) => {
     searchText = searchText.toLowerCase();
     content = content.toLowerCase();
     if(trim) {
         searchText = searchText.replace(/\s+/g, '');
         content = content.replace(/\s+/g, '');
+    }
+    if(!enableLinks) {
+        content = content.replace(REGEX.URL, '');
     }
     return content.indexOf(searchText) > -1;
 }
