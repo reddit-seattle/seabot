@@ -185,10 +185,12 @@ client.on('messageReactionAdd', async (reaction, user) => {
     ) {
         const event = await createServerEvent.execute(message) as GuildScheduledEvent;
         try{ 
-            //confirm event creation
-            await message.react('✅');
-            //attempt to message user who created it with link
-            await user.send(`Event created: ${event.url}`); 
+            if(event){
+                //confirm event creation
+                await message.react('✅');
+                //attempt to message user who created it with link
+                await user.send(`Event created: ${event.url}`);
+            }
         }
         catch(e: any) {
             console.dir(e);

@@ -1,4 +1,3 @@
-import assert from "assert";
 import {
     DiscordAPIError,
     GuildScheduledEvent,
@@ -8,7 +7,7 @@ import {
 } from "discord.js";
 import _ from "underscore";
 import { ReactionCommand } from "../models/Command";
-import { EmojiIDs, Environment, UserIDs } from "../utils/constants";
+import { EmojiIDs } from "../utils/constants";
 import {
     parseApolloMarkdownLink,
     pullTimeStampsFromApolloString,
@@ -85,21 +84,23 @@ export const createServerEvent: ReactionCommand = {
         try {
             return (await message.guild?.scheduledEvents.create({
                 entityType: 3, // "EXTERNAL",
-                name: title,
+                name: title?.substring(0, 100), // limited to 100 characters
                 privacyLevel: 2, // "GUILD_ONLY",
                 scheduledStartTime: start,
                 scheduledEndTime: end,
                 image: image?.url,
-                description: `
-                    ${description}
-                
-                    ${calendarTitle}:
-                    ${calendarUrl}
-                
-                    Event link: ${url}
-                
-                    ${footer?.text}
-                `,
+                description: `${description?.substring(0, 300)}${
+                    description?.length && description?.length > 300
+                        ? "..."
+                        : ""
+                }
+
+${calendarTitle}:
+${calendarUrl}
+
+Event link: ${url}
+
+${footer?.text}`,
                 entityMetadata: {
                     location: "See event link in description",
                 },

@@ -165,7 +165,7 @@ export module Environment {
         export const telemetryEventHub = 'messages'
     }
     export const botToken = process.env['botToken'] || undefined;
-    export const DEBUG = process.env['seabotDEBUG'] || false;
+    export const DEBUG = process.env['seabotDEBUG'] == 'true' || false;
     export const weatherAPIKey = process.env['weatherAPIKey'] || '';
     export const airQualityAPIKey = process.env['airQualityAPIKey'] || '';
     export const hueClientId = process.env['hueClientId'] || undefined;
