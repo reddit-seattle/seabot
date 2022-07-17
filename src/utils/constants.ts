@@ -142,6 +142,7 @@ export module Emoji {
         export const partyrj = '<a:partyrj:908213205409619968>';
 
     }
+    export const downvote = '<:downvote:607100771028172820>';
     export const tsktsk = '<a:tsktsk:907698722635399218>';
     export const fingerguns = '<:fingerguns:901378901908017152>';
     export const krakenjersey = '<:krakenjersey:882102376385900564>';

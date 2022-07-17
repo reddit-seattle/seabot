@@ -25,6 +25,10 @@ const messageReactions: MessageReaction[] = [
         reaction: Emoji.nice,
         searchText: '69',
         trim: true
+    },
+    {
+        reaction: Emoji.downvote,
+        searchText: 'puyallup',
     }
 ]
 
