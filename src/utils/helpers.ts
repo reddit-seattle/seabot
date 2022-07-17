@@ -1,6 +1,7 @@
-import { Message, PartialMessage } from "discord.js"
-import { Config, Environment, REGEX } from "./constants";
+import { Message, MessageReaction, PartialMessage, PartialMessageReaction, PartialUser, User } from "discord.js"
+import { Config, Environment, REGEX, RoleIds } from "./constants";
 import { v3 as NodeHue } from 'node-hue-api';
+import { now } from "moment";
 
 /**
  * Splits message content into an array of arguments by spaces.
@@ -116,4 +117,27 @@ export const toSarcasticCase = (text: string) => {
         }
         return char;
     }).join('');
+}
+
+export const pullTimeStampsFromApolloString = (timestring: string) => {
+    const startStr = timestring.match('<t:([0-9]*):F>')?.[1];
+    const endStr = timestring.match('<t:([0-9]*):t>')?.[1];
+    const start = startStr ? (parseInt(startStr) * 1000) : now();
+    //if no end - default to one hour
+    const end = endStr ? (parseInt(endStr) * 1000) : start + (60 * 60 * 1000);
+    return { start, end };
+}
+
+export const parseApolloMarkdownLink = (apolloLink: string) => {
+    const markdownLinkRegex = /\[([^\]]*)\]\(([^)]*)\)/;
+    const parsed = apolloLink.match(markdownLinkRegex)
+    return {
+        title: parsed?.[1],
+        url: parsed?.[2]
+    }
+}
+
+export const isModReaction = (reacc: MessageReaction | PartialMessageReaction, user: User | PartialUser) => {
+    const guildUser = reacc.message.guild?.members.cache.get(user.id);
+    return guildUser?.roles.cache.has(RoleIds.MOD) ?? false;
 }

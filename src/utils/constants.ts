@@ -68,6 +68,9 @@ export module RoleIds {
     export const MOD = '370946173902520342';
     export const EVERYONE = '370945003566006272';
 }
+export module UserIDs {
+    export const APOLLO = '475744554910351370';
+}
 export module ChannelIds {
     export const RANT = '804639001226379294';
     export const VOICE_CREATE = '788552426906845185';
