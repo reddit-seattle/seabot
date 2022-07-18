@@ -1,10 +1,10 @@
-import { Client, TextChannel } from 'discord.js'
+import { Client, GuildScheduledEvent, TextChannel } from 'discord.js'
 import { REST } from '@discordjs/rest';
 import { RESTPostAPIApplicationCommandsJSONBody, Routes } from 'discord-api-types/v9';
 import express from 'express';
 import { schedule } from 'node-cron';
 
-import { ChannelIds, Database, Environment } from './utils/constants';
+import { ChannelIds, Database, Environment, UserIDs } from './utils/constants';
 import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
  import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
@@ -23,10 +23,10 @@ import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { abeLeaves, newAccountJoins } from './commands/joinLeaveCommands';
 import { Help, ReactionHelp } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
-import { SetHueTokens } from './utils/helpers';
+import { isModReaction, SetHueTokens } from './utils/helpers';
 import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 import { RJSays } from './commands/rjCommands';
-import { googleReact, lmgtfyReact } from './commands/reactionCommands';
+import { createServerEvent, googleReact, lmgtfyReact } from './commands/reactionCommands';
 import { exit } from 'process';
 import { CosmosClient } from '@azure/cosmos';
 import DBConnector from './db/DBConnector';
@@ -45,6 +45,7 @@ const client = new Client({
     "GUILD_VOICE_STATES",
     "GUILD_MEMBERS",
     "GUILD_MESSAGE_REACTIONS",
+    'GUILD_SCHEDULED_EVENTS'
   ],
 });
 
@@ -170,9 +171,36 @@ client.on('messageCreate', async (message) => {
 
 });
 
-client.on('messageReactionAdd', async (reaction) => {
+client.on('messageReactionAdd', async (reaction, user) => {
     const {message, emoji} = reaction;
     const alreadyReacted = (reaction.count && reaction.count > 1) == true;
+
+    //dangerous - allow seabot to react to a bot's commands for creating server events
+    if (
+        !alreadyReacted &&
+        message.author?.id === UserIDs.APOLLO &&
+        emoji.name === createServerEvent.emojiId &&
+        isModReaction(reaction, user) && 
+        !Environment.DEBUG
+    ) {
+        const event = await createServerEvent.execute(message) as GuildScheduledEvent;
+        try{ 
+            if(event){
+                //confirm event creation
+                await message.react('✅');
+                //attempt to message user who created it with link
+                await user.send(`Event created: ${event.url}`);
+            }
+        }
+        catch(e: any) {
+            console.dir(e);
+        }
+        finally{
+            //stop processing  reactions after this
+            return;
+        }
+    }
+
     // this prevents the same reaction command from firing multiple times
     if(message.author?.bot || !emoji.id || alreadyReacted) {
         return;

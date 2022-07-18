@@ -55,6 +55,7 @@ export module REGEX {
     export const ROLE = /<@&(\d+)>/g;
     export const CHANNEL = /<#(\d+)>/g;
     export const USER = /<@(\d+)>/g;
+    export const URL = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/;
 }
 export module Hue {
     export const HUE_GO_ID = '9';
@@ -66,6 +67,9 @@ export module Config {
 export module RoleIds {
     export const MOD = '370946173902520342';
     export const EVERYONE = '370945003566006272';
+}
+export module UserIDs {
+    export const APOLLO = '475744554910351370';
 }
 export module ChannelIds {
     export const RANT = '804639001226379294';
@@ -141,6 +145,7 @@ export module Emoji {
         export const partyrj = '<a:partyrj:908213205409619968>';
 
     }
+    export const downvote = '<:downvote:607100771028172820>';
     export const tsktsk = '<a:tsktsk:907698722635399218>';
     export const fingerguns = '<:fingerguns:901378901908017152>';
     export const krakenjersey = '<:krakenjersey:882102376385900564>';
@@ -160,7 +165,7 @@ export module Environment {
         export const telemetryEventHub = 'messages'
     }
     export const botToken = process.env['botToken'] || undefined;
-    export const DEBUG = process.env['seabotDEBUG'] || false;
+    export const DEBUG = process.env['seabotDEBUG'] == 'true' || false;
     export const weatherAPIKey = process.env['weatherAPIKey'] || '';
     export const airQualityAPIKey = process.env['airQualityAPIKey'] || '';
     export const hueClientId = process.env['hueClientId'] || undefined;

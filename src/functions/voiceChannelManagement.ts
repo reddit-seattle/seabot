@@ -64,7 +64,7 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
             ]
         }).then(channel => {
             // add user to channel
-            state?.member?.voice?.setChannel(channel as VoiceChannel);
+            state?.member?.voice?.setChannel(channel as unknown as VoiceChannel);
         });
     }
 };
