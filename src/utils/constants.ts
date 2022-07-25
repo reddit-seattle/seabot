@@ -155,6 +155,7 @@ export module Emoji {
     export const stupidsponge = '<:stupidsponge:627172014548975626>';
     export const bisbopt = '<:bisbopt:932884278214266910>';
     export const nice = '<:nice:873991139282264084>';
+    export const weed = '<:weed:871622825843245099>';
 }
 
 export module Environment {
