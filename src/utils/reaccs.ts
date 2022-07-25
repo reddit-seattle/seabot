@@ -27,6 +27,11 @@ const messageReactions: MessageReaction[] = [
         trim: true
     },
     {
+        reaction: Emoji.weed,
+        searchText: '420',
+        trim: true
+    },
+    {
         reaction: Emoji.downvote,
         searchText: 'puyallup',
     }
