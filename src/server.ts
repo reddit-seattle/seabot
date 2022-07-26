@@ -4,7 +4,7 @@ import { RESTPostAPIApplicationCommandsJSONBody, Routes } from 'discord-api-type
 import express from 'express';
 import { schedule } from 'node-cron';
 
-import { ChannelIds, Database, Environment, UserIDs } from './utils/constants';
+import { ChannelIds, Database, Environment, GuildIds, UserIDs } from './utils/constants';
 import { CommandDictionary, ReactionCommandDictionary } from './models/Command';
  import { MTGCommand } from './commands/mtgCommands';
 import { AirQualityCommand, ForecastCommand, WeatherCommand } from './commands/weatherCommands';
@@ -42,6 +42,7 @@ const client = new Client({
   intents: [
     "GUILDS",
     "GUILD_MESSAGES",
+    "GUILD_PRESENCES",
     "GUILD_VOICE_STATES",
     "GUILD_MEMBERS",
     "GUILD_MESSAGE_REACTIONS",
@@ -267,10 +268,15 @@ const registerAllSlashCommands = async (client: Client) => {
 client.on('ready', async () => {
     await logger?.Ready;
     console.log('connected to servers:');
-    client.guilds.cache.forEach(guild => {
+    client.guilds.cache.forEach(async guild => {
         console.log(guild.name);
+        //announce when seabot process starts (only on /r/seattle currently)
+        if(!Environment.DEBUG && guild.id === GuildIds.Seattle) {
+            const debugChannel = await guild.channels.fetch(ChannelIds.DEBUG);
+            (debugChannel as TextChannel)?.send('Greetings - SEABot is back online');
+        }
     });
-    client.user?.setPresence({ activities: [{ name: 'bot stuff' }], status: 'online' })
+    client.user?.setPresence({ activities: [{name: 'with discord.js', type: 'PLAYING'}], status: 'online' })
     startCronJobs();
     registerAllSlashCommands(client);
 });

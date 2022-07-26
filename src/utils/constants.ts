@@ -88,6 +88,10 @@ export module ChannelIds {
     ]
 }
 
+export module GuildIds {
+    export const Seattle = '370945003566006272';
+}
+
 export module AppConfiguration {
     export const BOT_RELEASE_VERSION = process.env['botReleaseVersion'] || undefined;
     export const BOT_RELEASE_REASON = process.env['botReleaseReason'] || undefined;
