@@ -1,6 +1,6 @@
 import { Client, GuildScheduledEvent, TextChannel } from 'discord.js'
 import { REST } from '@discordjs/rest';
-import { ActivityType, RESTPostAPIApplicationCommandsJSONBody, Routes } from 'discord-api-types/v9';
+import { RESTPostAPIApplicationCommandsJSONBody, Routes } from 'discord-api-types/v9';
 import express from 'express';
 import { schedule } from 'node-cron';
 
