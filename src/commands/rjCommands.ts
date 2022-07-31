@@ -38,7 +38,7 @@ export const RJSays: Command = {
                 option.setName('emote')
                 .setDescription('which emote would you like');
                 Object.keys(RJStrings).forEach(emoji => {
-                    option.addChoice(emoji, emoji);
+                    option.addChoices({name: emoji, value: emoji});
                 });
                 return option;
             });
