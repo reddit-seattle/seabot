@@ -1,7 +1,23 @@
-import { Message, MessageReaction, PartialMessage, PartialMessageReaction, PartialUser, User } from "discord.js"
-import { Config, Environment, REGEX, RoleIds } from "./constants";
+import {
+    CacheType,
+    GuildBasedChannel,
+    Interaction,
+    Message,
+    MessageActionRow,
+    MessageButton,
+    MessageComponentInteraction,
+    MessageEmbed,
+    MessageReaction,
+    PartialMessage,
+    PartialMessageReaction,
+    PartialUser,
+    User,
+} from "discord.js";
+import { ChannelIds, Config, Environment, GuildIds, REGEX, RoleIds } from "./constants";
 import { v3 as NodeHue } from 'node-hue-api';
 import { now } from "moment";
+import { APIInteractionDataResolvedChannel } from "discord-api-types/v10";
+import { MessageButtonStyles } from "discord.js/typings/enums";
 
 /**
  * Splits message content into an array of arguments by spaces.
@@ -141,3 +157,102 @@ export const isModReaction = (reacc: MessageReaction | PartialMessageReaction, u
     const guildUser = reacc.message.guild?.members.cache.get(user.id);
     return guildUser?.roles.cache.has(RoleIds.MOD) ?? false;
 }
+
+type ModActionOptions = {
+    anon: boolean,
+    user?: User,
+    channel?: APIInteractionDataResolvedChannel | GuildBasedChannel,
+    messageLink?: string
+}
+
+export const buildModActionRow = (options: ModActionOptions)  => {
+    const ignoreButton = new MessageButton()
+        .setCustomId('ignoreReport')
+        .setEmoji('🔇')
+        .setLabel('Ignore')
+        .setStyle(MessageButtonStyles.DANGER);
+
+    const ackButton = new MessageButton()
+        .setCustomId('ackReport')
+        .setEmoji('✅')
+        .setLabel('ACK')
+        .setStyle(MessageButtonStyles.PRIMARY);
+
+    // const replyButton = new MessageButton()
+    //     .setCustomId('replyReport')
+    //     .setEmoji('✉️')
+    //     .setLabel('Reply')
+    //     .setStyle(MessageButtonStyles.SECONDARY);
+
+    let viewButton: MessageButton | undefined = undefined;
+
+    if(options.messageLink || options?.channel?.id){
+        viewButton = new MessageButton()
+            .setEmoji('👀')
+            .setLabel('View')
+            .setStyle(MessageButtonStyles.LINK);
+        if(options.messageLink) {
+            viewButton.setURL(options.messageLink);
+        }
+        else if(options?.channel?.id) {
+            viewButton.setURL(createChannelLink(options.channel.id));
+        }
+    }
+    const buttons = [
+        ignoreButton,
+        ackButton,
+        // ...(options.anon ? [] : [replyButton]), // reply button WIP
+        ...(viewButton ? [viewButton] : [])
+    ];
+    const modActionRow = new MessageActionRow().addComponents(buttons)
+    return modActionRow;
+}
+
+export const createChannelLink = (channelId: string) => {
+    return `https://discordapp.com/channels/${GuildIds.Seattle}/${channelId}`;
+}
+
+export const processModReportInteractions = async (interaction: Interaction<CacheType>) => {
+    if (!interaction.isButton() || interaction.channelId != ChannelIds.MOD_REPORTS) return;
+
+    const processDict: {[id: string]: (i: MessageComponentInteraction<CacheType>) => void} = {
+        'ignoreReport': async (i) => {
+            const reporter = i.message.embeds?.[0].author?.name;
+            await i.update({
+                content: `Report by ${reporter ?? 'anonymous'} ignored`,
+                embeds: [],
+                components: []
+            });
+        },
+        'ackReport': async (i) => {
+            const newEmbed = i.message.embeds?.[0] as MessageEmbed;
+            newEmbed.setColor('GREEN');
+            await i.update({
+                content: `${i.message.content}\nReport was ACK'd by: ${i.user.username}`,
+                embeds: [newEmbed],
+                components:[]
+            })
+        },
+        'replyReport': async (i) => {
+            // const embed = i.message.embeds?.[0] as MessageEmbed;
+            // const embedField = embed?.fields?.[0];
+            // if(embedField.name == 'ReplyID') {
+            //     const user = embed?.fields?.[1].value;
+            //     const modal = new ModalBuilder()
+            //         .setCustomId(`reportResponse_${embedField.value}`)
+            //         .setTitle(`Reply to ${user}`);
+            //     const messageInput = new TextInputBuilder()
+            //         .setCustomId(`reportResponse_message_${embedField.value}`)
+            //         .setLabel('Message')
+            //         .setStyle(TextInputStyle.Paragraph)
+            //     const inputRow = new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput);
+            //     modal.addComponents(inputRow);
+            // }
+
+         }
+            
+    }
+
+    processDict?.[interaction.customId]?.(interaction)
+}
+

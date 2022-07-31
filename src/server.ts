@@ -23,7 +23,7 @@ import { clearChannel, deleteMessages } from './commands/rantChannelCommands';
 import { abeLeaves, newAccountJoins } from './commands/joinLeaveCommands';
 import { Help, ReactionHelp } from './commands/helpCommands';
 import { handleVoiceStatusUpdate } from './functions/voiceChannelManagement';
-import { isModReaction, SetHueTokens } from './utils/helpers';
+import { isModReaction, processModReportInteractions, SetHueTokens } from './utils/helpers';
 import { HueEnable, HueInit, HueSet } from './commands/hueCommands';
 import { RJSays } from './commands/rjCommands';
 import { createServerEvent, googleReact, lmgtfyReact } from './commands/reactionCommands';
@@ -36,6 +36,7 @@ import { processMessageReactions } from './utils/reaccs';
 
 import { EventHubProducerClient } from '@azure/event-hubs'
 import { MessageTelemetryLogger } from './utils/MessageTelemetryLogger';
+import { submitReportCommand } from './commands/reportCommands';
 const eventHubMessenger = new EventHubProducerClient(Environment.ehConnectionString, Environment.Constants.telemetryEventHub);
 
 const client = new Client({
@@ -105,6 +106,7 @@ const commands: CommandDictionary = [
     whoopsCommand,
     SourceCommand,
     SpeakCommand,
+    submitReportCommand,
     new TelemetryCommand(telemetryConnector),
     new IncidentCommand(incidentConnector)
 ].reduce((map, obj) => {
@@ -219,6 +221,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     }
 });
 
+//process slash commands
 client.on("interactionCreate", async interaction => {
     if(!interaction.isCommand()) return;
 
@@ -226,7 +229,10 @@ client.on("interactionCreate", async interaction => {
     if(command) {
         command.executeSlashCommand?.(interaction);
     };
-})
+});
+
+// handle mod report reactions
+client.on('interactionCreate', processModReportInteractions);
 
 //handle voice connections
 client.on('voiceStateUpdate', handleVoiceStatusUpdate);
