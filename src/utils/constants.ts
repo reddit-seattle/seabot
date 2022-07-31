@@ -77,6 +77,7 @@ export module ChannelIds {
     export const USER_VOICE_GROUP = '788552301182320640';
     export const DEBUG = '541322708844281867';
     export const MOD_LOG = '634526832816816128';
+    export const MOD_REPORTS = '1003017032364728330';
     export const TELEMETRY_CATEGORIES = [
         '370945003566006273',//main
         '804629889852112917',//current events
