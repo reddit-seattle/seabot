@@ -1,5 +1,5 @@
 import { Message } from "discord.js"
-import { isArray } from "underscore";
+import { any } from "underscore";
 import { Emoji, REGEX } from "./constants";
 import { replaceMentions } from "./helpers";
 export type MessageReaction = {
@@ -33,7 +33,7 @@ const messageReactions: MessageReaction[] = [
     },
     {
         reaction: Emoji.downvote,
-        searchText: 'puyallup',
+        searchText: /puya[il]{1,2}up/ig,
     }
 ]
 
@@ -41,39 +41,26 @@ export const processMessageReactions = (message: Message) => {
     const content = replaceMentions(message);
     messageReactions.forEach(async reacc => {
         //check regex
-        const {reaction, searchText, trim} = reacc;
-        if(searchText instanceof RegExp) {
-            if(content.match(searchText)) {
-                await message.react(reaction);
-            }
+        const { reaction, searchText, trim } = reacc;
+        if (any([
+            typeof searchText === 'string' && stringMatch(content, searchText, trim),
+            searchText instanceof RegExp && content.match(searchText),
+            searchText instanceof Array && searchText.some(text => stringMatch(content, text, trim))
+        ])) {
+            await message.react(reaction);
         }
-        else {
-            //assume string search check array
-            if (isArray(searchText)) {
-                searchText.forEach(async q => {
-                    if(stringMatch(content, q, trim)) {
-                        await message.react(reaction);
-                    }
-                })
-            }
-            else {
-                //literal string match
-                if(stringMatch(content, searchText, trim)) {
-                    await message.react(reaction);
-                }
-            }
-        }
-    })
+
+    });
 }
 
-export const stringMatch = (content:string, searchText: string, trim?: boolean, enableLinks?: boolean) => {
+export const stringMatch = (content: string, searchText: string, trim?: boolean, enableLinks?: boolean) => {
     searchText = searchText.toLowerCase();
     content = content.toLowerCase();
-    if(trim) {
+    if (trim) {
         searchText = searchText.replace(/\s+/g, '');
         content = content.replace(/\s+/g, '');
     }
-    if(!enableLinks) {
+    if (!enableLinks) {
         content = content.replace(REGEX.URL, '');
     }
     return content.indexOf(searchText) > -1;
