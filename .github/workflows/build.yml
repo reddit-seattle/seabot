@@ -30,9 +30,9 @@ jobs:
       - name: install
         run: |
           npm ci
-          npm run tsc
       - name: build
-        run: tsc 
+        run: |
+          npm run tsc
       # Tests are pointless at this point anyway 
       # - name: test
       #   run: npm test -- --coverage 
