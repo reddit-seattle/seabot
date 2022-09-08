@@ -161,7 +161,7 @@ export module Emoji {
     export const bisbopt = '<:bisbopt:932884278214266910>';
     export const nice = '<:nice:873991139282264084>';
     export const weed = '<:weed:871622825843245099>';
-    export const bruh = '<:bruh:1017319064831533056>';
+    export const bruh = '<:bruh:627258275926114385>';
 }
 
 export module Environment {
