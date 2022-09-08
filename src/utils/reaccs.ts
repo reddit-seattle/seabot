@@ -34,6 +34,10 @@ const messageReactions: MessageReaction[] = [
     {
         reaction: Emoji.downvote,
         searchText: /puya[il]{1,2}up/ig,
+    },
+    {
+        reaction: Emoji.bruh,
+        searchText: 'bruh',
     }
 ]
 
