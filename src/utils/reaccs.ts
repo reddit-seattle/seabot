@@ -33,7 +33,7 @@ const messageReactions: MessageReaction[] = [
     },
     {
         reaction: Emoji.downvote,
-        searchText: /puya[1il]{1,2}up/ig,
+        searchText: /puya[1ilӏ]{1,2}up/ig,
     },
     {
         reaction: Emoji.bruh,
