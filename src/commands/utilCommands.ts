@@ -1,8 +1,7 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { Message, MessageEmbed } from "discord.js";
+import { SlashCommandBuilder, Message, EmbedBuilder } from "discord.js";
 import { Command } from "../models/Command";
-import { ServerInfo, Strings, AppConfiguration, Config, Emoji } from "../utils/constants";
-import { replaceMentions, toSarcasticCase } from "../utils/helpers";
+import { ServerInfo, Strings, AppConfiguration, Emoji } from "../utils/constants";
+import { toSarcasticCase } from "../utils/helpers";
 
 export const pingCommand: Command = {
     name: 'ping',
@@ -91,7 +90,7 @@ export const botInfoCommand: Command = {
         const { versions, arch } = process;
         interaction.reply({
             embeds: [
-                new MessageEmbed({
+                new EmbedBuilder({
                     title: 'SEABot Status',
                     description: 'Latest release and uptime info',
                     fields: [

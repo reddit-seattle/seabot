@@ -1,5 +1,11 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { Message, CommandInteraction, MessageEmbed, GuildMemberRoleManager } from "discord.js";
+
+import {
+    SlashCommandBuilder,
+    Message,
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    GuildMemberRoleManager,
+} from "discord.js";
 import moment from "moment";
 import DBConnector from "../db/DBConnector";
 import { Command } from "../models/Command";
@@ -7,7 +13,6 @@ import { Award, Incident, Telemetry } from "../models/DBModels";
 import { Database, RoleIds } from "../utils/constants";
 
 
-// #region awards - WIP
 
 enum AwardSubCommandType {
     GIVE = 'give',
@@ -61,7 +66,7 @@ export class AwardsCommand implements Command {
             return cmd;
 
     };
-    executeSlashCommand = async (interaction: CommandInteraction) => {
+    executeSlashCommand = async (interaction: ChatInputCommandInteraction) => {
         await interaction.deferReply({ephemeral: true});
         const cmd = interaction.options.getSubcommand(true);
         if(cmd === AwardSubCommandType.GIVE) {
@@ -87,7 +92,7 @@ export class AwardsCommand implements Command {
             const user = interaction.options.getUser('user', false);
             const records = await this.connector.find(Database.Queries.AWARDS_BY_USER(user ? user.id : interaction.user.id));
             if(records?.[0]) {
-                const embed = new MessageEmbed({
+                const embed = new EmbedBuilder({
                     title: `Awards for ${user?.username || interaction.user.username}`,
                     description: `${records.length} award${records.length > 1 ? 's' : ''}:`,
                     fields: records.map((award, i) => {
@@ -141,7 +146,7 @@ export class IncidentCommand implements Command {
         )
         return cmd;
     };
-    executeSlashCommand = async (interaction: CommandInteraction) => {
+    executeSlashCommand = async (interaction: ChatInputCommandInteraction) => {
         const cmd = interaction.options.getSubcommand(true);
         if(cmd === IncidentSubCommandTypes.LAST) {
             //not a private response
@@ -219,13 +224,13 @@ export class TelemetryCommand implements Command {
                 .setDescription('channel to get telemetry for')
                 .setRequired(true));
     }
-    executeSlashCommand = async (interaction: CommandInteraction) => {
+    executeSlashCommand = async (interaction: ChatInputCommandInteraction) => {
         await interaction.deferReply();
         const channel = interaction.options.getChannel('channel', true);
         const {id: cat} = channel;
         const results = await this.connector.find(Database.Queries.TELEMETRY_BY_CHANNEL(cat));
         
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setTitle(`Message telemetry for ${channel.name}`)
             .setFields(
                 results

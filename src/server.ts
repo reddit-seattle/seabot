@@ -1,5 +1,4 @@
-import { Client, GuildScheduledEvent, TextChannel } from 'discord.js'
-import { REST } from '@discordjs/rest';
+import { REST, Client, GuildScheduledEvent, TextChannel, ActivityType } from 'discord.js'
 import { RESTPostAPIApplicationCommandsJSONBody, Routes } from 'discord-api-types/v9';
 import express from 'express';
 import { schedule } from 'node-cron';
@@ -41,13 +40,13 @@ const eventHubMessenger = new EventHubProducerClient(Environment.ehConnectionStr
 
 const client = new Client({
   intents: [
-    "GUILDS",
-    "GUILD_MESSAGES",
-    "GUILD_PRESENCES",
-    "GUILD_VOICE_STATES",
-    "GUILD_MEMBERS",
-    "GUILD_MESSAGE_REACTIONS",
-    'GUILD_SCHEDULED_EVENTS'
+    "Guilds",
+    "GuildMessages",
+    "GuildPresences",
+    "GuildVoiceStates",
+    "GuildMembers",
+    "GuildMessageReactions",
+    'GuildScheduledEvents'
   ],
 });
 
@@ -223,7 +222,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
 //process slash commands
 client.on("interactionCreate", async interaction => {
-    if(!interaction.isCommand()) return;
+    if(!interaction.isChatInputCommand()) return;
 
     const command = commands?.[interaction.commandName];
     if(command) {
@@ -282,7 +281,10 @@ client.on('ready', async () => {
             (debugChannel as TextChannel)?.send('Greetings - SEABot is back online');
         }
     });
-    client.user?.setPresence({ activities: [{name: 'with discord.js', type: 'PLAYING'}], status: 'online' })
+    client.user?.setPresence({
+        activities: [{ name: "with discord.js", type: ActivityType.Playing }],
+        status: "online",
+    });
     startCronJobs();
     registerAllSlashCommands(client);
 });

@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from "discord.js";
+import { Message, EmbedBuilder } from "discord.js";
 import { Command, ReactionCommand } from '../models/Command';
 import { Config, RoleIds, Strings } from '../utils/constants';
 import { botInfoCommand, coffeeCommand, pingCommand, sarcasmText, teaCommand, valheimServerCommand, whoopsCommand } from "../commands/utilCommands";
@@ -50,7 +50,7 @@ export const Help: Command = {
             filteredCommands = [argCommand];
         }
 
-        const embed = new MessageEmbed({
+        const embed = new EmbedBuilder({
             title: `SeaBot Help`,
             description: 'Commands',
             color: 111111,
@@ -86,7 +86,7 @@ export const ReactionHelp: Command = {
         );
 
 
-        const embed = new MessageEmbed({
+        const embed = new EmbedBuilder({
             title: `SeaBot Reaction Command Help`,
             description: 'Reactions',
             color: 111111,

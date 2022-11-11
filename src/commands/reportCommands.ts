@@ -1,5 +1,4 @@
-import { SlashCommandBuilder } from "@discordjs/builders"
-import { MessageEmbed, TextChannel } from "discord.js";
+import {SlashCommandBuilder, EmbedBuilder, TextChannel } from "discord.js";
 import { now } from "underscore";
 
 import { Command } from "../models/Command"
@@ -48,8 +47,8 @@ export const submitReportCommand: Command =
         await interaction.deferReply({ephemeral: true});
         const modReports = await interaction.guild?.channels.cache.get(ChannelIds.MOD_REPORTS)?.fetch() as TextChannel;
         const timestamp = Math.floor(now() / 1000);
-        const reportEmbed = new MessageEmbed({
-            color: 'RED',
+        const reportEmbed = new EmbedBuilder({
+            color: 0xff0000,
             title: 'New User Report',
             description: `${anon ? 'An anonymous user' : username} has submitted a report\n<t:${timestamp}:F>\n<t:${timestamp}:R>`,
             fields: [
@@ -78,7 +77,7 @@ export const submitReportCommand: Command =
             image: {
                 height: evidence?.height ?? 0,
                 width: evidence?.width ?? 0,
-                url: evidence?.url
+                url: evidence?.url ?? ''
             }
         });
         const modActionRow = buildModActionRow({
