@@ -65,6 +65,7 @@ export module Config {
 export module RoleIds {
     export const MOD = '370946173902520342';
     export const EVERYONE = '370945003566006272';
+    export const PremiumRoleSeparator = '1040844355667251211';
 }
 export module UserIDs {
     export const APOLLO = '475744554910351370';
@@ -170,7 +171,7 @@ export module Environment {
         export const telemetryEventHub = 'messages'
     }
     export const DEBUG = process.env['seabotDEBUG'] == 'true' || false;
-    export const botToken = DEBUG ? process.env['devBotToken'] : process.env['botToken'] || undefined;
+    export const botToken = process.env['botToken'] || undefined;
     export const weatherAPIKey = process.env['weatherAPIKey'] || '';
     export const airQualityAPIKey = process.env['airQualityAPIKey'] || '';
     export const hueClientId = process.env['hueClientId'] || undefined;

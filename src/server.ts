@@ -36,6 +36,7 @@ import { processMessageReactions } from './utils/reaccs';
 import { EventHubProducerClient } from '@azure/event-hubs'
 import { MessageTelemetryLogger } from './utils/MessageTelemetryLogger';
 import { submitReportCommand } from './commands/reportCommands';
+import { SetCustomRoleCommand } from './commands/roleCommands';
 const eventHubMessenger = new EventHubProducerClient(Environment.ehConnectionString, Environment.Constants.telemetryEventHub);
 
 const client = new Client({
@@ -106,6 +107,7 @@ const commands: CommandDictionary = [
     SourceCommand,
     SpeakCommand,
     submitReportCommand,
+    SetCustomRoleCommand,
     new TelemetryCommand(telemetryConnector),
     new IncidentCommand(incidentConnector)
 ].reduce((map, obj) => {
