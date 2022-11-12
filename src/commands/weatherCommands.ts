@@ -1,5 +1,4 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { MessageEmbed } from "discord.js";
+import {SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import moment from "moment";
 import fetch from "node-fetch";
 import { each } from "underscore";
@@ -94,21 +93,25 @@ const isNumber = (location: string) => {
     return !isNaN(parseInt(location));
 }
 
-const buildForecastResponse = (response: any, title: string): MessageEmbed => {
-    const richEmbed = new MessageEmbed()
+const buildForecastResponse = (response: any, title: string): EmbedBuilder => {
+    const richEmbed = new EmbedBuilder()
         .setTitle(title);
     let { list } = response;
     each(list.slice(0, 5), (record) => {
         const time = moment.unix(record.dt).utcOffset(-8).format("HH:mm");
         const weather = `${record.main.temp}° F - ${record.weather[0].description}, ${record.main.humidity}% humidity`;
-        richEmbed.addField(time, weather, false);
+        richEmbed.addFields({
+            name: time,
+            value: weather,
+            inline: false
+        });
     });
     return richEmbed;
 }
 
-const buildWeeklyResponse = (response: WeeklyForecastResponse, title: string): MessageEmbed => {
+const buildWeeklyResponse = (response: WeeklyForecastResponse, title: string): EmbedBuilder => {
 
-    const richEmbed = new MessageEmbed()
+    const richEmbed = new EmbedBuilder()
         .setTitle(title);
     let { list } = response;
     each(list.slice(0, 7), (record) => {
@@ -119,7 +122,15 @@ const buildWeeklyResponse = (response: WeeklyForecastResponse, title: string): M
             Sunrise: ${moment.unix(record.sunrise).format("HH:mm")}
             Sunset: ${moment.unix(record.sunset).format("HH:mm")}
         `;
-        richEmbed.addField(date, weather, false);
+        richEmbed.addFields(
+            [
+                {
+                    name: date,
+                    value: weather,
+                    inline: false,
+                },
+            ]
+        );
     });
     return richEmbed;
 }
@@ -198,13 +209,13 @@ export const WeatherCommand: Command = {
                 : [weatherResponse?.name, weatherResponse?.sys?.country]
             ).filter(val => !!val).join(', '); // remove nulls and create string;
             const titleString = `Current weather for ${geoString}`;
-            const richEmbed = new MessageEmbed()
+            const richEmbed = new EmbedBuilder()
                 .setTitle(titleString);
             var val = Math.floor((weatherResponse.wind.deg / 22.5) + 0.5);
             var arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
             const windDir = arr[(val % 16)];
             const weather = `${weatherResponse.weather[0].description}, ${weatherResponse.main.humidity}% humidity. Winds ${windDir} @ ${weatherResponse.wind.speed} mph`;
-            richEmbed.addField(`${weatherResponse.main.temp}° F`, weather);
+            richEmbed.addFields([{name:`${weatherResponse.main.temp}° F`, value: weather}]);
             interaction.reply({embeds: [richEmbed]});
         }
     }
@@ -230,7 +241,7 @@ export const AirQualityCommand: Command = {
               await getAirQualityForecastByZip(location.toString())
             )?.filter((f) => f.DateForecast === airQuality[0].DateObserved
             )?.[0];
-            const embed = new MessageEmbed({
+            const embed = new EmbedBuilder({
               title: `Air quality for ${airQuality[0].ReportingArea}, ${airQuality[0].StateCode}`,
               fields: [
                 {

@@ -5,10 +5,8 @@
   "main": "dist/server.js",
   "dependencies": {
     "@azure/cosmos": "^3.15.1",
-    "@discordjs/builders": "^1.1.0",
-    "@discordjs/rest": "^0.1.0-canary.0",
-    "discord-api-types": "^0.37.0",
-    "discord.js": "^13.8.1",
+    "discord-api-types": "^0.37.17",
+    "discord.js": "^14.6.0",
     "dotenv": "8.2.0",
     "express": "^4.17.1",
     "moment": "^2.29.4",

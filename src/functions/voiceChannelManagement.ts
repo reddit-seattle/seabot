@@ -1,5 +1,5 @@
 import { VoiceChannel, VoiceState } from "discord.js";
-import { ChannelIds, Environment, VoiceConstants } from "../utils/constants";
+import { ChannelIds, VoiceConstants } from "../utils/constants";
 
 const { Permissions } = VoiceConstants;
 
@@ -43,7 +43,8 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
 
         //TODO: if the user's channel already exists, just put them in that and prevent deletion
         // create channel for user
-        guild.channels.create(user_channel_name, {
+        guild.channels.create({
+            name: user_channel_name,
             //voice channel
             type: VoiceConstants.VOICE_TYPE,
             //parent category

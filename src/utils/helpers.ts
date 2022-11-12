@@ -3,21 +3,21 @@ import {
     GuildBasedChannel,
     Interaction,
     Message,
-    MessageActionRow,
-    MessageButton,
+    ButtonBuilder,
     MessageComponentInteraction,
-    MessageEmbed,
+    EmbedBuilder,
     MessageReaction,
     PartialMessage,
     PartialMessageReaction,
     PartialUser,
     User,
+    ActionRowBuilder,
 } from "discord.js";
 import { ChannelIds, Config, Environment, GuildIds, REGEX, RoleIds } from "./constants";
 import { v3 as NodeHue } from 'node-hue-api';
 import { now } from "moment";
 import { APIInteractionDataResolvedChannel } from "discord-api-types/v10";
-import { MessageButtonStyles } from "discord.js/typings/enums";
+import { ButtonStyle } from "discord-api-types/v10";
 
 /**
  * Splits message content into an array of arguments by spaces.
@@ -166,17 +166,17 @@ type ModActionOptions = {
 }
 
 export const buildModActionRow = (options: ModActionOptions)  => {
-    const ignoreButton = new MessageButton()
+    const ignoreButton = new ButtonBuilder()
         .setCustomId('ignoreReport')
         .setEmoji('🔇')
         .setLabel('Ignore')
-        .setStyle(MessageButtonStyles.DANGER);
+        .setStyle(ButtonStyle.Danger);
 
-    const ackButton = new MessageButton()
+    const ackButton = new ButtonBuilder()
         .setCustomId('ackReport')
         .setEmoji('✅')
         .setLabel('ACK')
-        .setStyle(MessageButtonStyles.PRIMARY);
+        .setStyle(ButtonStyle.Primary);
 
     // const replyButton = new MessageButton()
     //     .setCustomId('replyReport')
@@ -184,13 +184,13 @@ export const buildModActionRow = (options: ModActionOptions)  => {
     //     .setLabel('Reply')
     //     .setStyle(MessageButtonStyles.SECONDARY);
 
-    let viewButton: MessageButton | undefined = undefined;
+    let viewButton: ButtonBuilder | undefined = undefined;
 
     if(options.messageLink || options?.channel?.id){
-        viewButton = new MessageButton()
+        viewButton = new ButtonBuilder()
             .setEmoji('👀')
             .setLabel('View')
-            .setStyle(MessageButtonStyles.LINK);
+            .setStyle(ButtonStyle.Link);
         if(options.messageLink) {
             viewButton.setURL(options.messageLink);
         }
@@ -204,7 +204,7 @@ export const buildModActionRow = (options: ModActionOptions)  => {
         // ...(options.anon ? [] : [replyButton]), // reply button WIP
         ...(viewButton ? [viewButton] : [])
     ];
-    const modActionRow = new MessageActionRow().addComponents(buttons)
+    const modActionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons)
     return modActionRow;
 }
 
@@ -225,8 +225,7 @@ export const processModReportInteractions = async (interaction: Interaction<Cach
             });
         },
         'ackReport': async (i) => {
-            const newEmbed = i.message.embeds?.[0] as MessageEmbed;
-            newEmbed.setColor('GREEN');
+            const newEmbed = EmbedBuilder.from(i.message.embeds?.[0]).setColor('Green');
             await i.update({
                 content: `${i.message.content}\nReport was ACK'd by: ${i.user.username}`,
                 embeds: [newEmbed],

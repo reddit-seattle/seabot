@@ -1,5 +1,4 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { Message, MessageEmbed } from 'discord.js'
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js'
 import { card, Card } from 'mtgsdk';
 import { Command } from '../models/Command';
 
@@ -26,7 +25,7 @@ export const MTGCommand: Command = {
 
         const cardName = interaction.options.getString('title', true);
 
-        const richEmbed = new MessageEmbed()
+        const richEmbed = new EmbedBuilder()
             .setTitle(`Card results for ${cardName}`);
         const emitter = card.all({ name: cardName });
         emitter.on('data', (card: Card) => {
@@ -38,7 +37,13 @@ export const MTGCommand: Command = {
             }
             //really stupid way to avoid duplicates that only differ in sets
             if (!cardNames[card.name]) {
-                richEmbed.addField(`${card.name}${card.manaCost ? (' ' + card.manaCost) : ''}`, `${card.type} - ${card.text}`, false);
+                richEmbed.addFields([
+                    {
+                        name:`${card.name}${card.manaCost ? (' ' + card.manaCost) : ''}`,
+                        value:`${card.type} - ${card.text}`,
+                        inline: false
+                    }
+                ])
                 cardNames[card.name] = true;
             }
         });
