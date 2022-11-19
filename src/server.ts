@@ -47,7 +47,8 @@ const client = new Client({
     "GuildVoiceStates",
     "GuildMembers",
     "GuildMessageReactions",
-    'GuildScheduledEvents'
+    'GuildScheduledEvents',
+    "MessageContent"
   ],
 });
 

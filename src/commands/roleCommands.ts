@@ -112,7 +112,7 @@ export const SetCustomRoleCommand: Command = {
                     (guild_emoji) => guild_emoji.toString() == emoji
                 );
                 if(!icon){
-                    logs.push(`Error finding icon ${icon} on this server, please ask a mod to add it`);
+                    logs.push(`Error finding icon ${emoji} on this server, please ask a mod to add it`);
                     await interaction.followUp({
                         ephemeral: true,
                         content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
