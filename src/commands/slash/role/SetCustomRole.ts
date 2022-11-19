@@ -4,11 +4,12 @@ import {
     resolveColor,
     SlashCommandBuilder,
 } from "discord.js";
-import { Command } from "../models/Command";
-import { RoleIds } from "../utils/constants";
+import { Command } from "../../../models/Command";
+import { RoleIds } from "../../../utils/constants";
 
-export const SetCustomRoleCommand: Command = {
+export default new Command({
     description: "Set your custom role (Premium only)",
+    help: "Set your custom role (Premium only)",
     name: "set-premium-role",
     adminOnly: true,
     slashCommandDescription: () => {
@@ -150,4 +151,4 @@ export const SetCustomRoleCommand: Command = {
             }
         }
     },
-};
+});

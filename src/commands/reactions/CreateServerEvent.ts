@@ -5,64 +5,15 @@ import {
     Message,
     PartialMessage,
 } from "discord.js";
-import _ from "underscore";
-import { ReactionCommand } from "../models/Command";
-import { EmojiIDs } from "../utils/constants";
-import {
-    parseApolloMarkdownLink,
-    pullTimeStampsFromApolloString,
-    replaceMentions,
-} from "../utils/helpers";
+import { parseApolloMarkdownLink, pullTimeStampsFromApolloString } from "../../utils/helpers";
+import ReactionCommand from "./ReactionCommand";
 
-export const googleReact: ReactionCommand = {
-    removeReaction: false,
-    emojiId: EmojiIDs.GOOGLE,
-    name: "google",
-    description: `react to a post to google its contents`,
-    execute: async (message: Message | PartialMessage) => {
-        const { content } = message;
-        if (!content) {
-            return;
-        }
-        const resultantContent = replaceMentions(message);
-        message.reply({
-            content: `https://www.google.com/search?q=${encodeURIComponent(
-                resultantContent
-            )}`,
-            allowedMentions: {
-                repliedUser: false,
-            },
-        });
-    },
-};
-
-export const lmgtfyReact: ReactionCommand = {
-    removeReaction: false,
-    emojiId: EmojiIDs.LMGTFY,
-    name: "lmgtfy",
-    description: `react to a post to help someone google its contents`,
-    execute: async (message: Message | PartialMessage) => {
-        const { content } = message;
-        if (!content) {
-            return;
-        }
-        const resultantContent = replaceMentions(message);
-        message.reply(
-            `https://lmgtfy.app/?q=${encodeURIComponent(resultantContent)}`
-        );
-    },
-};
-
-export const createServerEvent: ReactionCommand = {
-    removeReaction: true,
-    emojiId: "🗓️",
+export default new ReactionCommand("🗓️", true, {
     adminOnly: true,
     name: "schedule",
+    help: `allows mods to create server events out of apollo messages`,
     description: `allows mods to create server events out of apollo messages`,
-    execute: async (
-        message: Message | PartialMessage
-    ): Promise<GuildScheduledEvent | undefined> => {
-
+    execute: async (message: Message | PartialMessage): Promise<GuildScheduledEvent | undefined> => {
         const embed = message.embeds?.[0];
         const { title, description, image, fields, footer } = embed;
 
@@ -90,9 +41,7 @@ export const createServerEvent: ReactionCommand = {
                 scheduledEndTime: end,
                 image: image?.url,
                 description: `${description?.substring(0, 300)}${
-                    description?.length && description?.length > 300
-                        ? "..."
-                        : ""
+                    description?.length && description?.length > 300 ? "..." : ""
                 }
 
 ${calendarTitle}:
@@ -112,4 +61,4 @@ ${footer?.text}`,
             }
         }
     },
-};
+});

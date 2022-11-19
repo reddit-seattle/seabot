@@ -1,6 +1,6 @@
 import _ from "underscore";
-import { Command } from "../models/Command";
-import { Emoji } from "../utils/constants";
+import { Command } from "../../../models/Command";
+import { Emoji } from "../../../utils/constants";
 import { SlashCommandBuilder } from "@discordjs/builders";
 
 const RJStrings: {[id: string]: string} = {
@@ -26,7 +26,7 @@ const RJStrings: {[id: string]: string} = {
     'kraken': `${Emoji.RJ.rj}\n${Emoji.krakenjersey}`
 }
 
-export const RJSays: Command = {
+export default new Command({
     name: "rj",
     help: "rj list",
     description: "makes funny little RJ emotes",
@@ -55,4 +55,4 @@ export const RJSays: Command = {
             interaction.reply(RJStrings?.[emote.toLowerCase()] ?? "RJ does not know that command");
         }
     }
-};
+});
