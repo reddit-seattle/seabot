@@ -1,29 +1,49 @@
 import _ from "underscore";
 import { Command } from "../../Command";
-import { Emoji } from "../../../utils/constants";
 import { SlashCommandBuilder } from "@discordjs/builders";
+import { discordBot } from "../../../server";
 
 const RJStrings: {[id: string]: string} = {
-    'sad': `${Emoji.RJ.rj4}`,
-    'hurts': `${Emoji.RJ.rj4}`,
-    'shake it off': `${Emoji.RJ.partyrj}${Emoji.tsktsk}`,
-    'no': `${Emoji.RJ.rj}${Emoji.tsktsk}`,
-    'disapproves': `${Emoji.RJ.rj}${Emoji.tsktsk}`,
-    'tsk tsk': `${Emoji.RJ.rj}${Emoji.tsktsk}`,
-    'chancla': `${Emoji.RJ.rj}${Emoji.lachancla}`,
-    'oh no': `${Emoji.ohno}${Emoji.RJ.rj}`,
-    'double oh no': `${Emoji.ohno}${Emoji.RJ.rj}${Emoji.ohnoreverse}`,
-    'harold': `${Emoji.RJ.rj3}`,
-    'is watching': `${Emoji.RJ.rj3}`,
-    'watching': `${Emoji.RJ.rj3}`,
-    'suit': `${Emoji.RJ.rj}\n👔`,
-    'party': `${Emoji.RJ.partyrj}`,
-    'dance': `${Emoji.RJ.partyrj}`,
-    'finger guns': `${Emoji.RJ.rj}${Emoji.fingerguns}`,
-    'ayy': `${Emoji.RJ.rj}${Emoji.fingerguns}`,
-    'zoop': `${Emoji.RJ.rj}${Emoji.fingerguns}`,
-    'hockey': `${Emoji.RJ.rj}\n${Emoji.krakenjersey}`,
-    'kraken': `${Emoji.RJ.rj}\n${Emoji.krakenjersey}`
+    'sad': `<rj4>`,
+    'hurts': `<rj4>`,
+    'shake it off': `<partyrj><tsktsk>}`,
+    'no': `<rj><tsktsk>`,
+    'disapproves': `<rj><tsktsk>`,
+    'tsk tsk': `<rj><tsktsk>`,
+    'chancla': `<rj><lachancla>`,
+    'oh no': `<ohno><rj>`,
+    'double oh no': `<ohno><rj><ohnoreverse>`,
+    'harold': `<rj3>`,
+    'is watching': `<rj3>`,
+    'watching': `<rj3>`,
+    'suit': `<rj>\n👔`,
+    'party': `<partyrj>`,
+    'dance': `<partyrj>`,
+    'finger guns': `<rj><fingerguns>`,
+    'ayy': `<rj><fingerguns>`,
+    'zoop': `<rj><fingerguns>`,
+    'hockey': `<rj>\n<krakenjersey>`,
+    'kraken': `<rj>\n<krakenjersey>`
+}
+
+function textToEmojis(text: string) {
+    const emojiPattern = /<.*?>/g;
+
+    while (emojiPattern.test(text)) {
+        let emojis = text.match(emojiPattern);
+        if (!emojis) break;
+
+        for (const emoji of emojis) {
+            let discordEmoji = discordBot.client.emojis.cache.find(x => x.name === emoji);
+            if (discordEmoji) {
+                text = text.replace(emoji, `<:${discordEmoji.name}:${discordEmoji.id}>`);
+            } else {
+                throw new Error(`Unhandled emoji in string: "${emoji}" in "${text}`);
+            }
+        }
+    }
+
+    return text;
 }
 
 export default new Command({
@@ -38,7 +58,7 @@ export default new Command({
                 option.setName('emote')
                 .setDescription('which emote would you like');
                 Object.keys(RJStrings).forEach(emoji => {
-                    option.addChoices({name: emoji, value: emoji});
+                    option.addChoices({name: emoji, value: textToEmojis(emoji)});
                 });
                 return option;
             });

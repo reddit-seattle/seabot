@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
 import { Command } from "../../Command";
-import { Emoji } from "../../../utils/constants";
 import { toSarcasticCase } from "../../../utils/helpers";
+import { discordBot } from "../../../server";
 
 export default new Command({
     name: 'sarcasm',
@@ -19,6 +19,13 @@ export default new Command({
     },
     executeSlashCommand: (interaction) => {
         const string = interaction.options.getString('text') ?? null;
-        string && interaction.reply(`${Emoji.stupidsponge} ${toSarcasticCase(string)} ${Emoji.stupidsponge}`);
+        const spongeEmoji = discordBot.client.emojis.cache.find(x => x.name === "stupidsponge");
+        let spongeText:string;
+        if (!spongeEmoji) {
+            spongeText = "";
+        } else {
+            spongeText = `<${spongeEmoji.name}:${spongeEmoji.id}>`;
+        }
+        string && interaction.reply(`${spongeText} ${toSarcasticCase(string)} ${spongeText}`);
     }
 });
