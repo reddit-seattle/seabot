@@ -1,5 +1,5 @@
 import _ from "underscore";
-import { Command } from "../../../models/Command";
+import { Command } from "../../Command";
 import { Emoji } from "../../../utils/constants";
 import { SlashCommandBuilder } from "@discordjs/builders";
 

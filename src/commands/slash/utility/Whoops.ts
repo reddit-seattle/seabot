@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, Message } from "discord.js";
-import { Command } from "../../models/Command";
-import { Strings } from "../../utils/constants";
+import { Command } from "../../Command";
+import { Strings } from "../../../utils/constants";
 
 export default new Command({
     description: 'whoops',

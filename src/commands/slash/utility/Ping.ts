@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, Message } from "discord.js";
-import { Command } from "../../models/Command";
+import { Command } from "../../Command";
 
 export default new Command({
     name: 'ping',

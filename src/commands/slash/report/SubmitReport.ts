@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, TextChannel } from "discord.js";
 import { now } from "underscore";
 
-import { Command } from "../../../models/Command";
+import { Command } from "../../Command";
 import { ChannelIds, REGEX } from "../../../utils/constants";
 import { buildModActionRow } from "../../../utils/helpers";
 

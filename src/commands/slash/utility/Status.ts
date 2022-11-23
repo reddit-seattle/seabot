@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import { Command } from "../../models/Command";
-import { AppConfiguration } from "../../utils/constants";
+import { Command } from "../../Command";
+import { AppConfiguration } from "../../../utils/constants";
 
 export default new Command({
     description: 'show seabot info',

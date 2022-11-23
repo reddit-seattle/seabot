@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 
-import { Command } from "../../../models/Command";
+import { Command } from "../../Command";
 import { Environment } from "../../../utils/constants";
 
 export default new Command({

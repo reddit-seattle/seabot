@@ -5,9 +5,9 @@ import mtgCommands from "./mtg";
 import reportCommands from "./report";
 import rjCommands from "./rj";
 import roleCommands from "./role";
-import utilityCommands from "../utility";
-import weatherCommands from "../weather";
-import { Command } from "../../models/Command";
+import utilityCommands from "./utility";
+import weatherCommands from "./weather";
+import { Command } from "../Command";
 
 const commands: Command[] = [
     ...databaseCommands,

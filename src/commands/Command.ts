@@ -5,6 +5,7 @@ export type SlashCommandResult = () => Omit<SlashCommandBuilder, "addSubcommand"
 
 export interface CommandConfiguration {
     name: string;
+    emojiName?: string;
     description: string;
     help: string;
     slashCommandDescription?: SlashCommandResult;

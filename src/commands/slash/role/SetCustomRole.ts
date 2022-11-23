@@ -4,8 +4,8 @@ import {
     resolveColor,
     SlashCommandBuilder,
 } from "discord.js";
-import { Command } from "../../../models/Command";
-import { RoleIds } from "../../../utils/constants";
+import { Command } from "../../Command";
+import { configuration } from "../../../server";
 
 export default new Command({
     description: "Set your custom role (Premium only)",
@@ -52,7 +52,7 @@ export default new Command({
                 `Could not find custom role "${roleName}", creating new role.`
             );
             // order role
-            const roleSeparatorPosition = guild?.roles.cache.get(RoleIds.PremiumRoleSeparator)?.position ?? 15;
+            const roleSeparatorPosition = guild?.roles.cache.get(configuration.roleIds.premium)?.position ?? 15;
             console.log(`Creating premium role ${roleName} at position ${roleSeparatorPosition+1}`);
             role = await guild?.roles?.create({
                 name: roleName,

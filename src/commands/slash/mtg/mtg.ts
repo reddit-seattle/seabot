@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js'
 import { card, Card } from 'mtgsdk';
-import { Command } from '../../../models/Command';
+import { Command } from '../../Command';
 
 export default new Command({
     description: 'Find MTG cards by name (inclusive, so try to be specific)',

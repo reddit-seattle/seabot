@@ -11,8 +11,8 @@ import {
     Coord,
     AirQualityForecastResponse,
     AirQualityCurrentResponse,
-} from "../../models/WeatherModels";
-import { Environment, Endpoints } from "../../utils/constants";
+} from "../../../models/WeatherModels";
+import { Environment, Endpoints } from "../../../utils/constants";
 
 export default class WeatherApi {
     public static async getAirQualityByZip(zip: string) {

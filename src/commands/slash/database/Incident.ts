@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, GuildMemberRoleManager } from "discord.js";
 
-import { Database, RoleIds } from "../../../utils/constants";
+import { configuration } from "../../../server";
+import { Database } from "../../../utils/constants";
 import { Incident as IncidentModel } from "../../../models/DBModels";
 import { DatabaseCommand } from "./DatabaseCommand";
 
@@ -64,7 +65,7 @@ async function slashCommandHandler(this: DatabaseCommand<IncidentModel>, interac
 
         // mod only
         const { member } = interaction;
-        if ((member?.roles as GuildMemberRoleManager).cache.has(RoleIds.MOD)) {
+        if ((member?.roles as GuildMemberRoleManager).cache.has(configuration.roleIds.moderator)) {
             //create a new incident
             const incident: IncidentModel = {
                 occurrence: new Date(),

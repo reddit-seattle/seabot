@@ -1,7 +1,8 @@
 import { Message, EmbedBuilder } from "discord.js";
-import { Command } from "../../../models/Command";
-import { Config, RoleIds, Strings } from "../../../utils/constants";
+import { Command } from "../../Command";
+import { Config, Strings } from "../../../utils/constants";
 import commands from "../";
+import { configuration } from "../../../server";
 
 export default new Command({
     name: "help",
@@ -10,7 +11,7 @@ export default new Command({
     execute: (message: Message, args?: string[]) => {
         // filter admin commands to only mods
         let filteredCommands = commands.filter(
-            (command) => !command?.adminOnly || (command?.adminOnly && message.member?.roles.cache.has(RoleIds.MOD))
+            (command) => !command?.adminOnly || (command?.adminOnly && message.member?.roles.cache.has(configuration.roleIds.moderator))
         );
 
         // try only showing help for a single command if the user specifies one that matches

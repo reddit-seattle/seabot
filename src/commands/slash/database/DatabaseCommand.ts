@@ -1,16 +1,26 @@
-import { Command, CommandConfiguration } from "../../../models/Command";
+import { Command, CommandConfiguration } from "../../Command";
 import DBConnector from "../../../db/DBConnector";
 import { Database } from "../../../utils/constants";
-import { cosmosClient } from "../../../server";
+import { cosmosClient } from "../../../db/cosmosClient";
+import { CosmosClient, ItemDefinition } from "@azure/cosmos";
+import InMemoryDbConnector from "../../../db/InMemoryDbConnector";
+import IDatabase from "../../../db/IDatabase";
 
-export class DatabaseCommand<ModelType> extends Command {
+type ConnectorType = "Awards" | "Incidents" | "MessageTelemetry";
+
+export class DatabaseCommand<ModelType extends ItemDefinition> extends Command {
     private static connectorCache = new Map<string, any>();
-    public static getConnector<ModelType>(connectorType: "Awards" | "Incidents" | "MessageTelemetry") {
+    public static getConnector<ModelType extends ItemDefinition>(connectorType: ConnectorType) {
         if (DatabaseCommand.connectorCache.has(connectorType)) {
             return DatabaseCommand.connectorCache.get(connectorType);
         }
 
-        const connector = new DBConnector<ModelType>(cosmosClient, Database.DATABASE_ID, connectorType);
+        let connector: IDatabase<ModelType>;
+        if (process.env.DEBUG) {
+            connector = new InMemoryDbConnector<ModelType>();
+        } else {
+            connector = new DBConnector<ModelType>(cosmosClient as CosmosClient, Database.DATABASE_ID, connectorType);
+        }
 
         connector.init().catch((reason) => {
             console.error(`Failed to connect to database container of type ${connectorType}`);
@@ -25,7 +35,7 @@ export class DatabaseCommand<ModelType> extends Command {
         return this._connector;
     }
 
-    constructor(connectorType: "Awards" | "Incidents" | "MessageTelemetry", configuration: CommandConfiguration) {
+    constructor(connectorType: ConnectorType, configuration: CommandConfiguration) {
         super(configuration);
         this._connector = DatabaseCommand.getConnector<ModelType>(connectorType);
     }

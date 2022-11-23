@@ -13,11 +13,12 @@ import {
     User,
     ActionRowBuilder,
 } from "discord.js";
-import { ChannelIds, Config, Environment, GuildIds, REGEX, RoleIds } from "./constants";
+import { ChannelIds, Config, Environment, GuildIds, REGEX } from "./constants";
 import { v3 as NodeHue } from 'node-hue-api';
 import { now } from "moment";
 import { APIInteractionDataResolvedChannel } from "discord-api-types/v10";
 import { ButtonStyle } from "discord-api-types/v10";
+import { configuration } from "../server";
 
 /**
  * Splits message content into an array of arguments by spaces.
@@ -35,7 +36,7 @@ export function getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
     return o[propertyName]; // o[propertyName] is of type T[K]
 }
 
-export const replaceMentions: (message: Message | PartialMessage) => string = (message) => {
+export const replaceMentions: (message: Message) => string = (message) => {
     let { content } = message;
     content = content ? content : '';
 
@@ -155,7 +156,7 @@ export const parseApolloMarkdownLink = (apolloLink: string) => {
 
 export const isModReaction = (reacc: MessageReaction | PartialMessageReaction, user: User | PartialUser) => {
     const guildUser = reacc.message.guild?.members.cache.get(user.id);
-    return guildUser?.roles.cache.has(RoleIds.MOD) ?? false;
+    return guildUser?.roles.cache.has(configuration.roleIds.moderator) ?? false;
 }
 
 type ModActionOptions = {

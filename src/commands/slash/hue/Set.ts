@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import { v3 as NodeHue } from "node-hue-api";
 
-import { Command } from "../../../models/Command";
+import { Command } from "../../Command";
 import { Hue } from "../../../utils/constants";
 import { HueInitialize } from "../../../utils/helpers";
 

@@ -8,7 +8,9 @@ import {
 import { parseApolloMarkdownLink, pullTimeStampsFromApolloString } from "../../utils/helpers";
 import ReactionCommand from "./ReactionCommand";
 
-export default new ReactionCommand("🗓️", true, {
+export default new ReactionCommand({
+    emojiName: "calendar",
+    removeReaction: true,
     adminOnly: true,
     name: "schedule",
     help: `allows mods to create server events out of apollo messages`,

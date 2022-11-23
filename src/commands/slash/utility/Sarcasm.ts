@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
-import { Command } from "../../models/Command";
-import { Emoji } from "../../utils/constants";
-import { toSarcasticCase } from "../../utils/helpers";
+import { Command } from "../../Command";
+import { Emoji } from "../../../utils/constants";
+import { toSarcasticCase } from "../../../utils/helpers";
 
 export default new Command({
     name: 'sarcasm',

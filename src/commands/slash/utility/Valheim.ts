@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, Message } from "discord.js";
-import { Command } from "../../models/Command";
-import { ServerInfo } from "../../utils/constants";
+import { Command } from "../../Command";
+import { ServerInfo } from "../../../utils/constants";
 
 export default new Command({
     description: 'show valheim server info',

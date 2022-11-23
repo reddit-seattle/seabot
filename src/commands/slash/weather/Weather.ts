@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
-import { Command } from "../../models/Command";
+import { Command } from "../../Command";
 import WeatherApi from "./WeatherApi";
 
 export default new Command({
