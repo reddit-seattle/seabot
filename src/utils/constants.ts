@@ -62,30 +62,15 @@ export module Hue {
 export module Config {
     export const prefix = '$';
 }
-export module RoleIds {
-    export const MOD = '370946173902520342';
-    export const EVERYONE = '370945003566006272';
-    export const PremiumRoleSeparator = '1040844355667251211';
-}
+
 export module UserIDs {
     export const APOLLO = '475744554910351370';
 }
 export module ChannelIds {
     export const RANT = '804639001226379294';
-    export const VOICE_CREATE = '788552426906845185';
-    export const USER_VOICE_GROUP = '788552301182320640';
     export const DEBUG = '541322708844281867';
     export const MOD_LOG = '634526832816816128';
     export const MOD_REPORTS = '1003017032364728330';
-    export const TELEMETRY_CATEGORIES = [
-        '370945003566006273',//main
-        '804629889852112917',//current events
-        '804629571210838086',//social
-        '370998781887381504',//gaming
-        '804630054268043264',//media
-        '438427622490243094',//hobbies
-        '371743134478237696',//sports
-    ]
 }
 
 export module GuildIds {
@@ -134,33 +119,6 @@ export module Strings {
     　| |　　) /
     ノ )　　Lﾉ
     (_／`
-}
-
-export module EmojiIDs {
-    export const LMGTFY = '912904317848133692';
-    export const GOOGLE = '912890880875200532';
-}
-export module Emoji {
-    export module RJ {
-        export const rj = '<:rj:907523806149632070>';
-        export const rj2 = '<:rj2:907524086811492364>';
-        export const rj3 = '<:rj3:907524275936837652>';
-        export const rj4 = '<:rj4:907525187401035778>';
-        export const partyrj = '<a:partyrj:908213205409619968>';
-
-    }
-    export const downvote = '<:downvote:607100771028172820>';
-    export const tsktsk = '<a:tsktsk:907698722635399218>';
-    export const fingerguns = '<:fingerguns:901378901908017152>';
-    export const krakenjersey = '<:krakenjersey:882102376385900564>';
-    export const ohno = '<:ohno:774349924841553940>';
-    export const ohnoreverse = '<:ohnoreverse:904473411026292827>';
-    export const lachancla = '<:lachancla:852649414698729493>';
-    export const stupidsponge = '<:stupidsponge:627172014548975626>';
-    export const bisbopt = '<:bisbopt:932884278214266910>';
-    export const nice = '<:nice:873991139282264084>';
-    export const weed = '<:weed:871622825843245099>';
-    export const bruh = '<:bruh:627258275926114385>';
 }
 
 export module Environment {
