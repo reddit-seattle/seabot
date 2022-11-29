@@ -64,7 +64,7 @@ export default class DiscordEventRouter {
             }
 
             const argsAsReaction = resolvedArgs as MessageReaction | undefined;
-            if (argsAsReaction?.message.partial) {
+            if (argsAsReaction?.message?.partial) {
                 argsAsReaction.message = await argsAsReaction.message.fetch();
             }
 

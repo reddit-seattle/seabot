@@ -26,32 +26,39 @@ export { configuration, discordBot };
 startServer();
 
 async function startServer() {
-    try {
-        await fs.access("seabotConfig.json");
-        configuration = JSON.parse((await fs.readFile("seabotConfig.json")).toString());
-    } catch (error) {
-        console.warn("Configuration file not found, or is malformed. Continuing with default configuration...");
-    }
+    configuration = await loadConfiguration();
+    console.log("Loaded configuration file.");
+    
+    startExpressServer();
+    await startDiscordBot();
+}
 
+async function startDiscordBot() {
     try {
         const eventRouter = new DiscordEventRouter(discordBot.client);
-        await discordBot.start(eventRouter);
         eventRouter.addEventListener(Events.InteractionCreate, processModReportInteractions);
         eventRouter.addEventListener(Events.VoiceStateUpdate, handleVoiceStatusUpdate);
+        eventRouter.addEventListener(Events.ClientReady, () => startCommandRouter(eventRouter));
         eventRouter.addEventListener(Events.ClientReady, announcePresence);
         eventRouter.addEventListener(Events.ClientReady, startCronJobs);
 
-        const commandRouter = new CommandRouter(eventRouter, discordBot, {
-            slashCommands,
-            reactionCommands,
-            contentCommands,
-        });
+        await discordBot.start(eventRouter);
     } catch (error) {
         console.error("Fatal error while starting bot:");
         console.error(error);
         exit(1);
     }
+}
 
+function startCommandRouter(eventRouter: DiscordEventRouter) {
+    const commandRouter = new CommandRouter(eventRouter, discordBot, {
+        slashCommands,
+        reactionCommands,
+        contentCommands,
+    });
+}
+
+function startExpressServer() {
     try {
         expressServer.start();
     } catch (error) {
@@ -59,6 +66,19 @@ async function startServer() {
         console.error(error);
         exit(1);
     }
+}
+
+async function loadConfiguration(): Promise<ISeabotConfig> {
+    let configuration = null;
+
+    try {
+        await fs.access("seabotConfig.json");
+        configuration = JSON.parse((await fs.readFile("seabotConfig.json")).toString());
+    } catch (error) {
+        console.warn("Configuration file not found, or is malformed. Continuing with default configuration...");
+    }
+
+    return configuration;
 }
 
 function announcePresence() {

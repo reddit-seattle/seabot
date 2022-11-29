@@ -38,6 +38,7 @@ export default class ExpressServer {
     }
 
     start() {
+        console.log("Starting express server...");
         this._server.listen(8080);
     }
 }

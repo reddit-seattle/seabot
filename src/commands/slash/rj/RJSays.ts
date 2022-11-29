@@ -6,7 +6,7 @@ import { discordBot } from "../../../server";
 const RJStrings: {[id: string]: string} = {
     'sad': `<rj4>`,
     'hurts': `<rj4>`,
-    'shake it off': `<partyrj><tsktsk>}`,
+    'shake it off': `<partyrj><tsktsk>`,
     'no': `<rj><tsktsk>`,
     'disapproves': `<rj><tsktsk>`,
     'tsk tsk': `<rj><tsktsk>`,
@@ -27,19 +27,15 @@ const RJStrings: {[id: string]: string} = {
 }
 
 function textToEmojis(text: string) {
-    const emojiPattern = /<.*?>/g;
+    const emojiPattern = /(?<=<).*?(?=>)/g;
+    let emojis = text.matchAll(emojiPattern);
 
-    while (emojiPattern.test(text)) {
-        let emojis = text.match(emojiPattern);
-        if (!emojis) break;
-
-        for (const emoji of emojis) {
-            let discordEmoji = discordBot.client.emojis.cache.find(x => x.name === emoji);
-            if (discordEmoji) {
-                text = text.replace(emoji, `<:${discordEmoji.name}:${discordEmoji.id}>`);
-            } else {
-                throw new Error(`Unhandled emoji in string: "${emoji}" in "${text}`);
-            }
+    for (const emoji of emojis) {
+        let discordEmoji = discordBot.client.emojis.cache.find(x => x.name === emoji[0]);
+        if (discordEmoji) {
+            text = text.replace(`<${emoji[0]}>`, `<:${discordEmoji.name}:${discordEmoji.id}>`);
+        } else {
+            throw new Error(`Unhandled emoji in string: "${emoji}" in "${text}`);
         }
     }
 
@@ -58,7 +54,7 @@ export default new Command({
                 option.setName('emote')
                 .setDescription('which emote would you like');
                 Object.keys(RJStrings).forEach(emoji => {
-                    option.addChoices({name: emoji, value: textToEmojis(emoji)});
+                    option.addChoices({name: emoji, value: textToEmojis(RJStrings[emoji])});
                 });
                 return option;
             });
@@ -68,7 +64,7 @@ export default new Command({
         if(!emote) {
             const options = _.unique(Object.values(RJStrings));
             const val = _.random(options.length - 1);
-            interaction.reply(options[val]);
+            interaction.reply(textToEmojis(options[val]));
             return;
         }
         else{
