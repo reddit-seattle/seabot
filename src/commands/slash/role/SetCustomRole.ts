@@ -7,6 +7,10 @@ import {
 import { Command } from "../../Command";
 import { configuration } from "../../../server";
 
+const iconBlockList = [
+    "thinkban"
+]
+
 export default new Command({
     description: "Set your custom role (Premium only)",
     help: "Set your custom role (Premium only)",
@@ -100,11 +104,12 @@ export default new Command({
 
         // set role icon
         if (emoji) {
-
             // ಠ_ಠ
-            if(emoji == '<:thinkban:819834781561782302>') {
-                await interaction.followUp({ephemeral: true, content: `ಠ_ಠ Pick a different emoji.`});
-                return;
+            for (const blockedIcon of iconBlockList) {
+                if (emoji.toLowerCase().includes(blockedIcon.toLowerCase())) {
+                    await interaction.followUp({ephemeral: true, content: `ಠ_ಠ Pick a different emoji.`});
+                    return;
+                }
             }
 
             logs.push(`Setting role icon: ${emoji}`);
