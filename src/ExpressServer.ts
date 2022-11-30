@@ -8,6 +8,7 @@ export default class ExpressServer {
     constructor() {
         this._server = express();
 
+        // A response on the root is required by Azure Web Apps at port 8080 to monitor container health.
         this._server.get("/", (request, response) => {
             response.send("Discord bot active.");
         });
