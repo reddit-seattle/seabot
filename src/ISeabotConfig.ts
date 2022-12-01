@@ -11,5 +11,4 @@ export default interface ISeabotConfig {
         everyone: string;
         premium: string;
     };
-    emojiIds: { [key: string]: string } | undefined;
 }
