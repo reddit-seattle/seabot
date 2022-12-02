@@ -1,4 +1,5 @@
 import express from "express";
+
 import { Environment } from "./utils/constants";
 import { SetHueTokens } from "./utils/helpers";
 
@@ -12,7 +13,7 @@ export default class ExpressServer {
         this._server.get("/", (request, response) => {
             response.send("Discord bot active.");
         });
-        
+
         // hue auth flow configuration
         this._server.get("/seabot_hue", async (request, response) => {
             try {
@@ -33,9 +34,9 @@ export default class ExpressServer {
                 response.write(`
                     Something (bad) happened trying to get auth code / set tokens:</br>
                     ${JSON.stringify(e)}`);
-                    response.end();
+                response.end();
             }
-        });        
+        });
     }
 
     start() {
