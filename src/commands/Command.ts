@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, Message } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction } from "discord.js";
 
 export type SlashCommandHandler = (interaction: ChatInputCommandInteraction) => any;
 export type SlashCommandResult = () => Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
