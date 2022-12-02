@@ -1,23 +1,51 @@
-import { Message, EmbedBuilder } from "discord.js";
-import { Command } from "../../Command";
+import { EmbedBuilder, SlashCommandBuilder, GuildMemberRoleManager } from "discord.js";
+
+import SlashCommand from "../SlashCommand";
+
 import { Config, Strings } from "../../../utils/constants";
-import commands from "../";
 import { configuration } from "../../../server";
 
-export default new Command({
+export default new SlashCommand({
     name: "help",
     help: "help",
     description: "Display SeaBot command help",
-    execute: (message: Message, args?: string[]) => {
+    builder: () =>
+        new SlashCommandBuilder().addStringOption((option) => {
+            option.setName("command");
+            option.setDescription("The command you would like help with");
+            const choices: any[] = [];
+            // Lazy loading to prevent Typescript from trying to initialize this before commands have been loaded.
+            import("../").then((commands: any) => {
+                commands.default.forEach((command: any) => {
+                    choices.push({
+                        name: command.name,
+                        value: command.name,
+                    });
+                });
+                choices.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+                option.addChoices(...choices);
+            });
+            return option;
+        }),
+    execute: async (interaction) => {
         // filter admin commands to only mods
-        let filteredCommands = commands.filter(
-            (command) => !command?.adminOnly || (command?.adminOnly && message.member?.roles.cache.has(configuration.roleIds.moderator))
-        );
+        const roles = interaction.member?.roles as GuildMemberRoleManager;
+        const commands: SlashCommand[] = await (await import("../")).default;
+        let filteredCommands = commands
+            .filter(
+                (command) =>
+                    !command?.adminOnly || (command?.adminOnly && roles.cache.has(configuration.roleIds.moderator))
+            )
+            .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
-        // try only showing help for a single command if the user specifies one that matches
-        const argCommand = filteredCommands.find((command) => command.name.toLowerCase() == args?.[0]?.toLowerCase());
-        if (argCommand) {
-            filteredCommands = [argCommand];
+        const commandName = interaction.options.getString("command")?.toLowerCase().trim();
+        if (commandName) {
+            const foundCommand = filteredCommands.find((x) => x.name.toLowerCase() === commandName);
+            if (foundCommand) {
+                filteredCommands = [foundCommand];
+            } else {
+                interaction.reply(`Command "${commandName}" does not exist.`);
+            }
         }
 
         const embed = new EmbedBuilder({
@@ -39,6 +67,6 @@ export default new Command({
                 },
             ],
         });
-        message.channel.send({ embeds: [embed] });
+        interaction.reply({ embeds: [embed] });
     },
 });
