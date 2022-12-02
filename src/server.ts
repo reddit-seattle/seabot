@@ -1,44 +1,39 @@
-import { ChannelIds, Environment, GuildIds } from "./utils/constants";
-
 import { TextChannel, ActivityType, Events } from "discord.js";
 import { schedule } from "node-cron";
 import { exit } from "process";
 import { promises as fs } from "fs";
 
-import slashCommands from "./commands/slash";
-import reactionCommands from "./commands/reaction";
-import contentCommands from "./commands/messageContent";
-
-import { handleVoiceStatusUpdate } from "./functions/voiceChannelManagement";
-import { processModReportInteractions } from "./utils/helpers";
 import DiscordBot from "./discord/DiscordBot";
-import { clearChannels } from "./commands/messageContent/AutoClearChannels";
-import CommandRouter from "./commands/CommandRouter";
 import DiscordEventRouter from "./discord/DiscordEventRouter";
 import ExpressServer from "./ExpressServer";
 import ISeabotConfig from "./ISeabotConfig";
 
-const discordBot = new DiscordBot();
+import { ChannelIds, Environment, GuildIds } from "./utils/constants";
+import { handleVoiceStatusUpdate } from "./functions/voiceChannelManagement";
+import { processModReportInteractions } from "./utils/helpers";
+import { clearChannels } from "./commands/messageContent/AutoClearChannels";
+
 const expressServer = new ExpressServer();
 let configuration: ISeabotConfig;
 export { configuration, discordBot };
 
 startServer();
+let discordBot: DiscordBot;
 
 async function startServer() {
-    configuration = await loadConfiguration();
-    console.log("Loaded configuration file.");
-    
+    configuration = await loadConfiguration(__dirname);
+
     startExpressServer();
+    discordBot = new DiscordBot();
     await startDiscordBot();
 }
 
 async function startDiscordBot() {
+    console.log("Starting bot...");
     try {
         const eventRouter = new DiscordEventRouter(discordBot.client);
         eventRouter.addEventListener(Events.InteractionCreate, processModReportInteractions);
         eventRouter.addEventListener(Events.VoiceStateUpdate, handleVoiceStatusUpdate);
-        eventRouter.addEventListener(Events.ClientReady, () => startCommandRouter(eventRouter));
         eventRouter.addEventListener(Events.ClientReady, announcePresence);
         eventRouter.addEventListener(Events.ClientReady, startCronJobs);
 
@@ -48,14 +43,6 @@ async function startDiscordBot() {
         console.error(error);
         exit(1);
     }
-}
-
-function startCommandRouter(eventRouter: DiscordEventRouter) {
-    const commandRouter = new CommandRouter(eventRouter, discordBot, {
-        slashCommands,
-        reactionCommands,
-        contentCommands,
-    });
 }
 
 function startExpressServer() {
@@ -68,12 +55,14 @@ function startExpressServer() {
     }
 }
 
-async function loadConfiguration(): Promise<ISeabotConfig> {
+async function loadConfiguration(path: string): Promise<ISeabotConfig> {
+    path = `${path}\\seabotConfig.json`;
+    console.log(`Loading configuration file from "${path}"...`);
     let configuration = null;
 
     try {
-        await fs.access("seabotConfig.json");
-        configuration = JSON.parse((await fs.readFile("seabotConfig.json")).toString());
+        await fs.access(`${path}`);
+        configuration = JSON.parse((await fs.readFile(path)).toString());
     } catch (error) {
         console.warn("Configuration file not found, or is malformed. Continuing with default configuration...");
     }
