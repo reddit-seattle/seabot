@@ -1,5 +1,6 @@
 // @ts-check
 import { Container, CosmosClient, Database, ItemDefinition, SqlQuerySpec } from "@azure/cosmos";
+
 import IDatabase from "./IDatabase";
 
 export default class DBConnector<T extends ItemDefinition> implements IDatabase<T> {

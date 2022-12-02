@@ -1,5 +1,6 @@
 import { EventDataBatch, EventHubProducerClient } from "@azure/event-hubs";
 import { Message, TextChannel } from "discord.js";
+
 import { configuration } from "../server";
 
 export class MessageTelemetryLogger {
