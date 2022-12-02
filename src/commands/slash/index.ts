@@ -1,3 +1,4 @@
+import SlashCommand from "./SlashCommand";
 import databaseCommands from "./database";
 import helpCommands from "./help";
 import hueCommands from "./hue";
@@ -7,9 +8,8 @@ import rjCommands from "./rj";
 import roleCommands from "./role";
 import utilityCommands from "./utility";
 import weatherCommands from "./weather";
-import { Command } from "../Command";
 
-const commands: Command[] = [
+const commands: SlashCommand[] = [
     ...databaseCommands,
     ...helpCommands,
     ...hueCommands,
