@@ -11,7 +11,7 @@
     "autoDeleteMessagesInChannels": [
         {
             "id": "804639001226379294",
-            "frequency": 3600000
+            "frequency": 5
         }
     ],
     "channelIds": {
