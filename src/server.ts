@@ -87,6 +87,7 @@ function announcePresence() {
     });
 }
 
+// TODO: This should be expanded into a general scheduling system.
 function startCronJobs() {
     schedule("*/5 * * * *", () => {
         clearChannels(discordBot.client);
