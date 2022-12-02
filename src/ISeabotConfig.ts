@@ -3,7 +3,7 @@ export default interface ISeabotConfig {
         groupId: string;
         triggerChannelId: string;
     };
-    autoDeleteMessagesInChannels: Array<string> | undefined;
+    autoDeleteMessagesInChannels: Array<{ id: string; frequency: number }> | undefined;
     telemetryChannels: Array<string> | undefined;
     channelIds: { [key: string]: string } | undefined;
     roleIds: {
