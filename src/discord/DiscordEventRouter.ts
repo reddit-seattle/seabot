@@ -1,4 +1,23 @@
-import { Client, Events, Message, MessageReaction, PartialMessage, PartialMessageReaction } from "discord.js";
+import {
+    Client,
+    Events,
+    GuildMember,
+    Message,
+    MessageReaction,
+    PartialGuildMember,
+    PartialMessage,
+    PartialMessageReaction,
+} from "discord.js";
+
+type HandledEventArgs = GuildMember | PartialGuildMember | Message | PartialMessage | MessageReaction | PartialMessageReaction;
+const eventsToResolve = [
+    Events.MessageCreate,
+    Events.MessageDelete,
+    Events.MessageReactionAdd,
+    Events.MessageReactionRemove,
+    Events.GuildMemberAdd,
+    Events.GuildMemberRemove
+];
 
 export default class DiscordEventRouter {
     private _eventHandlers: Map<Events, Function[]> = new Map();
@@ -48,17 +67,13 @@ export default class DiscordEventRouter {
 
     private async resolvePartialsInArgs(
         eventType: Events,
-        eventArgs: Message | MessageReaction | PartialMessage | PartialMessageReaction
+        eventArgs: HandledEventArgs
     ) {
-        let resolvedArgs: Message | MessageReaction;
-        if (
-            eventType === Events.MessageCreate ||
-            eventType === Events.MessageDelete ||
-            eventType === Events.MessageReactionAdd ||
-            eventType === Events.MessageReactionRemove
-        ) {
+        type Resolved = Message | MessageReaction | GuildMember;
+        let resolvedArgs: Resolved
+        if (eventsToResolve.includes(eventType)) {
             if (eventArgs.partial) {
-                resolvedArgs = await eventArgs.fetch();
+                resolvedArgs = (await eventArgs.fetch()) as Resolved;
             } else {
                 resolvedArgs = eventArgs;
             }

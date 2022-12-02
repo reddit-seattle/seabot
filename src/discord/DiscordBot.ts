@@ -34,7 +34,7 @@ export default class DiscordBot {
             GatewayIntentBits.GuildScheduledEvents,
             GatewayIntentBits.MessageContent,
         ],
-        partials: [Partials.Message, Partials.Reaction],
+        partials: [Partials.Message, Partials.Reaction, Partials.GuildMember],
     });
     public get client() {
         return this._client;
