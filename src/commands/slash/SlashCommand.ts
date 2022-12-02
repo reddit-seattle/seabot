@@ -17,7 +17,7 @@ export default class SlashCommand extends Command {
     private _configuration: SlashCommandConfiguration;
 
     public get builder() {
-        return this._configuration.builder;
+        return this._configuration.builder as BuiltSlashCommand;
     }
 
     constructor(configuration: SlashCommandConfiguration) {
@@ -27,19 +27,19 @@ export default class SlashCommand extends Command {
     }
 
     private async initialize() {
-        let builder = this.builder as any;
+        let builder = this._configuration.builder as any;
 
         if (typeof builder === "function") {
             if (builder.constructor.name === "AsyncFunction") {
-                builder = await (this.builder as Function)();
+                builder = await (this._configuration.builder as Function)();
             } else {
-                builder = (this.builder as Function)();
+                builder = (this._configuration.builder as Function)();
             }
+
             this._configuration.builder = builder;
         }
 
-        builder.setName(this._configuration.name.toLowerCase());
-        builder.setDescription(this._configuration.description);
+        this._configuration.builder = builder.setName(this.name.toLowerCase()).setDescription(this.description);
     }
 
     public canExecute(...args: any[]) {

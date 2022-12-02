@@ -1,17 +1,10 @@
-import { SlashCommandBuilder, Message } from "discord.js";
-import { Command } from "../../Command";
+import { SlashCommandBuilder } from "discord.js";
 
-export default new Command({
-    name: 'ping',
-    help: 'ping',
-    description: 'ping',
-    execute: (message: Message) => message.channel.send('pong!'),
-    slashCommandDescription: () => {
-        return new SlashCommandBuilder()
-            .setName('ping')
-            .setDescription('ping')
-    },
-    executeSlashCommand: (interaction) => {
-        interaction.reply('pong!')
-    }
+import SlashCommand from "../SlashCommand";
+
+export default new SlashCommand({
+    name: "ping",
+    description: "Make sure the bot is awake",
+    execute: (interaction) => interaction.reply("pong!"),
+    builder: new SlashCommandBuilder(),
 });

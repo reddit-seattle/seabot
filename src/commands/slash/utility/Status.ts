@@ -1,17 +1,15 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import { Command } from "../../Command";
+
+import SlashCommand from "../SlashCommand";
+
 import { AppConfiguration } from "../../../utils/constants";
 
-export default new Command({
-    description: 'show seabot info',
-    help: 'status',
-    name: 'status',
-    slashCommandDescription: () => {
-        return new SlashCommandBuilder()
-            .setName('status')
-            .setDescription('show useless seabot info')
-    },
-    executeSlashCommand: (interaction) => {
+export default new SlashCommand({
+    description: "show seabot info",
+    help: "status",
+    name: "status",
+    builder: new SlashCommandBuilder(),
+    execute: (interaction) => {
         const process_uptime = Math.floor(process.uptime());
         const { client } = interaction;
         const { uptime } = client;
@@ -19,53 +17,52 @@ export default new Command({
         interaction.reply({
             embeds: [
                 new EmbedBuilder({
-                    title: 'SEABot Status',
-                    description: 'Latest release and uptime info',
+                    title: "SEABot Status",
+                    description: "Latest release and uptime info",
                     fields: [
                         {
-                            name: 'Version info',
+                            name: "Version info",
                             value: `Node: ${versions.node}, V8: ${versions.v8}, OpenSSL: ${versions.openssl}`,
-                            inline: false
+                            inline: false,
                         },
                         {
-                            name: 'Release number',
+                            name: "Release number",
                             value: `${AppConfiguration.BOT_RELEASE_VERSION}`,
-                            inline: true
+                            inline: true,
                         },
                         {
-                            name: 'Release Description',
+                            name: "Release Description",
                             value: `${AppConfiguration.BOT_RELEASE_DESCRIPTION}`,
-                            inline: true
+                            inline: true,
                         },
                         {
-                            name: 'Release Commit',
+                            name: "Release Commit",
                             value: `${AppConfiguration.BOT_RELEASE_COMMIT}`,
-                            inline: true
+                            inline: true,
                         },
                         {
-                            name: 'Architecture',
+                            name: "Architecture",
                             value: `${arch}`,
-                            inline: true
+                            inline: true,
                         },
                         {
-                            name: 'Release Method',
+                            name: "Release Method",
                             value: `${AppConfiguration.BOT_RELEASE_REASON}`,
-                            inline: true
+                            inline: true,
                         },
                         {
-                            name: 'Process Uptime',
+                            name: "Process Uptime",
                             value: `${(process_uptime / 60 / 60).toFixed(2)} hours`,
-                            inline: true
+                            inline: true,
                         },
                         {
-                            name: 'Client Uptime',
+                            name: "Client Uptime",
                             value: `${(uptime! / 60 / 60).toFixed(2)} hours`,
-                            inline: true
+                            inline: true,
                         },
-                    ]
-                })
-            ]
+                    ],
+                }),
+            ],
         });
     },
-    
 });

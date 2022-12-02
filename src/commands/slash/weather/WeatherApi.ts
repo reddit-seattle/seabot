@@ -3,6 +3,7 @@ import moment from "moment";
 import fetch from "node-fetch";
 import { each } from "underscore";
 import { URLSearchParams } from "url";
+
 import {
     WeeklyForecastResponse,
     ForecastResponse,
@@ -55,7 +56,7 @@ export default class WeatherApi {
             weekly
                 ? this.buildWeeklyEmbed(forecast as WeeklyForecastResponse, title)
                 : this.buildForecastEmbed(forecast as ForecastResponse, title);
-                
+
         return { forecast, geoInfo, embedBuilder };
     }
 

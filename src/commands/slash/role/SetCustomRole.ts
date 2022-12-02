@@ -1,39 +1,26 @@
-import {
-    DiscordAPIError,
-    GuildMember,
-    resolveColor,
-    SlashCommandBuilder,
-} from "discord.js";
-import { Command } from "../../Command";
+import { DiscordAPIError, Emoji, GuildMember, resolveColor, Role, SlashCommandBuilder } from "discord.js";
+
+import SlashCommand from "../SlashCommand";
+
 import { configuration } from "../../../server";
 
-const iconBlockList = [
-    "thinkban"
-]
+const iconBlockList = ["thinkban"];
 
-export default new Command({
+export default new SlashCommand({
     description: "Set your custom role (Premium only)",
     help: "Set your custom role (Premium only)",
     name: "set-premium-role",
     adminOnly: true,
-    slashCommandDescription: () => {
-        return new SlashCommandBuilder()
-            .setName("set-premium-role")
-            .setDescription("Set your custom role color and icon (Premium only)")
-            .addStringOption((option) => {
-                return option
-                    .setName("color")
-                    .setDescription("hex color")
-                    .setRequired(false);
-            })
-            .addStringOption((option) => {
-                return option
-                    .setName("emoji")
-                    .setDescription("role icon")
-                    .setRequired(false);
-            });
-    },
-    executeSlashCommand: async (interaction) => {
+    builder: new SlashCommandBuilder()
+        .setName("set-premium-role")
+        .setDescription("Set your custom role color and icon (Premium only)")
+        .addStringOption((option) => {
+            return option.setName("color").setDescription("hex color").setRequired(false);
+        })
+        .addStringOption((option) => {
+            return option.setName("emoji").setDescription("role icon").setRequired(false);
+        }),
+    execute: async (interaction) => {
         const { options, member, user, guild } = interaction;
         const logs: string[] = [];
         await interaction.deferReply({ ephemeral: true });
@@ -41,26 +28,24 @@ export default new Command({
         const emoji = options.getString("emoji");
 
         // No change
-        if(!color && !emoji) {
-            await interaction.followUp({ephemeral: true, content: "Nothing to change"});
+        if (!color && !emoji) {
+            await interaction.followUp({ ephemeral: true, content: "Nothing to change" });
             return;
         }
 
         // try to find role for user
         const roleName = `${user.username}_${user.discriminator}`;
-        let role = guild?.roles.cache.find((role) => role.name == roleName);
+        let role = guild?.roles.cache.find((role: Role) => role.name == roleName);
 
-        // create role if it doesn't exist        
+        // create role if it doesn't exist
         if (!role) {
-            logs.push(
-                `Could not find custom role "${roleName}", creating new role.`
-            );
+            logs.push(`Could not find custom role "${roleName}", creating new role.`);
             // order role
             const roleSeparatorPosition = guild?.roles.cache.get(configuration.roleIds.premium)?.position ?? 15;
-            console.log(`Creating premium role ${roleName} at position ${roleSeparatorPosition+1}`);
+            console.log(`Creating premium role ${roleName} at position ${roleSeparatorPosition + 1}`);
             role = await guild?.roles?.create({
                 name: roleName,
-                position: roleSeparatorPosition+1
+                position: roleSeparatorPosition + 1,
             });
             if (!role) {
                 logs.push("Error creating role. Ask a mod to check permissions or existing roles.");
@@ -74,30 +59,29 @@ export default new Command({
         }
 
         // set color
-        if(color) {
+        if (color) {
             // validate hex
             const hex = color?.replace(/^#/, "");
 
             // ಠ_ಠ
-            if(color == '25c059') {
-                await interaction.followUp({ephemeral: true, content: `ಠ_ಠ Pick a different color.`});
+            if (color == "25c059") {
+                await interaction.followUp({ ephemeral: true, content: `ಠ_ಠ Pick a different color.` });
                 return;
             }
 
             if (!hex || !RegExp("^[0-9A-F]{6}$", "i").test(hex)) {
                 logs.push(`Invalid hex color: ${color}`);
-                await interaction.followUp({ephemeral: true, content: `An error has occurred.\nLogs:\n${logs.join("\n")}`});
+                await interaction.followUp({
+                    ephemeral: true,
+                    content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
+                });
                 return;
             }
-            
+
             // resolve color
             logs.push(`Setting role color: ${color}`);
             const aRgbHex = hex.match(/.{1,2}/g);
-            const aRgb = [
-                parseInt(aRgbHex?.[0]!, 16),
-                parseInt(aRgbHex?.[1]!, 16),
-                parseInt(aRgbHex?.[2]!, 16),
-            ];
+            const aRgb = [parseInt(aRgbHex?.[0]!, 16), parseInt(aRgbHex?.[1]!, 16), parseInt(aRgbHex?.[2]!, 16)];
             const finalColor = resolveColor([aRgb[0], aRgb[1], aRgb[2]]);
             await role.setColor(finalColor);
         }
@@ -107,17 +91,15 @@ export default new Command({
             // ಠ_ಠ
             for (const blockedIcon of iconBlockList) {
                 if (emoji.toLowerCase().includes(blockedIcon.toLowerCase())) {
-                    await interaction.followUp({ephemeral: true, content: `ಠ_ಠ Pick a different emoji.`});
+                    await interaction.followUp({ ephemeral: true, content: `ಠ_ಠ Pick a different emoji.` });
                     return;
                 }
             }
 
             logs.push(`Setting role icon: ${emoji}`);
             try {
-                const icon = await guild?.emojis.cache.find(
-                    (guild_emoji) => guild_emoji.toString() == emoji
-                );
-                if(!icon){
+                const icon = await guild?.emojis.cache.find((guild_emoji: Emoji) => guild_emoji.toString() == emoji);
+                if (!icon) {
                     logs.push(`Error finding icon ${emoji} on this server, please ask a mod to add it`);
                     await interaction.followUp({
                         ephemeral: true,
@@ -128,7 +110,7 @@ export default new Command({
                 await role?.setIcon(icon);
             } catch (ex: any) {
                 if (ex instanceof DiscordAPIError) {
-                    logs.push(ex.message)
+                    logs.push(ex.message);
                     await interaction.followUp({
                         ephemeral: true,
                         content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,

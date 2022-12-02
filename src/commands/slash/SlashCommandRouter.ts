@@ -3,8 +3,6 @@ import { Events, Interaction, RESTPostAPIApplicationCommandsJSONBody, Routes } f
 import CommandRouter from "../CommandRouter";
 import SlashCommand from "./SlashCommand";
 
-import { BuiltSlashCommand } from "./SlashCommand";
-
 export default class SlashCommandRouter extends CommandRouter {
     public async initialize(commands: SlashCommand[]) {
         const commandMap = commands.reduce((map, obj) => {
@@ -28,7 +26,7 @@ export default class SlashCommandRouter extends CommandRouter {
             for (const commandName in commands) {
                 const command = commands[commandName];
                 if (command?.builder) {
-                    registeredCommands.push((command.builder as BuiltSlashCommand).toJSON());
+                    registeredCommands.push(command.builder.toJSON());
                 }
             }
 

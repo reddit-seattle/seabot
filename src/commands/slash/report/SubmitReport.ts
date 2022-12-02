@@ -1,31 +1,28 @@
 import { SlashCommandBuilder, EmbedBuilder, TextChannel } from "discord.js";
 import { now } from "underscore";
 
-import { Command } from "../../Command";
+import SlashCommand from "../SlashCommand";
+
 import { ChannelIds, REGEX } from "../../../utils/constants";
 import { buildModActionRow } from "../../../utils/helpers";
 
-export default new Command({
+export default new SlashCommand({
     name: "report",
     description: "Submit a report to the mod team",
     help: "Submit a report to the mod team",
-    slashCommandDescription: () => {
-        return (
-            new SlashCommandBuilder()
-                .setName("report")
-                .setDescription("Submit a report to the mod team")
-                // anon is required, note is required
-                .addBooleanOption((o) => o.setName("anon").setDescription("Submit anonymously").setRequired(true))
-                .addStringOption((o) => o.setName("note").setDescription("Please explain the issue").setRequired(true))
-                // user and channel are optional
-                .addUserOption((o) => o.setName("user").setDescription("The user you want to report"))
-                .addChannelOption((o) => o.setName("channel").setDescription("The channel where the issue occurred"))
-                // evidence not required
-                .addAttachmentOption((o) => o.setName("evidence").setDescription("Attach evidence if necessary"))
-                .addStringOption((o) => o.setName("message").setDescription("Message link to content"))
-        );
-    },
-    executeSlashCommand: async (interaction) => {
+    builder: new SlashCommandBuilder()
+        .setName("report")
+        .setDescription("Submit a report to the mod team")
+        // anon is required, note is required
+        .addBooleanOption((o) => o.setName("anon").setDescription("Submit anonymously").setRequired(true))
+        .addStringOption((o) => o.setName("note").setDescription("Please explain the issue").setRequired(true))
+        // user and channel are optional
+        .addUserOption((o) => o.setName("user").setDescription("The user you want to report"))
+        .addChannelOption((o) => o.setName("channel").setDescription("The channel where the issue occurred"))
+        // evidence not required
+        .addAttachmentOption((o) => o.setName("evidence").setDescription("Attach evidence if necessary"))
+        .addStringOption((o) => o.setName("message").setDescription("Message link to content")),
+    execute: async (interaction) => {
         const { options } = interaction;
         // only get username if not anonymous.
         const anon = options.getBoolean("anon", true);

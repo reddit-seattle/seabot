@@ -1,17 +1,13 @@
 import { SlashCommandBuilder } from "discord.js";
-import { Command } from "../../Command";
 
-export default new Command({
-    name: 'source',
-    help: 'source',
-    description: 'look at my insides',
-    slashCommandDescription: () => {
-        return new SlashCommandBuilder()
-            .setName('source')
-            .setDescription('look at my insides!')
-    },
-    executeSlashCommand: (interaction) => {
-        const repoURL = 'https://github.com/reddit-seattle/seabot';
+import SlashCommand from "../SlashCommand";
+
+export default new SlashCommand({
+    name: "source",
+    description: "look at my insides",
+    builder: new SlashCommandBuilder(),
+    execute: (interaction) => {
+        const repoURL = "https://github.com/reddit-seattle/seabot";
         interaction.reply(`Look at my insides!\n${repoURL}`);
-    }
+    },
 });

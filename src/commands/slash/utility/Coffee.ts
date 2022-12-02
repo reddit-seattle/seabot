@@ -1,18 +1,12 @@
 import { SlashCommandBuilder, Message } from "discord.js";
-import { Command } from "../../Command";
+
+import SlashCommand from "../SlashCommand";
+
 import { Strings } from "../../../utils/constants";
 
-export default new Command({
-    name: 'coffee',
-    help: 'coffee',
-    description: 'ask for coffee',
+export default new SlashCommand({
+    name: "coffee",
+    description: "Ask for coffee",
+    builder: new SlashCommandBuilder(),
     execute: (message: Message) => message.channel.send(Strings.coffee),
-    slashCommandDescription: () => {
-        return new SlashCommandBuilder()
-            .setName('coffee')
-            .setDescription('ask for coffee')
-    },
-    executeSlashCommand: (interaction) => {
-        interaction.reply(Strings.coffee)
-    }
 });

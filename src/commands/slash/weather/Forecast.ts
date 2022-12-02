@@ -1,23 +1,22 @@
 import { SlashCommandBuilder } from "discord.js";
-import { Command } from "../../Command";
+
+import SlashCommand from "../SlashCommand";
 import WeatherApi from "./WeatherApi";
 
-export default new Command({
+export default new SlashCommand({
     description: "Get weather forecast in 3-hour intervals",
     help: "forecast [98102 | Seattle] {optional: `weekly`}",
     name: "forecast",
-    slashCommandDescription: () => {
-        return new SlashCommandBuilder()
-            .setName("forecast")
-            .setDescription("Get weather forecast in 3-hour intervals")
-            .addStringOption((option) =>
-                option.setName("location").setDescription("string location or zip code").setRequired(true)
-            )
-            .addBooleanOption((option) =>
-                option.setName("weekly").setDescription("get weekly forecast instead of 3-hour intervals")
-            );
-    },
-    executeSlashCommand: async (interaction) => {
+    builder: new SlashCommandBuilder()
+        .setName("forecast")
+        .setDescription("Get weather forecast in 3-hour intervals")
+        .addStringOption((option) =>
+            option.setName("location").setDescription("string location or zip code").setRequired(true)
+        )
+        .addBooleanOption((option) =>
+            option.setName("weekly").setDescription("get weekly forecast instead of 3-hour intervals")
+        ),
+    execute: async (interaction) => {
         const location = interaction.options.getString("location");
         const weekly = interaction.options.getBoolean("weekly") ?? false;
         if (location) {
