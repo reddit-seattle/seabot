@@ -1,29 +1,28 @@
-import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import moment from "moment";
+import { ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 
 import { Telemetry as TelemetryModel } from "../../../models/DBModels";
 import { Database } from "../../../utils/constants";
 import { DatabaseCommand } from "./DatabaseCommand";
 
-export default new DatabaseCommand<TelemetryModel>(Database.Containers.TELEMETRY, {
-    name: "channelstats",
-    description: "Get Channel Telemetry Info",
-    help: "channelstats",
-    slashCommandDescription: getCommandDescription,
-    executeSlashCommand: getCommandHandler,
-});
+const name = "channelstats";
+const description = "Get Channel Telemetry Info";
 
-function getCommandDescription(this: DatabaseCommand<TelemetryModel>) {
-    return new SlashCommandBuilder()
-        .setName(this.name)
-        .setDescription(this.description)
-        .setDefaultPermission(false)
+export default new DatabaseCommand<TelemetryModel>(Database.Containers.TELEMETRY, {
+    name,
+    description,
+    help: "channelstats",
+    builder: new SlashCommandBuilder()
+        .setName(name)
+        .setDescription(description)
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .addChannelOption((opt) =>
             opt.setName("channel").setDescription("channel to get telemetry for").setRequired(true)
-        );
-}
+        ),
+    execute: handler,
+});
 
-async function getCommandHandler(this: DatabaseCommand<TelemetryModel>, interaction: ChatInputCommandInteraction) {
+async function handler(this: DatabaseCommand<TelemetryModel>, interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
     const channel = interaction.options.getChannel("channel", true);
     const { id: cat } = channel;

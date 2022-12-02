@@ -1,50 +1,49 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits } from "discord.js";
 
-import { Database } from "../../../utils/constants";
 import { Award as AwardModel } from "../../../models/DBModels";
+import { Database } from "../../../utils/constants";
 import { DatabaseCommand } from "./DatabaseCommand";
-
-export default new DatabaseCommand<AwardModel>(Database.Containers.AWARDS, {
-    name: "award",
-    adminOnly: true,
-    description: "Give another user an award",
-    help: "award user message | award user list",
-    slashCommandDescription: getCommandDescription,
-    executeSlashCommand: slashCommandHandler,
-});
 
 enum SubCommands {
     GIVE = "give",
     LIST = "list",
 }
 
-function getCommandDescription() {
-    const cmd = new SlashCommandBuilder().setName("award").setDescription("Give and list awards");
-    cmd.addSubcommand((cmd) => {
-        return cmd
-            .setName(SubCommands.GIVE)
-            .setDescription("give another user an award")
-            .addUserOption((option) => {
-                return option.setName("user").setDescription("who are you awarding").setRequired(true);
-            })
-            .addStringOption((option) => {
-                return option
-                    .setName("message")
-                    .setDescription("let them know what they did to deserve it!")
-                    .setRequired(false);
-            });
-    }).addSubcommand((cmd) => {
-        return cmd
-            .setName(SubCommands.LIST)
-            .setDescription("show your awards (or another user's)")
-            .addUserOption((option) => {
-                return option.setName("user").setDescription("who are you awarding").setRequired(false);
-            });
-    });
-    return cmd;
-}
+const config = {
+    name: "award",
+    description: "Give and list awards",
+    help: "award user message | award user list",
+    adminOnly: true,
+    builder: new SlashCommandBuilder()
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+        .addSubcommand((cmd) => {
+            return cmd
+                .setName(SubCommands.GIVE)
+                .setDescription("give another user an award")
+                .addUserOption((option) => {
+                    return option.setName("user").setDescription("who are you awarding").setRequired(true);
+                })
+                .addStringOption((option) => {
+                    return option
+                        .setName("message")
+                        .setDescription("let them know what they did to deserve it!")
+                        .setRequired(false);
+                });
+        })
+        .addSubcommand((cmd) => {
+            return cmd
+                .setName(SubCommands.LIST)
+                .setDescription("show your awards (or another user's)")
+                .addUserOption((option) => {
+                    return option.setName("user").setDescription("who are you awarding").setRequired(false);
+                });
+        }),
+    execute: handler,
+};
 
-async function slashCommandHandler(this: DatabaseCommand<AwardModel>, interaction: ChatInputCommandInteraction) {
+export default new DatabaseCommand<AwardModel>(Database.Containers.AWARDS, config);
+
+async function handler(this: DatabaseCommand<AwardModel>, interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true });
     const cmd = interaction.options.getSubcommand(true);
     if (cmd === SubCommands.GIVE) {

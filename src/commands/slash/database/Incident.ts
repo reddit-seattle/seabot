@@ -2,15 +2,24 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, GuildMemberRoleManage
 
 import { configuration } from "../../../server";
 import { Database } from "../../../utils/constants";
-import { Incident as IncidentModel } from "../../../models/DBModels";
 import { DatabaseCommand } from "./DatabaseCommand";
+import { Incident as IncidentModel } from "../../../models/DBModels";
+import { millisecondsToDays } from "../../../utils/time";
 
 export default new DatabaseCommand<IncidentModel>(Database.Containers.INCIDENTS, {
     name: "incident",
     description: "How many days since our last incident?",
     help: "incident",
-    slashCommandDescription: getCommandDescription,
-    executeSlashCommand: slashCommandHandler,
+    builder: new SlashCommandBuilder()
+        .addSubcommand((cmd) => cmd.setName("last").setDescription("days since last `incident`"))
+        .addSubcommand((cmd) =>
+            cmd
+                .setName("new")
+                .setDescription("indicates that a new incident has occurred")
+                .addStringOption((option) => option.setName("link").setDescription("message link to start of incident"))
+                .addStringOption((option) => option.setName("note").setDescription("what went down"))
+        ),
+    execute: handler,
 });
 
 enum SubCommands {
@@ -18,21 +27,7 @@ enum SubCommands {
     NEW = "new",
 }
 
-function getCommandDescription() {
-    const cmd = new SlashCommandBuilder()
-        .setName("incident")
-        .setDescription("check how many days have passed since our last `incident`");
-    cmd.addSubcommand((cmd) => cmd.setName("last").setDescription("days since last `incident`")).addSubcommand((cmd) =>
-        cmd
-            .setName("new")
-            .setDescription("indicates that a new incident has occurred")
-            .addStringOption((option) => option.setName("link").setDescription("message link to start of incident"))
-            .addStringOption((option) => option.setName("note").setDescription("what went down"))
-    );
-    return cmd;
-}
-
-async function slashCommandHandler(this: DatabaseCommand<IncidentModel>, interaction: ChatInputCommandInteraction) {
+async function handler(this: DatabaseCommand<IncidentModel>, interaction: ChatInputCommandInteraction) {
     const cmd = interaction.options.getSubcommand(true);
     if (cmd === SubCommands.LAST) {
         //not a private response
@@ -47,9 +42,7 @@ async function slashCommandHandler(this: DatabaseCommand<IncidentModel>, interac
             });
             return;
         }
-        // do some math
-        const timeSince = Date.now() - new Date(incident?.occurrence).getTime();
-        const daysSince = timeSince / (1000 * 60 * 60 * 24);
+        const daysSince = millisecondsToDays(Date.now() - new Date(incident?.occurrence).getTime());
         // tell everyone
         interaction.followUp({
             content: `It has been ${Math.round(daysSince)} day${
