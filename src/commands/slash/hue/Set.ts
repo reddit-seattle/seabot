@@ -1,14 +1,16 @@
-import { Message } from "discord.js";
+import { Message, SlashCommandBuilder } from "discord.js";
 import { v3 as NodeHue } from "node-hue-api";
 
-import { Command } from "../../Command";
+import SlashCommand from "../SlashCommand";
+
 import { Hue } from "../../../utils/constants";
 import { HueInitialize } from "../../../utils/helpers";
 
-export default new Command({
+export default new SlashCommand({
     name: "hueSet",
     help: "hueSet #5eab07",
     description: "Changes Burn's hue light to a specific hex color",
+    builder: new SlashCommandBuilder(),
     async execute(message: Message, args?: string[]) {
         const hueApi = await HueInitialize(message);
         if (hueApi) {

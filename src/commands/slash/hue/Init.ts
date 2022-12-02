@@ -1,14 +1,16 @@
-import { Message } from "discord.js";
+import { Message, SlashCommandBuilder } from "discord.js";
 import { v3 as NodeHue } from "node-hue-api";
 
-import { Command } from "../../Command";
+import SlashCommand from "../SlashCommand";
+
 import { Environment } from "../../../utils/constants";
 
-export default new Command({
+export default new SlashCommand({
     name: "hueInit",
     help: "hueInit",
     adminOnly: true,
     description: "reconnects hue service (messages you a link)",
+    builder: new SlashCommandBuilder(),
     async execute(message: Message, args?: string[]) {
         const { hueClientId, hueClientSecret } = Environment;
         const remote = NodeHue.api.createRemote(hueClientId!, hueClientSecret!);

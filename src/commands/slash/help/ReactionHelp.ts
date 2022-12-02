@@ -1,15 +1,16 @@
-import { Message, EmbedBuilder } from "discord.js";
-import commands from "..";
-import { Command } from "../../Command";
+import { Message, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+
+import ReactionCommands from "../../reaction";
+import SlashCommand from "../SlashCommand";
+
 import { configuration, discordBot } from "../../../server";
 import { Strings } from "../../../utils/constants";
-import ReactionCommands from "../../reaction";
-import ReactionCommand from "../../reaction/ReactionCommand";
 
-export default new Command({
+export default new SlashCommand({
     name: "reactions",
     help: "reactions",
     description: "Display reaction command help",
+    builder: new SlashCommandBuilder().addStringOption(option => option.setName("command").setDescription("The command you would like help with")),
     async execute(message: Message, args?: string[]) {
         // filter admin commands to only mods
         let filteredCommands = ReactionCommands.filter(

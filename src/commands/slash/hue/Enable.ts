@@ -1,13 +1,15 @@
-import { Message } from "discord.js";
+import { Message, SlashCommandBuilder } from "discord.js";
 
-import { Command } from "../../Command";
+import SlashCommand from "../SlashCommand";
+
 import { Environment } from "../../../utils/constants";
 
-export default new Command({
+export default new SlashCommand({
     name: "hueFeature",
     help: "hueFeature enable|disable",
     adminOnly: true,
     description: "enables or disables the hue command features",
+    builder: new SlashCommandBuilder(),
     async execute(message: Message, args?: string[]) {
         const arg = args?.[0];
         const enabled = arg == "enable";
