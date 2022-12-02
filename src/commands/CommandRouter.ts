@@ -1,5 +1,6 @@
-import DiscordEventRouter from "../discord/DiscordEventRouter";
 import DiscordBot from "../discord/DiscordBot";
+import DiscordEventRouter from "../discord/DiscordEventRouter";
+
 import { Command } from "./Command";
 
 export default abstract class CommandRouter {
