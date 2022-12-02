@@ -1,16 +1,16 @@
 import { Client, Events, GatewayIntentBits, GuildMember, Partials, REST } from "discord.js";
 import { EventHubProducerClient } from "@azure/event-hubs";
 
-import { Database, Environment } from "../utils/constants";
+import createCommandRouters from "../commands/createCommandRouters";
 import DiscordEventRouter from "./DiscordEventRouter";
 import ErrorLogger from "./ErrorLogger";
-import { MessageTelemetryLogger } from "../utils/MessageTelemetryLogger";
-import { cosmosClient } from "../db/cosmosClient";
 import InMemoryDbConnector from "../db/InMemoryDbConnector";
-import DBConnector from "../db/DBConnector";
-import { CosmosClient } from "@azure/cosmos";
 
-const FIVE_MINUTES = 1000 * 60 * 5;
+import { cosmosClient } from "../db/cosmosClient";
+import { Environment } from "../utils/constants";
+import { MessageTelemetryLogger } from "../utils/MessageTelemetryLogger";
+import { minutesToMilliseconds } from "../utils/time";
+
 let logger: MessageTelemetryLogger | null = null;
 let eventHubMessenger;
 
@@ -59,7 +59,7 @@ export default class DiscordBot {
         TODO: This code can be enabled once there is a cosmos database set up to receive errors.
         const errorDbConnector = process.env.DEBUG
             ? new InMemoryDbConnector<Error>()
-            : new DBConnector<Error>(cosmosClient as CosmosClient, Database.DATABASE_ID, "Errors");
+            : new DBConnector<Error>(cosmosClient as CosmosClient, Database.DATABASE_ID, "Logs");
         */
         this._errorLogger = new ErrorLogger(new InMemoryDbConnector<Error>());
     }
@@ -67,7 +67,7 @@ export default class DiscordBot {
     public async login(botToken: string) {
         console.log("Logging in to Discord API...");
         await this._client.login(botToken);
-        this._rest = new REST({ version: "9" }).setToken(botToken);
+        this._rest = new REST({ version: "10" }).setToken(botToken);
         console.log("Login success.");
     }
 
@@ -83,30 +83,34 @@ export default class DiscordBot {
         }
 
         await this.login(Environment.botToken);
+        this.startCommandRouters(eventRouter);
 
         process.on("unhandledRejection", console.error);
         process.on("unhandledRejection", async (error: Error) => this._errorLogger.logError(error));
 
-        eventRouter.addEventListener(Events.GuildMemberAdd, this.onMemberJoined);
-        eventRouter.addEventListener(Events.GuildMemberRemove, this.onMemberLeft);
+        eventRouter.addEventListener(Events.GuildMemberAdd, this.showNewMemberMessage);
+        eventRouter.addEventListener(Events.GuildMemberRemove, this.showRevolvingSimpsonsDoor);
         if (Environment.sendTelemetry && logger) {
             eventRouter.addEventListener(Events.MessageCreate, logger.logMessageTelemetry);
         }
     }
 
-    async onMemberLeft(member: GuildMember) {
-        if (member.partial) {
-            member = await member.fetch();
-        }
+    private startCommandRouters(eventRouter: DiscordEventRouter) {
+        console.log("Starting command router...");
+        const commandRouters = createCommandRouters(eventRouter, this);
+    }
 
-        if (Date.now() - member.joinedAt?.getTime()! < FIVE_MINUTES) {
+    private async showRevolvingSimpsonsDoor(member: GuildMember) {
+        if (!member.joinedAt) return;
+
+        if ((Date.now() - member.joinedAt.getTime()) < minutesToMilliseconds(5)) {
             const { guild } = member;
             guild?.systemChannel?.send("https://media.giphy.com/media/fDO2Nk0ImzvvW/giphy.gif");
         }
     }
 
-    async onMemberJoined(member: GuildMember) {
-        if (Date.now() - member.user!.createdTimestamp < FIVE_MINUTES) {
+    private async showNewMemberMessage(member: GuildMember) {
+        if (Date.now() - member.user!.createdTimestamp < minutesToMilliseconds(5)) {
             member.send(`
             Hey ${member.user!.username} - just a reminder, your account needs to be at least 5 minutes old to chat. 
             While you wait, feel free to browse our welcome channel for some basic rules and channel descriptions.`);
