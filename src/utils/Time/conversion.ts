@@ -14,8 +14,12 @@ export function daysToMilliseconds(days: number): number {
     return hoursToMilliseconds(24) * days;
 }
 
+export function millisecondsToSeconds(milliseconds: number): number {
+    return milliseconds / 1000;
+}
+
 export function millisecondsToMinutes(milliseconds: number): number {
-    return milliseconds / 1000 / 60;
+    return millisecondsToSeconds(milliseconds) / 60;
 }
 
 export function millisecondsToHours(milliseconds: number): number {
