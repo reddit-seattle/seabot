@@ -1,8 +1,3 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from "discord.js";
-
-export type SlashCommandHandler = (interaction: ChatInputCommandInteraction) => any;
-export type SlashCommandResult = () => Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
-
 export interface CommandConfiguration {
     name: string;
     description: string;
