@@ -2,6 +2,7 @@ import { TextChannel, ActivityType, Events } from "discord.js";
 import { exit } from "process";
 
 import scheduledTasks from "./schedules/";
+import loadConfiguration from "./configuration/loadConfiguration";
 
 import DiscordBot from "./discord/DiscordBot";
 import DiscordEventRouter from "./discord/DiscordEventRouter";
@@ -12,7 +13,6 @@ import TaskScheduler from "./schedules/TaskScheduler";
 import { ChannelIds, Environment, GuildIds } from "./utils/constants";
 import { handleVoiceStatusUpdate } from "./functions/voiceChannelManagement";
 import { processModReportInteractions } from "./utils/helpers";
-import loadConfiguration from "./configuration/loadConfiguration";
 
 const expressServer = new ExpressServer();
 let configuration: ISeabotConfig;
