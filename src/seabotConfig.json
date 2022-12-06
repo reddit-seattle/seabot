@@ -8,12 +8,16 @@
         "triggerChannelId": "788552426906845185",
         "userVoiceChannelGroupId": "788552301182320640"
     },
-    "autoDeleteMessagesInChannels": [
-        {
-            "id": "804639001226379294",
-            "frequency": 5
-        }
-    ],
+    "autoDeleteMessages": {
+        "channels": [
+            {
+                "targetId": "804639001226379294",
+                "timeBeforeClearing": {
+                    "hours": 1
+                }
+            }
+        ]
+    },
     "channelIds": {
         "DEBUG": "541322708844281867",
         "MOD_LOG": "634526832816816128",
