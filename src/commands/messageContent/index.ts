@@ -1,12 +1,8 @@
-import AutoReact from "./AutoReact";
+import AutoRespond from "./AutoRespond";
 import ContentCommand from "./ContentCommand";
-import Seahawks from "./Seahawks";
-import Tbf from "./Tbf";
 
 const contentCommands: ContentCommand[]  = [
-    AutoReact,
-    Seahawks,
-    Tbf
+    AutoRespond
 ];
 
 export default contentCommands;
