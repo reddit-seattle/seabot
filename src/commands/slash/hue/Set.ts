@@ -3,13 +3,14 @@ import { v3 as NodeHue } from "node-hue-api";
 
 import SlashCommand from "../SlashCommand";
 
-import { Hue } from "../../../utils/constants";
+import { Hue, REGEX } from "../../../utils/constants";
 import { HueInitialize } from "../../../utils/helpers";
 
 export default new SlashCommand({
     name: "hueSet",
     help: "hueSet #5eab07",
     description: "Changes Burn's hue light to a specific hex color",
+    adminOnly: true,
     builder: new SlashCommandBuilder(),
     async execute(message: Message, args?: string[]) {
         const hueApi = await HueInitialize(message);
@@ -17,7 +18,7 @@ export default new SlashCommand({
             const light = await hueApi.lights.getLight(Hue.HUE_GO_ID);
             if (light) {
                 const hex = args?.[0]?.replace(/^#/, "");
-                if (!hex || !RegExp("^[0-9A-F]{6}$", "i").test(hex)) {
+                if (!hex || !REGEX.HEX.test(hex)) {
                     message.channel.send("Please choose a valid hex color.");
                     return;
                 }
