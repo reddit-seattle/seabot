@@ -17,15 +17,7 @@ export default class ContentCommand extends Command {
 
     private messageContainsTrigger(message: Message) {
         const trigger = this._configuration.trigger;
-        if (trigger instanceof RegExp) {
-            if (trigger.test(message.content)) {
-                return true;
-            }
-        } else if (message.content.includes(trigger)) {
-            return true;
-        }
-
-        return false;
+        return (trigger instanceof RegExp) ? trigger.test(message.content) : message.content.includes(trigger);
     }
 
     public canExecute(message: Message) {
