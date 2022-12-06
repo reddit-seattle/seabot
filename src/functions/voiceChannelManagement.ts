@@ -9,7 +9,7 @@ export const handleVoiceStatusUpdate = (oldState: VoiceState, newState: VoiceSta
     if (oldState?.member?.user?.bot) return;
 
     // if user has joined the test channel, do the thing
-    if (newState?.member?.voice?.channel?.id == configuration.userVoiceChannels.triggerChannelId) {
+    if (newState?.member?.voice?.channel?.id == configuration.userVoiceChannels?.triggerChannelId) {
         createVoiceChannelForMember(newState);
     }
     // if user has left a channel (no newstate.voiceChannel), delete it if it's empty
@@ -19,9 +19,9 @@ export const handleVoiceStatusUpdate = (oldState: VoiceState, newState: VoiceSta
             //switching channel
             newState?.channelId != oldState?.channelId) &&
         //and you're not leaving the initial join channel
-        oldState?.channel?.id != configuration.userVoiceChannels.triggerChannelId &&
+        oldState?.channel?.id != configuration.userVoiceChannels?.triggerChannelId &&
         //and you ARE leaving a channel in the group
-        oldState?.channel?.parent?.id == configuration.userVoiceChannels.groupId
+        oldState?.channel?.parent?.id == configuration.userVoiceChannels?.groupId
     ) {
         // THEN delete the old channel
         deleteEmptyMemberVoiceChannel(oldState);
@@ -36,7 +36,7 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
     const user = guild.members.cache.get(state?.member?.user?.id);
     const user_channel_name = `${user?.nickname ?? user?.user.username}'s voice chat`;
     const category_channel = guild.channels.cache.find(
-        (channel) => channel.id === configuration.userVoiceChannels.groupId
+        (channel) => channel.id === configuration.userVoiceChannels?.groupId
     );
     // find channel group
     if (category_channel) {
@@ -67,7 +67,7 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
 };
 
 export const deleteEmptyMemberVoiceChannel = (state: VoiceState) => {
-    if (state?.channel?.members?.size == 0 && state?.channel?.parent?.id == configuration.userVoiceChannels.groupId) {
+    if (state?.channel?.members?.size == 0 && state?.channel?.parent?.id == configuration.userVoiceChannels?.groupId) {
         state?.channel?.delete();
     }
 };
