@@ -9,7 +9,7 @@ import InMemoryDbConnector from "../db/InMemoryDbConnector";
 import { cosmosClient } from "../db/cosmosClient";
 import { Environment } from "../utils/constants";
 import { MessageTelemetryLogger } from "../utils/MessageTelemetryLogger";
-import { minutesToMilliseconds } from "../utils/time";
+import { minutesToMilliseconds } from "../utils/Time/conversion";
 
 let logger: MessageTelemetryLogger | null = null;
 let eventHubMessenger;

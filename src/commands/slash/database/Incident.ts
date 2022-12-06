@@ -4,7 +4,7 @@ import { configuration } from "../../../server";
 import { Database } from "../../../utils/constants";
 import { DatabaseCommand } from "./DatabaseCommand";
 import { Incident as IncidentModel } from "../../../models/DBModels";
-import { millisecondsToDays } from "../../../utils/time";
+import { millisecondsToDays } from "../../../utils/Time/conversion";
 
 export default new DatabaseCommand<IncidentModel>(Database.Containers.INCIDENTS, {
     name: "incident",
