@@ -11,6 +11,8 @@ import ReactionCommand from "./ReactionCommand";
 import { Environment, UserIDs } from "../../utils/constants";
 import { isModReaction, parseApolloMarkdownLink, pullTimeStampsFromApolloString } from "../../utils/helpers";
 
+const maximumEventDescriptionLength = 300;
+
 export default new ReactionCommand({
     emojiName: "calendar",
     removeReaction: true,
@@ -49,8 +51,8 @@ export default new ReactionCommand({
             scheduledStartTime: start,
             scheduledEndTime: end,
             image: image?.url,
-            description: `${description?.substring(0, 300)}${
-                description?.length && description?.length > 300 ? "..." : ""
+            description: `${description?.substring(0, maximumEventDescriptionLength)}${
+                description?.length && description?.length > maximumEventDescriptionLength ? "..." : ""
             }
 
 ${calendarTitle}:
