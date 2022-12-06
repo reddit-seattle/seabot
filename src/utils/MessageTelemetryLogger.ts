@@ -15,6 +15,7 @@ export class MessageTelemetryLogger {
             res(true);
         });
     }
+
     async logMessageTelemetry(message: Message) {
         const { channel } = message;
 
@@ -22,9 +23,11 @@ export class MessageTelemetryLogger {
             return;
         }
 
-        const parent = channel.parentId;
-        if (!parent || !configuration.telemetryChannels?.includes(parent)) {
-            return;
+        if (!configuration.telemetry?.channels?.includes(channel.id)) {
+            const { parentId } = channel;
+            if (!parentId || !configuration.telemetry?.categories?.includes(parentId)) {
+                return;
+            }
         }
 
         const { createdTimestamp: timestamp, channelId } = message;
