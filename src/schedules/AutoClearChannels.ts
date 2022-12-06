@@ -1,10 +1,11 @@
-import { Client, FetchMessagesOptions, Guild, Message, TextChannel } from "discord.js";
-import { AutoDeleteConfiguration } from "../ISeabotConfig";
+import { FetchMessagesOptions, TextChannel } from "discord.js";
+import { AutoDeleteConfiguration } from "../configuration/ISeabotConfig";
 
 import IScheduledTask from "./IScheduledTask";
-import { discordBot } from "../server";
+
 import { configuration } from "../server";
 import { daysToMilliseconds } from "../utils/Time/conversion";
+import { discordBot } from "../server";
 import { Duration } from "../utils/Time/Duration";
 
 // TODO: Constants have been lifted. Extract once constants file / config file has been separated better.
@@ -76,13 +77,6 @@ async function deleteMessages(channel: TextChannel, numberOfMessages: number) {
     } catch (e) {
         console.dir(e);
     }
-}
-
-function shouldClearChannel(channel: TextChannel): Boolean {
-    if (!configuration.autoDeleteMessages) return false;
-
-    const channelConfig = getConfigurationEntry(channel.id);
-    return channelConfig != undefined;
 }
 
 function getConfigurationEntry(targetId: string): AutoDeleteConfiguration | undefined {
