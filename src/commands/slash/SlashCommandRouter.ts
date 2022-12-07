@@ -1,4 +1,5 @@
 import { Events, Interaction, RESTPostAPIApplicationCommandsJSONBody, Routes } from "discord.js";
+import { Strings } from "../../utils/constants";
 
 import CommandRouter from "../CommandRouter";
 import SlashCommand from "./SlashCommand";
@@ -15,7 +16,17 @@ export default class SlashCommandRouter extends CommandRouter {
 
             const command = commandMap[interaction.commandName];
             if (command) {
-                command.execute?.(interaction);
+                try {
+                    command.execute?.(interaction);
+                } catch (error) {
+                    if (interaction.replied) {
+                        interaction.editReply(Strings.unhandledError);
+                    } else {
+                        interaction.reply(Strings.unhandledError);
+                    }
+
+                    throw error;
+                }
             }
         }
 

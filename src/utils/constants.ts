@@ -104,6 +104,7 @@ export module Strings {
     export const newIssueURL = 'https://github.com/reddit-seattle/seabot/issues/new/choose';
     export const letterkennyGif = "https://tenor.com/view/letterkenny-to-be-tobefair-gif-14136631";
     export const feedbackText = 'See an issue? Want to request a feature?';
+    export const unhandledError = "Oh no! Seabot encountered an error!";
     export const whoops = (text: string, emoji: string, bottomtext?: string) => `
     whoops
     ⊂ヽ
