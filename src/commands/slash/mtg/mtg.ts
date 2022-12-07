@@ -13,7 +13,8 @@ export default new SlashCommand({
         .addStringOption((option) => {
             return option.setName("title").setDescription("card title to search for").setRequired(true);
         }),
-    execute: (interaction) => {
+    execute: async (interaction) => {
+        await interaction.deferReply();
         let cardFound = false;
         let hasImage = false;
         let cardNames: { [id: string]: boolean } = {};
@@ -44,9 +45,9 @@ export default new SlashCommand({
         emitter.on("error", console.log);
         emitter.on("end", () => {
             if (cardFound) {
-                interaction.reply({ embeds: [richEmbed] });
+                interaction.editReply({ embeds: [richEmbed] });
             } else {
-                interaction.reply({
+                interaction.editReply({
                     content: `No cards found for ${cardName}`,
                     ephemeral: true,
                 });
