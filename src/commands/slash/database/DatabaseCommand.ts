@@ -45,6 +45,6 @@ export class DatabaseCommand<ModelType extends ItemDefinition> extends SlashComm
     }
 
     public execute(...args: any[]) {
-        super.execute(args);
+        super.execute(...args);
     }
 }
