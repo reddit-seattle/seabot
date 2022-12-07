@@ -35,6 +35,12 @@ export default class WeatherApi {
 
         const uri = `${Endpoints.currentWeatherURL}?${queryString}`;
         const currentWeather = await WeatherApi.callAPI<WeatherResponse>(uri);
+
+        // The weather API encountered an error.
+        if (currentWeather.hasOwnProperty("cod")) {
+            return undefined;
+        }
+
         const geoInfo = (await WeatherApi.reverseGeoByCoord(currentWeather.coord))?.[0];
         const embedBuilder = (title: string) => this.buildCurrentWeatherEmbed(currentWeather, title);
 

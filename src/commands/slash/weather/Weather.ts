@@ -14,19 +14,25 @@ export default new SlashCommand({
             option.setName("location").setDescription("string location or zip code").setRequired(true)
         ),
     execute: async (interaction) => {
+        await interaction.deferReply();
         const location = interaction.options.getString("location");
-        if (location) {
-            const { currentWeather, geoInfo, embedBuilder } = await WeatherApi.getCurrentWeather(location);
-            const geoString = (
-                geoInfo
-                    ? [geoInfo.name, geoInfo?.state || null, geoInfo.country]
-                    : [currentWeather?.name, currentWeather?.sys?.country]
-            )
-                .filter((val) => !!val)
-                .join(", "); // remove nulls and create string;
-            const titleString = `Current weather for ${geoString}`;
-            const richEmbed = embedBuilder(titleString);
-            interaction.reply({ embeds: [richEmbed] });
+        const response = await WeatherApi.getCurrentWeather(location);
+        if (!response) {
+            interaction.editReply("That's not a valid location!");
+            return;
         }
+
+        const { currentWeather, geoInfo, embedBuilder } = response;
+
+        const geoString = (
+            geoInfo
+                ? [geoInfo.name, geoInfo?.state || null, geoInfo.country]
+                : [currentWeather?.name, currentWeather?.sys?.country]
+        )
+            .filter((val) => !!val)
+            .join(", "); // remove nulls and create string;
+        const titleString = `Current weather for ${geoString}`;
+        const richEmbed = embedBuilder(titleString);
+        interaction.editReply({ embeds: [richEmbed] });
     },
 });
