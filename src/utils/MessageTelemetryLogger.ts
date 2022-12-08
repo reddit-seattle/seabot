@@ -1,7 +1,7 @@
 import { EventDataBatch, EventHubProducerClient } from "@azure/event-hubs";
 import { Message, TextChannel } from "discord.js";
-import { contains } from "underscore";
-import { ChannelIds } from "./constants";
+
+import { configuration } from "../server";
 
 export class MessageTelemetryLogger {
     private client: EventHubProducerClient;
@@ -15,26 +15,22 @@ export class MessageTelemetryLogger {
             res(true);
         });
     }
+
     async logMessageTelemetry(message: Message) {
-        // check loggable
         const { channel } = message;
 
-        // dont log non-text channels
         if (!(channel instanceof TextChannel)) {
             return;
         }
 
-        const parent = channel.parentId;
-        // dont log anything not in specific loggable categories
-        if (!contains(ChannelIds.TELEMETRY_CATEGORIES, parent)) {
-            return;
+        if (!configuration.telemetry?.channels?.includes(channel.id)) {
+            const { parentId } = channel;
+            if (!parentId || !configuration.telemetry?.categories?.includes(parentId)) {
+                return;
+            }
         }
 
-        const {
-            createdTimestamp: timestamp,
-            channelId,
-        } = message;
-        // try add
+        const { createdTimestamp: timestamp, channelId } = message;
         const added = this.batch?.tryAdd({
             body: {
                 channelId,
