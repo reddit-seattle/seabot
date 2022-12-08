@@ -3,6 +3,7 @@ import { DiscordAPIError, Emoji, GuildMember, resolveColor, Role, SlashCommandBu
 import SlashCommand from "../SlashCommand";
 
 import { configuration } from "../../../server";
+import { REGEX } from "../../../utils/constants";
 
 const iconBlockList = ["thinkban"];
 
@@ -69,7 +70,7 @@ export default new SlashCommand({
                 return;
             }
 
-            if (!hex || !RegExp("^[0-9A-F]{6}$", "i").test(hex)) {
+            if (!hex || !REGEX.HEX.test(hex)) {
                 logs.push(`Invalid hex color: ${color}`);
                 await interaction.followUp({
                     ephemeral: true,
@@ -90,7 +91,7 @@ export default new SlashCommand({
         if (emoji) {
             // ಠ_ಠ
             for (const blockedIcon of iconBlockList) {
-                if (emoji.toLowerCase().includes(blockedIcon.toLowerCase())) {
+                if (emoji.toLowerCase() === blockedIcon.toLowerCase()) {
                     await interaction.followUp({ ephemeral: true, content: `ಠ_ಠ Pick a different emoji.` });
                     return;
                 }

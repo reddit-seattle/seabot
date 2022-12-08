@@ -3,6 +3,7 @@ import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import SlashCommand from "../SlashCommand";
 
 import { AppConfiguration } from "../../../utils/constants";
+import { secondsToHours } from "../../../utils/Time/conversion";
 
 export default new SlashCommand({
     description: "show seabot info",
@@ -52,12 +53,12 @@ export default new SlashCommand({
                         },
                         {
                             name: "Process Uptime",
-                            value: `${(process_uptime / 60 / 60).toFixed(2)} hours`,
+                            value: `${(secondsToHours(process_uptime)).toFixed(2)} hours`,
                             inline: true,
                         },
                         {
                             name: "Client Uptime",
-                            value: `${(uptime! / 60 / 60).toFixed(2)} hours`,
+                            value: `${(secondsToHours(uptime)).toFixed(2)} hours`,
                             inline: true,
                         },
                     ],

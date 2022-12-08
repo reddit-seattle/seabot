@@ -79,10 +79,6 @@ export default class DBConnector<T extends ItemDefinition> implements IDatabase<
             query: "SELECT TOP 1 * from c ORDER BY c._ts DESC",
         });
 
-        if (items.length === 0) {
-            return undefined;
-        }
-
         return items?.[0];
     }
 }

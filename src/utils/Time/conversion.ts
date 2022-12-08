@@ -2,6 +2,14 @@ export function secondsToMilliseconds(seconds: number): number {
     return seconds * 1000;
 }
 
+export function secondsToHours(seconds: number): number {
+    return secondsToMinutes(seconds) / 60;
+}
+
+export function secondsToMinutes(seconds: number): number {
+    return seconds / 60;
+}
+
 export function minutesToMilliseconds(minutes: number): number {
     return secondsToMilliseconds(60) * minutes;
 }
