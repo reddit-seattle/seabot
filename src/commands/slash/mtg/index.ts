@@ -1,4 +1,4 @@
-import mtg from "./Mtg";
+import mtg from "./mtg";
 
 export default [
     mtg,
