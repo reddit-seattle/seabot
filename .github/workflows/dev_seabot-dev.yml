@@ -28,7 +28,7 @@ jobs:
           npm run test --if-present
           
       - name: webpack artifact
-        run: npm run pack
+        run: npm run pack --if-present
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
