@@ -26,12 +26,17 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
+          
+      - name: webpack artifact
+        run: npm run pack --if-present
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
           name: node-app
-          path: dist
+          path: |
+            .
+            !node_modules
 
   deploy:
     runs-on: ubuntu-latest
