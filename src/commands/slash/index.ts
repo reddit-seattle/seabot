@@ -1,7 +1,6 @@
 import SlashCommand from "./SlashCommand";
 import databaseCommands from "./database";
 import helpCommands from "./help";
-import hueCommands from "./hue";
 import mtgCommands from "./mtg";
 import reportCommands from "./report";
 import rjCommands from "./rj";
@@ -12,7 +11,6 @@ import weatherCommands from "./weather";
 const commands: SlashCommand[] = [
     ...databaseCommands,
     ...helpCommands,
-    ...hueCommands,
     ...mtgCommands,
     ...reportCommands,
     ...rjCommands,
