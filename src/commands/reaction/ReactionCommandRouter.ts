@@ -1,4 +1,4 @@
-import { Events, MessageReaction, User } from "discord.js";
+import { Events, MessageReaction } from "discord.js";
 
 import CommandRouter from "../CommandRouter";
 import ReactionCommand from "./ReactionCommand";

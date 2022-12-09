@@ -4,7 +4,7 @@ import {
 } from "discord.js";
 
 import { Command, CommandConfiguration } from "../Command";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type SlashCommandHandler = (...args: any[]) => any;
 export type BuiltSlashCommand =
   | SlashCommandBuilder
