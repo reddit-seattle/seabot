@@ -79,7 +79,7 @@ async function handler(this: DatabaseCommand<AwardModel>, interaction: ChatInput
             const embed = new EmbedBuilder({
                 title: `Awards for ${user?.username || interaction.user.username}`,
                 description: `${records.length} award${records.length > 1 ? "s" : ""}:`,
-                fields: records.map((award: any, i: number) => {
+                fields: records.map((award: any, i: number) => {  /* eslint-disable-line @typescript-eslint/no-explicit-any */
                     return {
                         name: `${i + 1}: ${award.message || "No message"}`,
                         value: award.awardedOn.toString(),

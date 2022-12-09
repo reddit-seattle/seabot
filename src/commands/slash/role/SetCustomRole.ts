@@ -82,7 +82,15 @@ export default new SlashCommand({
             // resolve color
             logs.push(`Setting role color: ${color}`);
             const aRgbHex = hex.match(/.{1,2}/g);
-            const aRgb = [parseInt(aRgbHex?.[0]!, 16), parseInt(aRgbHex?.[1]!, 16), parseInt(aRgbHex?.[2]!, 16)];
+            if (!aRgbHex?.[3]) {
+                logs.push(`Somehow failed to parse hex as RGB values: ${color}`);
+                await interaction.followUp({
+                    ephemeral: true,
+                    content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
+                });
+                return;
+            }
+            const aRgb = [parseInt(aRgbHex[0], 16), parseInt(aRgbHex[1], 16), parseInt(aRgbHex[2], 16)];
             const finalColor = resolveColor([aRgb[0], aRgb[1], aRgb[2]]);
             await role.setColor(finalColor);
         }
@@ -109,7 +117,7 @@ export default new SlashCommand({
                     return;
                 }
                 await role?.setIcon(icon);
-            } catch (ex: any) {
+            } catch (ex: unknown) {
                 if (ex instanceof DiscordAPIError) {
                     logs.push(ex.message);
                     await interaction.followUp({
@@ -129,7 +137,7 @@ export default new SlashCommand({
                 ephemeral: true,
                 content: `Action completed - logs:\n${logs.join("\n")}`,
             });
-        } catch (ex: any) {
+        } catch (ex: unknown) {
             if (ex instanceof DiscordAPIError) {
                 logs.push(ex.message);
                 await interaction.followUp({

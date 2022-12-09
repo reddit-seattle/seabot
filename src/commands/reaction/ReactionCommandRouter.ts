@@ -1,4 +1,4 @@
-import { Events, MessageReaction, User } from "discord.js";
+import { Events, MessageReaction } from "discord.js";
 
 import CommandRouter from "../CommandRouter";
 import ReactionCommand from "./ReactionCommand";
@@ -10,7 +10,7 @@ export default class ReactionCommandRouter extends CommandRouter {
             commandMap.set(command.emojiName ? command.emojiName : command.name, command);
         });
 
-        this.eventRouter.addEventListener(Events.MessageReactionAdd, async (reaction: MessageReaction, user: User) => {
+        this.eventRouter.addEventListener(Events.MessageReactionAdd, async (reaction: MessageReaction) => {
             const { message, emoji } = reaction;
             const alreadyReacted = (reaction.count && reaction.count > 1) == true;
 
@@ -30,7 +30,7 @@ export default class ReactionCommandRouter extends CommandRouter {
                         await reaction.remove();
                     }
                 }
-            } catch (e: any) {
+            } catch (e: unknown) {
                 console.dir(e);
                 message.react("💩");
             }

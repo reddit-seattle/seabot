@@ -22,8 +22,11 @@ export default new SlashCommand({
                     message.channel.send("Please choose a valid hex color.");
                     return;
                 }
-                var aRgbHex = hex.match(/.{1,2}/g);
-                var aRgb = [parseInt(aRgbHex?.[0]!, 16), parseInt(aRgbHex?.[1]!, 16), parseInt(aRgbHex?.[2]!, 16)];
+                const aRgbHex = hex.match(/.{1,2}/g);
+                if(!aRgbHex?.[3]) {
+                    return;
+                }
+                const aRgb = [parseInt(aRgbHex[0], 16), parseInt(aRgbHex[1], 16), parseInt(aRgbHex[2], 16)];
                 const state = new NodeHue.lightStates.LightState().on().brightness(100).rgb(aRgb);
                 await hueApi.lights.setLightState(Hue.HUE_GO_ID, state);
             }

@@ -1,4 +1,4 @@
-import { EmbedBuilder, SlashCommandBuilder, GuildMemberRoleManager } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder, GuildMemberRoleManager, APIEmbedField } from "discord.js";
 
 import SlashCommand from "../SlashCommand";
 
@@ -13,10 +13,10 @@ export default new SlashCommand({
         new SlashCommandBuilder().addStringOption((option) => {
             option.setName("command");
             option.setDescription("The command you would like help with");
-            const choices: any[] = [];
+            const choices: APIEmbedField[] = [];
             // Lazy loading to prevent Typescript from trying to initialize this before commands have been loaded.
-            import("../").then((commands: any) => {
-                commands.default.forEach((command: any) => {
+            import("../").then((commands: {default: SlashCommand[]}) => {
+                commands.default.forEach((command: SlashCommand) => {
                     choices.push({
                         name: command.name,
                         value: command.name,

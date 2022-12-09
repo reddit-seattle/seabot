@@ -40,8 +40,11 @@ export default class SlashCommandRouter extends CommandRouter {
                     registeredCommands.push(command.builder.toJSON());
                 }
             }
-
-            await this.discordBot.rest.put(Routes.applicationGuildCommands(this.discordBot.client.user!.id, guild.id), {
+            if(!this.discordBot.client?.user?.id) {
+                console.error('Bot does not have valid user id, failed to register slash commands.');
+                return;
+            }
+            await this.discordBot.rest.put(Routes.applicationGuildCommands(this.discordBot.client.user.id, guild.id), {
                 body: registeredCommands,
             });
         });

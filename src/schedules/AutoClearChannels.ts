@@ -8,12 +8,6 @@ import { daysToMilliseconds } from "../utils/Time/conversion";
 import { discordBot } from "../server";
 import { Duration } from "../utils/Time/Duration";
 
-// TODO: Constants have been lifted. Extract once constants file / config file has been separated better.
-const defaults = {
-    numberOfMessages: 10,
-    maximumMessagesToFetch: 50,
-};
-
 // Discord only allows us to bulk delete messages under 14 days old.
 const maximumBulkMessageAge = daysToMilliseconds(14) - 1;
 
@@ -60,7 +54,7 @@ async function deleteMessages(channel: TextChannel, numberOfMessages: number) {
             limit: numberOfMessages,
         };
 
-        let messagesToDelete = await channel.messages.fetch(fetchOptions);
+        const messagesToDelete = await channel.messages.fetch(fetchOptions);
 
         const bulkDelete = messagesToDelete.filter(
             (message) => message.createdAt.getTime() < maximumBulkMessageAge && !message.pinned

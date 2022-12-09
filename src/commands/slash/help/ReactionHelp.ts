@@ -11,9 +11,9 @@ export default new SlashCommand({
     help: "reactions",
     description: "Display reaction command help",
     builder: new SlashCommandBuilder().addStringOption(option => option.setName("command").setDescription("The command you would like help with")),
-    async execute(message: Message, args?: string[]) {
+    async execute(message: Message) {
         // filter admin commands to only mods
-        let filteredCommands = ReactionCommands.filter(
+        const filteredCommands = ReactionCommands.filter(
             (command) => !command?.adminOnly || (command?.adminOnly && message.member?.roles.cache.has(configuration.roleIds.moderator))
         );
 

@@ -5,14 +5,20 @@ import { configuration } from "../server";
 
 export class MessageTelemetryLogger {
     private client: EventHubProducerClient;
-    private messageQueueSize: number = 10;
+    private messageQueueSize = 10;
     private batch: EventDataBatch | undefined;
-    public Ready: Promise<any>;
+    public Ready: Promise<unknown>;
     constructor(eh: EventHubProducerClient) {
         this.client = eh;
-        this.Ready = new Promise(async (res, rej) => {
-            await this.CreateBatch();
-            res(true);
+        this.Ready = new Promise((res, rej) => {
+            try {
+                this.CreateBatch().then(
+                    () => res(true)
+                );
+            }
+            catch(ex: unknown) {
+                rej(false);
+            }
         });
     }
 

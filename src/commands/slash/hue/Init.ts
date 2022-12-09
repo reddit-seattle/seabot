@@ -11,11 +11,21 @@ export default new SlashCommand({
     adminOnly: true,
     description: "reconnects hue service (messages you a link)",
     builder: new SlashCommandBuilder(),
-    async execute(message: Message, args?: string[]) {
-        const { hueClientId, hueClientSecret } = Environment;
-        const remote = NodeHue.api.createRemote(hueClientId!, hueClientSecret!);
+    async execute(message: Message) {
+        const { hueClientId, hueClientSecret, hueAppId, hueState } = Environment;
+        // !all([]) doesn't typeguard the undefineds so we're left with this mess
+        if(
+            !hueClientId ||
+            !hueClientSecret ||
+            !hueAppId ||
+            !hueState
+        ) {
+            message.member?.send("Hue environment variables are incorrectly configured.");
+            return;
+        }
+        const remote = NodeHue.api.createRemote(hueClientId, hueClientSecret);
         message?.member?.send(
-            `${remote.getAuthCodeUrl("node-hue-api-remote", Environment.hueAppId!, Environment.hueState!)}`
+            `${remote.getAuthCodeUrl("node-hue-api-remote", hueAppId, hueState)}`
         );
     },
 });

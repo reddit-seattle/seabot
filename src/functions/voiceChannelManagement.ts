@@ -34,6 +34,9 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
         return;
     }
     const user = guild.members.cache.get(state?.member?.user?.id);
+    if(!user?.id) {
+        return;
+    }
     const user_channel_name = `${user?.nickname ?? user?.user.username}'s voice chat`;
     const category_channel = guild.channels.cache.find(
         (channel) => channel.id === configuration.userVoiceChannels?.groupId
@@ -54,7 +57,7 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
                     //allow user to move members out of this channel
                     //note: MANAGE_CHANNELS as a permission overwrite on a single channel doesn't extend to the entire guild
                     {
-                        id: user?.id!,
+                        id: user?.id,
                         allow: [Permissions.MOVE, Permissions.MUTE, Permissions.DEAFEN, Permissions.MANAGE_CHANNELS],
                     },
                 ],

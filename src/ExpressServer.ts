@@ -17,7 +17,7 @@ export default class ExpressServer {
         // hue auth flow configuration
         this._server.get("/seabot_hue", async (request, response) => {
             try {
-                const { code, state } = request?.query;
+                const { code, state } = request.query;
                 if (!state || state != Environment.hueState) {
                     throw new Error("Invalid state value");
                 }
@@ -29,7 +29,7 @@ export default class ExpressServer {
                 } else {
                     throw new Error(result.error);
                 }
-            } catch (e: any) {
+            } catch (e: unknown) {
                 response.writeHead(400, { "Content-Type": "text/plain" });
                 response.write(`
                     Something (bad) happened trying to get auth code / set tokens:</br>

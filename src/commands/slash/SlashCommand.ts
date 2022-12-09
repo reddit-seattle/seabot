@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from "discord.js";
-
+import { FunctionType } from "../../utils/types";
 import { Command, CommandConfiguration } from "../Command";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type SlashCommandHandler = (...args: any[]) => any;
 export type BuiltSlashCommand =
     | SlashCommandBuilder
@@ -31,9 +31,9 @@ export default class SlashCommand extends Command {
 
         if (typeof builder === "function") {
             if (builder.constructor.name === "AsyncFunction") {
-                builder = await (this._configuration.builder as Function)();
+                builder = await (this._configuration.builder as FunctionType<void>)();
             } else {
-                builder = (this._configuration.builder as Function)();
+                builder = (this._configuration.builder as FunctionType<void>)();
             }
 
             this._configuration.builder = builder;
@@ -42,7 +42,7 @@ export default class SlashCommand extends Command {
         this._configuration.builder = builder.setName(this.name.toLowerCase()).setDescription(this.description);
     }
 
-    public canExecute(...args: any[]) {
+    public canExecute() {
         return true;
     }
 

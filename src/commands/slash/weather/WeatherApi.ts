@@ -10,8 +10,8 @@ import {
     GeocodeResponse,
     WeatherResponse,
     Coord,
-    AirQualityForecastResponse,
-    AirQualityCurrentResponse,
+    AirQualityResponse,
+    AirQualityForecast,
 } from "../../../models/WeatherModels";
 import { Environment, Endpoints } from "../../../utils/constants";
 
@@ -19,13 +19,13 @@ export default class WeatherApi {
     public static async getAirQualityByZip(zip: string) {
         const queryString = this.buildQueryStringForAirQuality(zip);
         const uri = `${Endpoints.airQualityCurrentByZipURL}?${queryString}`;
-        return await this.callAPI<AirQualityCurrentResponse>(uri);
+        return await this.callAPI<AirQualityResponse[]>(uri);
     }
 
     public static async getAirQualityForecastByZip(zip: string) {
         const queryString = this.buildQueryStringForAirQuality(zip);
         const uri = `${Endpoints.airQualityForecastByZipURL}?${queryString}`;
-        return await this.callAPI<AirQualityForecastResponse>(uri);
+        return await this.callAPI<AirQualityForecast[]>(uri);
     }
 
     public static async getCurrentWeather(location: string) {
@@ -37,7 +37,7 @@ export default class WeatherApi {
         const currentWeather = await WeatherApi.callAPI<WeatherResponse>(uri);
 
         // The weather API encountered an error.
-        if (currentWeather.hasOwnProperty("cod")) {
+        if (currentWeather?.cod) {
             return undefined;
         }
 
@@ -68,8 +68,8 @@ export default class WeatherApi {
 
     private static buildCurrentWeatherEmbed(response: WeatherResponse, title: string): EmbedBuilder {
         const richEmbed = new EmbedBuilder().setTitle(title);
-        var val = Math.floor(response.wind.deg / 22.5 + 0.5);
-        var arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+        const val = Math.floor(response.wind.deg / 22.5 + 0.5);
+        const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
         const windDir = arr[val % 16];
         const weather = `${response.weather[0].description}, ${response.main.humidity}% humidity. Winds ${windDir} @ ${response.wind.speed} mph`;
         richEmbed.addFields([{ name: `${response.main.temp}° F`, value: weather }]);
@@ -78,7 +78,7 @@ export default class WeatherApi {
 
     private static buildForecastEmbed(response: ForecastResponse, title: string): EmbedBuilder {
         const richEmbed = new EmbedBuilder().setTitle(title);
-        let { list } = response;
+        const { list } = response;
         each(list.slice(0, 5), (record) => {
             const time = moment.unix(record.dt).utcOffset(-8).format("HH:mm");
             const weather = `${record.main.temp}° F - ${record.weather[0].description}, ${record.main.humidity}% humidity`;
@@ -93,7 +93,7 @@ export default class WeatherApi {
 
     private static buildWeeklyEmbed(response: WeeklyForecastResponse, title: string): EmbedBuilder {
         const richEmbed = new EmbedBuilder().setTitle(title);
-        let { list } = response;
+        const { list } = response;
         each(list.slice(0, 7), (record) => {
             const date = moment.unix(record.dt).utcOffset(-8).format("dddd MMMM Do, YYYY");
             const weather = `
@@ -148,7 +148,7 @@ export default class WeatherApi {
         });
     }
 
-    private static buildQueryStringForCoords(coords: Coord, limit: number = 1) {
+    private static buildQueryStringForCoords(coords: Coord, limit = 1) {
         return new URLSearchParams({
             lat: `${coords.lat}`,
             lon: `${coords.lon}`,

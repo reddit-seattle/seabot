@@ -2,6 +2,7 @@ import { MessageReaction, User } from "discord.js";
 
 import { Command, CommandConfiguration } from "../Command";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ReactionCommandConfiguration extends CommandConfiguration {
     removeReaction?: boolean;
     emojiName?: string;
@@ -24,7 +25,7 @@ export default class ReactionCommand extends Command {
         return this._configuration.removeReaction;
     }
 
-    public canExecute(...args: any[]) {
+    public canExecute() {
         return true;
     }
 

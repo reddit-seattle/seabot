@@ -1,10 +1,11 @@
-import { GuildEmoji, Message } from "discord.js";
+import { EmojiIdentifierResolvable, GuildEmoji, Message, MessagePayload, MessageReplyOptions } from "discord.js";
 
 import ContentCommand from "./ContentCommand";
 
 import { discordBot } from "../../server";
 import { replaceMentions } from "../../utils/helpers";
 import { REGEX, Strings } from "../../utils/constants";
+import { FunctionType } from "../../utils/types";
 
 type AutoResponse = {
     message?: (() => string) | string;
@@ -61,7 +62,7 @@ export default new ContentCommand({
             if (response.message) {
                 const reply =
                     typeof response.message === "function"
-                        ? (response.message as Function).call(response)
+                        ? (response.message as FunctionType<string | MessagePayload | MessageReplyOptions>).call(response)
                         : response.message;
                 message.reply(reply);
             }
@@ -69,7 +70,7 @@ export default new ContentCommand({
             if (response.reaction) {
                 const emoji =
                     typeof response.reaction === "function"
-                        ? (response.reaction as Function).call(response).toString()
+                        ? (response.reaction as FunctionType<EmojiIdentifierResolvable>).call(response).toString()
                         : response.reaction;
                 message.react(emoji);
             }

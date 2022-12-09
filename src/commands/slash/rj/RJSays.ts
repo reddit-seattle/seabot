@@ -30,10 +30,10 @@ const RJStrings: { [id: string]: string } = {
 
 function textToEmojis(text: string) {
     const emojiPattern = /(?<=<).*?(?=>)/g;
-    let emojis = text.matchAll(emojiPattern);
+    const emojis = text.matchAll(emojiPattern);
 
     for (const emoji of emojis) {
-        let discordEmoji = discordBot.client.emojis.cache.find((x) => x.name === emoji[0]);
+        const discordEmoji = discordBot.client.emojis.cache.find((x) => x.name === emoji[0]);
         if (discordEmoji) {
             text = text.replace(`<${emoji[0]}>`, `<:${discordEmoji.name}:${discordEmoji.id}>`);
         } else {

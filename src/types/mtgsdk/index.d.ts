@@ -6,7 +6,7 @@ declare module 'mtgsdk' {
         type: string;
         text: string;
     }
-    export module card {
-        export function all(filter: any): any;
+    export namespace card {
+        export function all(filter: {name: string}): { on: (string: string, func:(card: Card) => void) => void};
     }
 }

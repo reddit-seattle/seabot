@@ -9,7 +9,7 @@ if (Environment.cosmosHost && Environment.cosmosHost !== "") {
             key: Environment.cosmosAuthKey,
         });
     }
-    catch(ex: any) {
+    catch(ex: unknown) {
         console.log(`Error connecting to cosmos instance, proceeding without Cosmos:\n${ex}`)
     }
 } else {

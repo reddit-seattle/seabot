@@ -17,7 +17,7 @@ export default new SlashCommand({
         await interaction.deferReply();
         let cardFound = false;
         let hasImage = false;
-        let cardNames: { [id: string]: boolean } = {};
+        const cardNames: { [id: string]: boolean } = {};
 
         const cardName = interaction.options.getString("title", true);
 

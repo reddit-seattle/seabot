@@ -8,6 +8,7 @@ import {
     PartialMessage,
     PartialMessageReaction,
 } from "discord.js";
+import { FunctionType } from "../utils/types";
 
 type HandledEventArgs = GuildMember | PartialGuildMember | Message | PartialMessage | MessageReaction | PartialMessageReaction;
 const eventsToResolve = [
@@ -19,17 +20,19 @@ const eventsToResolve = [
     Events.GuildMemberRemove
 ];
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export default class DiscordEventRouter {
-    private _eventHandlers: Map<Events, Function[]> = new Map();
+    private _eventHandlers: Map<Events, FunctionType<any>[]> = new Map();
     private _client: Client;
 
     constructor(client: Client) {
         this._client = client;
     }
 
-    public addEventListener(event: Events, handler: Function) {
+    public addEventListener<T>(event: Events, handler: FunctionType<T>) {
         if (!this._eventHandlers.has(event)) {
-            this._eventHandlers.set(event, new Array<Function>());
+            this._eventHandlers.set(event, new Array<FunctionType<T>>());
 
             this.registerEventForHandlers(event);
         }
@@ -37,12 +40,12 @@ export default class DiscordEventRouter {
         this._eventHandlers.get(event)?.push(handler);
     }
 
-    public removeEventListener(event: Events, handler: Function) {
+    public removeEventListener(event: Events, handler: FunctionType<any>) {
         if (!this._eventHandlers.has(event)) {
             return;
         }
 
-        const handlerIndex = (this._eventHandlers.get(event) as Array<Function>).indexOf(handler);
+        const handlerIndex = (this._eventHandlers.get(event) as Array<FunctionType<any>>).indexOf(handler);
         if (handlerIndex > -1) {
             this._eventHandlers.get(event)?.splice(handlerIndex, 1);
         }
@@ -61,7 +64,7 @@ export default class DiscordEventRouter {
         eventArgs = await this.resolvePartialsInArgs(eventType, eventArgs);
 
         for (const handler of handlers) {
-            handler(...eventArgs);
+            handler(...eventArgs)
         }
     }
 

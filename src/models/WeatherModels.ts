@@ -116,6 +116,7 @@ export interface ForecastResponse {
 }
 
 export interface WeatherResponse {
+    cod?: unknown;
     coord: Coord;
     wind: {
         deg: number;
@@ -140,8 +141,6 @@ export interface Category {
     Name: string;
 }
 
-export interface AirQualityForecastResponse extends Array<AirQualityForecast>{};
-export interface AirQualityCurrentResponse extends Array<AirQualityResponse>{};
 export interface AirQualityForecast {
     DateIssue: string;
     DateForecast: string;
