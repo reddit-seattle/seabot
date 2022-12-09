@@ -33,35 +33,25 @@ export default new DatabaseCommand<TelemetryModel>(
   }
 );
 
-async function handler(
-  this: DatabaseCommand<TelemetryModel>,
-  interaction: ChatInputCommandInteraction
-) {
-  await interaction.deferReply();
-  const channel = interaction.options.getChannel("channel", true);
-  const { id: cat } = channel;
-  const results = await this.connector.find(
-    Database.Queries.TELEMETRY_BY_CHANNEL(cat)
-  );
-
-  const embed = new EmbedBuilder()
-    .setTitle(`Message telemetry for ${channel.name}`)
-    .setFields(
-      results
-        ? results.map((telemetry: any) => {
-            return {
-              name: moment
-                .utc(telemetry.Window_End_Time)
-                .format("YYYY-MM-DD : HH:mm"),
-              value: `Messages: ${telemetry.COUNT_channelId}`,
-            };
-          })
-        : [
-            {
-              name: "No messages found",
-              value: "☹️",
-            },
-          ]
+async function handler(this: DatabaseCommand<TelemetryModel>, interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply();
+    const channel = interaction.options.getChannel("channel", true);
+    const { id: cat } = channel;
+    const results = await this.connector?.find(Database.Queries.TELEMETRY_BY_CHANNEL(cat));
+    const embed = new EmbedBuilder().setTitle(`Message telemetry for ${channel.name}`).setFields(
+        results
+            ? results.map((telemetry: any) => {  /* eslint-disable-line @typescript-eslint/no-explicit-any */
+                  return {
+                      name: moment.utc(telemetry.Window_End_Time).format("YYYY-MM-DD : HH:mm"),
+                      value: `Messages: ${telemetry.COUNT_channelId}`,
+                  };
+              })
+            : [
+                  {
+                      name: "No messages found",
+                      value: "☹️",
+                  },
+              ]
     );
   await interaction.followUp({ embeds: [embed] });
 }

@@ -8,8 +8,10 @@ export interface CommandConfiguration {
 export abstract class Command {
   protected configuration: CommandConfiguration;
 
-  public abstract canExecute(...args: any[]): any;
-  public abstract execute(...args: any[]): any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public abstract canExecute(...args: any[]): any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public abstract execute(...args: any[]): any;
 
   public get name() {
     return this.configuration.name;

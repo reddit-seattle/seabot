@@ -2,29 +2,15 @@ import { ItemDefinition } from "@azure/cosmos";
 
 import IDatabase from "./IDatabase";
 
-export default class InMemoryDbConnector<T extends ItemDefinition>
-  implements IDatabase<T>
-{
-  private _memoryStore: T[] = new Array<T>();
+export default class InMemoryDbConnector<T extends ItemDefinition> implements IDatabase<T> {
+    private _memoryStore: T[] = new Array<T>();
 
-  async init() {}
+    async init() {
+        console.log("Initialized in-memory database connector");
+    }
 
-  async find(querySpec: string) {
-    return this._memoryStore.filter((x) => x.id === querySpec);
-  }
-
-  async addItem(item: T) {
-    this._memoryStore.push(item);
-    return item;
-  }
-  async getItem(itemId: string) {
-    return this._memoryStore.find((x) => x.id === itemId);
-  }
-
-  async deleteItem(itemId: string) {
-    const index = this._memoryStore.findIndex((x) => x.id === itemId);
-    if (index === -1) {
-      return undefined;
+    async find(querySpec: string) {
+        return this._memoryStore.filter((x) => x.id === querySpec);
     }
 
     const item = this._memoryStore[index];

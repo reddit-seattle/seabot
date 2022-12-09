@@ -4,23 +4,20 @@ import { card, Card } from "mtgsdk";
 import SlashCommand from "../SlashCommand";
 
 export default new SlashCommand({
-  description: "Find MTG cards by name (inclusive, so try to be specific)",
-  help: "mtg cheatyface",
-  name: "mtg",
-  builder: new SlashCommandBuilder()
-    .setName("mtg")
-    .setDescription("search for magic cards")
-    .addStringOption((option) => {
-      return option
-        .setName("title")
-        .setDescription("card title to search for")
-        .setRequired(true);
-    }),
-  execute: async (interaction) => {
-    await interaction.deferReply();
-    let cardFound = false;
-    let hasImage = false;
-    let cardNames: { [id: string]: boolean } = {};
+    description: "Find MTG cards by name (inclusive, so try to be specific)",
+    help: "mtg cheatyface",
+    name: "mtg",
+    builder: new SlashCommandBuilder()
+        .setName("mtg")
+        .setDescription("search for magic cards")
+        .addStringOption((option) => {
+            return option.setName("title").setDescription("card title to search for").setRequired(true);
+        }),
+    execute: async (interaction) => {
+        await interaction.deferReply();
+        let cardFound = false;
+        let hasImage = false;
+        const cardNames: { [id: string]: boolean } = {};
 
     const cardName = interaction.options.getString("title", true);
 

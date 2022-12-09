@@ -120,23 +120,23 @@ export interface ForecastResponse {
 }
 
 export interface WeatherResponse {
-  cod?: string;
-  coord: Coord;
-  wind: {
-    deg: number;
-    speed: string;
-  };
-  name: string;
-  main: {
-    temp: string;
-    humidity: string;
-  };
-  weather: {
-    description: string;
-  }[];
-  sys: {
-    country: string;
-  };
+    cod?: unknown;
+    coord: Coord;
+    wind: {
+        deg: number;
+        speed: string;
+    },
+    name: string,
+    main: {
+        temp: string;
+        humidity: string;
+    },
+    weather: {
+        description: string;
+    }[],
+    sys: {
+        country: string;
+    }
 }
 
 export interface Category {
@@ -144,8 +144,6 @@ export interface Category {
   Name: string;
 }
 
-export interface AirQualityForecastResponse extends Array<AirQualityForecast> {}
-export interface AirQualityCurrentResponse extends Array<AirQualityResponse> {}
 export interface AirQualityForecast {
   DateIssue: string;
   DateForecast: string;

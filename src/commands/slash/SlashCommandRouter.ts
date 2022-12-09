@@ -30,9 +30,24 @@ export default class SlashCommandRouter extends CommandRouter {
             interaction.reply(Strings.unhandledError);
           }
 
-          throw error;
-        }
-      }
+        this.eventRouter.addEventListener(Events.InteractionCreate, tryToExecuteSlashCommand);
+
+        this.discordBot.client.guilds.cache.forEach(async (guild) => {
+            const registeredCommands: RESTPostAPIApplicationCommandsJSONBody[] = [];
+            for (const commandName in commands) {
+                const command = commands[commandName];
+                if (command?.builder) {
+                    registeredCommands.push(command.builder.toJSON());
+                }
+            }
+            if(!this.discordBot.client?.user?.id) {
+                console.error('Bot does not have valid user id, failed to register slash commands.');
+                return;
+            }
+            await this.discordBot.rest.put(Routes.applicationGuildCommands(this.discordBot.client.user.id, guild.id), {
+                body: registeredCommands,
+            });
+        });
     }
 
     this.eventRouter.addEventListener(

@@ -8,6 +8,7 @@ import {
   PartialMessage,
   PartialMessageReaction,
 } from "discord.js";
+import { FunctionType } from "../utils/types";
 
 type HandledEventArgs =
   | GuildMember
@@ -25,13 +26,19 @@ const eventsToResolve = [
   Events.GuildMemberRemove,
 ];
 
-export default class DiscordEventRouter {
-  private _eventHandlers: Map<Events, Function[]> = new Map();
-  private _client: Client;
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-  constructor(client: Client) {
-    this._client = client;
-  }
+export default class DiscordEventRouter {
+    private _eventHandlers: Map<Events, FunctionType<any>[]> = new Map();
+    private _client: Client;
+
+    constructor(client: Client) {
+        this._client = client;
+    }
+
+    public addEventListener<T>(event: Events, handler: FunctionType<T>) {
+        if (!this._eventHandlers.has(event)) {
+            this._eventHandlers.set(event, new Array<FunctionType<T>>());
 
   public addEventListener(event: Events, handler: Function) {
     if (!this._eventHandlers.has(event)) {
@@ -40,12 +47,15 @@ export default class DiscordEventRouter {
       this.registerEventForHandlers(event);
     }
 
-    this._eventHandlers.get(event)?.push(handler);
-  }
+    public removeEventListener(event: Events, handler: FunctionType<any>) {
+        if (!this._eventHandlers.has(event)) {
+            return;
+        }
 
-  public removeEventListener(event: Events, handler: Function) {
-    if (!this._eventHandlers.has(event)) {
-      return;
+        const handlerIndex = (this._eventHandlers.get(event) as Array<FunctionType<any>>).indexOf(handler);
+        if (handlerIndex > -1) {
+            this._eventHandlers.get(event)?.splice(handlerIndex, 1);
+        }
     }
 
     const handlerIndex = (
@@ -66,7 +76,10 @@ export default class DiscordEventRouter {
     const handlers = this._eventHandlers.get(eventType);
     if (!handlers) return;
 
-    eventArgs = await this.resolvePartialsInArgs(eventType, eventArgs);
+        for (const handler of handlers) {
+            handler(...eventArgs)
+        }
+    }
 
     for (const handler of handlers) {
       handler(...eventArgs);

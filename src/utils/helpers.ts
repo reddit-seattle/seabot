@@ -38,102 +38,106 @@ export function getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
   return o[propertyName]; // o[propertyName] is of type T[K]
 }
 
-export const replaceMentions: (message: Message | PartialMessage) => string = (
-  message
-) => {
-  let { content } = message;
-  content = content ? content : "";
+export const replaceMentions: (message: Message) => string = (message) => {
+    let { content } = message;
+    content = content ? content : "";
 
-  const userMatches = Array.from(content.matchAll(REGEX.USER));
-  const roleMatches = Array.from(content.matchAll(REGEX.ROLE));
-  const channelMatches = Array.from(content.matchAll(REGEX.CHANNEL));
-  const emojiMatches = Array.from(content.matchAll(REGEX.EMOJI));
+    const userMatches = Array.from(content.matchAll(REGEX.USER));
+    const roleMatches = Array.from(content.matchAll(REGEX.ROLE));
+    const channelMatches = Array.from(content.matchAll(REGEX.CHANNEL));
+    const emojiMatches = Array.from(content.matchAll(REGEX.EMOJI));
 
-  userMatches.forEach((match, ix) => {
-    const id = match[1] as `${bigint}`;
-    const username = message.client.users.cache.get(id)?.username ?? "user";
-    content = content!.replace(match[0], username);
-  });
-  roleMatches?.forEach((match, ix) => {
-    const id = match[1] as `${bigint}`;
-    const role = message.guild?.roles.cache.get(id)?.name ?? "role";
-    content = content!.replace(match[0], role);
-  });
-  channelMatches?.forEach((match, ix) => {
-    const id = match[1] as `${bigint}`;
-    const channel = message.guild?.channels.cache.get(id)?.name ?? "channel";
-    content = content!.replace(match[0], channel);
-  });
-  emojiMatches?.forEach((match, ix) => {
-    const id = match[1] as `${bigint}`;
-    const emoji = message.guild?.emojis.cache.get(id)?.name ?? "emoji";
-    content = content!.replace(match[0], emoji);
-  });
-  return content;
+    userMatches.forEach((match) => {
+        const id = match[1] as `${bigint}`;
+        const username = message.client.users.cache.get(id)?.username ?? "user";
+        content = content.replace(match[0], username);
+    });
+    roleMatches?.forEach((match) => {
+        const id = match[1] as `${bigint}`;
+        const role = message.guild?.roles.cache.get(id)?.name ?? "role";
+        content = content.replace(match[0], role);
+    });
+    channelMatches?.forEach((match) => {
+        const id = match[1] as `${bigint}`;
+        const channel = message.guild?.channels.cache.get(id)?.name ?? "channel";
+        content = content.replace(match[0], channel);
+    });
+    emojiMatches?.forEach((match) => {
+        const id = match[1] as `${bigint}`;
+        const emoji = message.guild?.emojis.cache.get(id)?.name ?? "emoji";
+        content = content.replace(match[0], emoji);
+    });
+    return content;
 };
 
 export interface SetHueTokenResult {
-  success: boolean;
-  error?: any;
+    success: boolean;
+    error?: string;
 }
 
-export const SetHueTokens = async (
-  code: string
-): Promise<SetHueTokenResult> => {
-  try {
-    const { hueClientId, hueClientSecret } = Environment;
-    const remote = NodeHue.api.createRemote(hueClientId!, hueClientSecret!);
-    const api = await remote.connectWithCode(code);
-    const remoteCredentials = api?.remote?.getRemoteAccessCredentials();
-    process.env[Environment.Constants.hueAccessToken] =
-      remoteCredentials?.tokens?.access?.value;
-    process.env[Environment.Constants.hueRefreshToken] =
-      remoteCredentials?.tokens?.refresh?.value;
-    return {
-      success: true,
-    };
-  } catch (e: any) {
-    console.dir(e);
-    return {
-      success: false,
-      error: e,
-    };
-  }
+export const SetHueTokens = async (code: string): Promise<SetHueTokenResult> => {
+    try {
+        const { hueClientId, hueClientSecret } = Environment;
+        if(!hueClientId || !hueClientSecret) {
+            throw new Error("Missing hue client ID or secret");
+        }
+        const remote = NodeHue.api.createRemote(hueClientId, hueClientSecret);
+        const api = await remote.connectWithCode(code);
+        const remoteCredentials = api?.remote?.getRemoteAccessCredentials();
+        process.env[Environment.Constants.hueAccessToken] = remoteCredentials?.tokens?.access?.value;
+        process.env[Environment.Constants.hueRefreshToken] = remoteCredentials?.tokens?.refresh?.value;
+        return {
+            success: true,
+        };
+    } catch (e) {
+        console.dir(e);
+        return {
+            success: false,
+            error: e as string,
+        };
+    }
 };
 
 export const HueInitialize = async (message: Message) => {
-  const { hueClientId, hueClientSecret, Constants } = Environment;
-  const enabled = process.env[Environment.Constants.hueEnabled] == "true";
-  if (!enabled) {
-    message.channel.send(
-      "Hue commands are currently disabled. Ask burn to turn them on pretty please"
-    );
-    return;
-  }
-  const hueAccessToken = process.env[Constants.hueAccessToken];
-  const hueRefreshToken = process.env[Constants.hueRefreshToken];
-  const remote = NodeHue.api.createRemote(hueClientId!, hueClientSecret!);
-  if (hueAccessToken && hueRefreshToken) {
-    try {
-      let api = await remote.connectWithTokens(hueAccessToken, hueRefreshToken);
-      const { tokens } = api.remote?.getRemoteAccessCredentials()!;
-      //check for expiry
-      if (tokens?.access?.expiresAt! < Date.now() + 2000) {
-        const { accessToken, refreshToken } =
-          await api.remote?.refreshTokens()!;
-        process.env[Constants.hueAccessToken] = accessToken?.value;
-        process.env[Constants.hueRefreshToken] = refreshToken?.value;
-        api = await remote.connectWithTokens(
-          accessToken!.value,
-          refreshToken!.value
-        );
-      }
-      return api;
-    } catch (e: any) {
-      console.dir(e);
-      message.channel.send(
-        "Error connecting with access tokens, Burn may need to run `$hueInit`."
-      );
+    const { hueClientId, hueClientSecret, Constants } = Environment;
+    if(!hueClientId || !hueClientSecret) {
+        return;
+    }
+    const enabled = process.env[Environment.Constants.hueEnabled] == "true";
+    if (!enabled) {
+        message.channel.send("Hue commands are currently disabled. Ask burn to turn them on pretty please");
+        return;
+    }
+    const hueAccessToken = process.env[Constants.hueAccessToken];
+    const hueRefreshToken = process.env[Constants.hueRefreshToken];
+    const remote = NodeHue.api.createRemote(hueClientId, hueClientSecret);
+    if (hueAccessToken && hueRefreshToken) {
+        try {
+            let api = await remote.connectWithTokens(hueAccessToken, hueRefreshToken);
+            if(!api.remote) {
+                throw "No remote object on API token connection response";
+            }
+            const { tokens } = api.remote.getRemoteAccessCredentials();
+            if(!tokens?.access?.expiresAt) {
+                throw "Access token has no expiration value, can't calculate refresh token";
+            }
+            //check for expiry
+            if (tokens.access.expiresAt < Date.now() + 2000) {
+                const { accessToken, refreshToken } = await api.remote.refreshTokens();
+                if(accessToken && refreshToken) {
+                    process.env[Constants.hueAccessToken] = accessToken?.value;
+                    process.env[Constants.hueRefreshToken] = refreshToken?.value;
+                    api = await remote.connectWithTokens(accessToken.value, refreshToken.value);
+                }
+                else {
+                    throw "API did not return access and refresh tokens";
+                }
+            }
+            return api;
+        } catch (e: unknown) {
+            console.dir(e);
+            message.channel.send("Error connecting with access tokens, Burn may need to run `$hueInit`.");
+        }
     }
   }
 };
@@ -235,53 +239,43 @@ export const createChannelLink = (guildId: string, channelId: string) => {
   return `https://discordapp.com/channels/${guildId}/${channelId}`;
 };
 
-export const processModReportInteractions = async (
-  interaction: Interaction<CacheType>
-) => {
-  if (
-    !interaction.isButton() ||
-    interaction.channelId != configuration.channelIds?.["MOD_REPORTS"]
-  )
-    return;
+export const processModReportInteractions = async (interaction: Interaction<CacheType>) => {
+    if (!interaction.isButton() || interaction.channelId != ChannelIds.MOD_REPORTS) return;
 
-  const processDict: {
-    [id: string]: (i: MessageComponentInteraction<CacheType>) => void;
-  } = {
-    ignoreReport: async (i) => {
-      const reporter = i.message.embeds?.[0].author?.name;
-      await i.update({
-        content: `Report by ${reporter ?? "anonymous"} ignored`,
-        embeds: [],
-        components: [],
-      });
-    },
-    ackReport: async (i) => {
-      const newEmbed = EmbedBuilder.from(i.message.embeds?.[0]).setColor(
-        "Green"
-      );
-      await i.update({
-        content: `${i.message.content}\nReport was ACK'd by: ${i.user.username}`,
-        embeds: [newEmbed],
-        components: [],
-      });
-    },
-    replyReport: async (i) => {
-      // const embed = i.message.embeds?.[0] as MessageEmbed;
-      // const embedField = embed?.fields?.[0];
-      // if(embedField.name == 'ReplyID') {
-      //     const user = embed?.fields?.[1].value;
-      //     const modal = new ModalBuilder()
-      //         .setCustomId(`reportResponse_${embedField.value}`)
-      //         .setTitle(`Reply to ${user}`);
-      //     const messageInput = new TextInputBuilder()
-      //         .setCustomId(`reportResponse_message_${embedField.value}`)
-      //         .setLabel('Message')
-      //         .setStyle(TextInputStyle.Paragraph)
-      //     const inputRow = new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput);
-      //     modal.addComponents(inputRow);
-      // }
-    },
-  };
+    const processDict: { [id: string]: (i: MessageComponentInteraction<CacheType>) => void } = {
+        ignoreReport: async (i) => {
+            const reporter = i.message.embeds?.[0].author?.name;
+            await i.update({
+                content: `Report by ${reporter ?? "anonymous"} ignored`,
+                embeds: [],
+                components: [],
+            });
+        },
+        ackReport: async (i) => {
+            const newEmbed = EmbedBuilder.from(i.message.embeds?.[0]).setColor("Green");
+            await i.update({
+                content: `${i.message.content}\nReport was ACK'd by: ${i.user.username}`,
+                embeds: [newEmbed],
+                components: [],
+            });
+        },
+        replyReport: async () => {
+            // const embed = i.message.embeds?.[0] as MessageEmbed;
+            // const embedField = embed?.fields?.[0];
+            // if(embedField.name == 'ReplyID') {
+            //     const user = embed?.fields?.[1].value;
+            //     const modal = new ModalBuilder()
+            //         .setCustomId(`reportResponse_${embedField.value}`)
+            //         .setTitle(`Reply to ${user}`);
+            //     const messageInput = new TextInputBuilder()
+            //         .setCustomId(`reportResponse_message_${embedField.value}`)
+            //         .setLabel('Message')
+            //         .setStyle(TextInputStyle.Paragraph)
+            //     const inputRow = new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput);
+            //     modal.addComponents(inputRow);
+            // }
+        },
+    };
 
   processDict?.[interaction.customId]?.(interaction);
 };

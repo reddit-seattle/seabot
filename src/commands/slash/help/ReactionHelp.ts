@@ -7,36 +7,14 @@ import { configuration, discordBot } from "../../../server";
 import { Strings } from "../../../utils/constants";
 
 export default new SlashCommand({
-  name: "reactions",
-  help: "reactions",
-  description: "Display reaction command help",
-  builder: new SlashCommandBuilder().addStringOption((option) =>
-    option
-      .setName("command")
-      .setDescription("The command you would like help with")
-  ),
-  async execute(message: Message, args?: string[]) {
-    // filter admin commands to only mods
-    let filteredCommands = ReactionCommands.filter(
-      (command) =>
-        !command?.adminOnly ||
-        (command?.adminOnly &&
-          message.member?.roles.cache.has(configuration.roleIds.moderator))
-    );
-
-    const emojiIdMap = new Map<string, string>();
-
-    filteredCommands.forEach((command) => {
-      if (emojiIdMap.has(command.name)) {
-        return;
-      }
-
-      const emoji = discordBot.client.emojis.cache.find(
-        (emoji) => emoji.name === command.name
-      );
-      if (emoji == undefined) {
-        console.warn(
-          `Could not find matching emoji for reaction command "${command.name}".`
+    name: "reactions",
+    help: "reactions",
+    description: "Display reaction command help",
+    builder: new SlashCommandBuilder().addStringOption(option => option.setName("command").setDescription("The command you would like help with")),
+    async execute(message: Message) {
+        // filter admin commands to only mods
+        const filteredCommands = ReactionCommands.filter(
+            (command) => !command?.adminOnly || (command?.adminOnly && message.member?.roles.cache.has(configuration.roleIds.moderator))
         );
         return;
       }

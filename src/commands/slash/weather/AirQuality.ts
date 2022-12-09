@@ -1,9 +1,4 @@
-import {
-  SlashCommandBuilder,
-  EmbedBuilder,
-  InteractionResponse,
-  CommandInteraction,
-} from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
 
 import SlashCommand from "../SlashCommand";
 import WeatherApi from "./WeatherApi";

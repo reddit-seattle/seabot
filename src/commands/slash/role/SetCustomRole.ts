@@ -96,14 +96,21 @@ export default new SlashCommand({
         return;
       }
 
-      if (!hex || !REGEX.HEX.test(hex)) {
-        logs.push(`Invalid hex color: ${color}`);
-        await interaction.followUp({
-          ephemeral: true,
-          content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
-        });
-        return;
-      }
+            // resolve color
+            logs.push(`Setting role color: ${color}`);
+            const aRgbHex = hex.match(/.{1,2}/g);
+            if (!aRgbHex?.[3]) {
+                logs.push(`Somehow failed to parse hex as RGB values: ${color}`);
+                await interaction.followUp({
+                    ephemeral: true,
+                    content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
+                });
+                return;
+            }
+            const aRgb = [parseInt(aRgbHex[0], 16), parseInt(aRgbHex[1], 16), parseInt(aRgbHex[2], 16)];
+            const finalColor = resolveColor([aRgb[0], aRgb[1], aRgb[2]]);
+            await role.setColor(finalColor);
+        }
 
       // resolve color
       logs.push(`Setting role color: ${color}`);
@@ -117,43 +124,47 @@ export default new SlashCommand({
       await role.setColor(finalColor);
     }
 
-    // set role icon
-    if (emoji) {
-      // ಠ_ಠ
-      for (const blockedIcon of iconBlockList) {
-        if (emoji.toLowerCase() === blockedIcon.toLowerCase()) {
-          await interaction.followUp({
-            ephemeral: true,
-            content: `ಠ_ಠ Pick a different emoji.`,
-          });
-          return;
+            logs.push(`Setting role icon: ${emoji}`);
+            try {
+                const icon = await guild?.emojis.cache.find((guild_emoji: Emoji) => guild_emoji.toString() == emoji);
+                if (!icon) {
+                    logs.push(`Error finding icon ${emoji} on this server, please ask a mod to add it`);
+                    await interaction.followUp({
+                        ephemeral: true,
+                        content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
+                    });
+                    return;
+                }
+                await role?.setIcon(icon);
+            } catch (ex: unknown) {
+                if (ex instanceof DiscordAPIError) {
+                    logs.push(ex.message);
+                    await interaction.followUp({
+                        ephemeral: true,
+                        content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
+                    });
+                    return;
+                }
+            }
         }
       }
 
-      logs.push(`Setting role icon: ${emoji}`);
-      try {
-        const icon = await guild?.emojis.cache.find(
-          (guild_emoji: Emoji) => guild_emoji.toString() == emoji
-        );
-        if (!icon) {
-          logs.push(
-            `Error finding icon ${emoji} on this server, please ask a mod to add it`
-          );
-          await interaction.followUp({
-            ephemeral: true,
-            content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
-          });
-          return;
-        }
-        await role?.setIcon(icon);
-      } catch (ex: any) {
-        if (ex instanceof DiscordAPIError) {
-          logs.push(ex.message);
-          await interaction.followUp({
-            ephemeral: true,
-            content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
-          });
-          return;
+        // add the role to the user
+        logs.push("Adding role to user");
+        await (member as GuildMember)?.roles?.add(role);
+        try {
+            await interaction.followUp({
+                ephemeral: true,
+                content: `Action completed - logs:\n${logs.join("\n")}`,
+            });
+        } catch (ex: unknown) {
+            if (ex instanceof DiscordAPIError) {
+                logs.push(ex.message);
+                await interaction.followUp({
+                    ephemeral: true,
+                    content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
+                });
+            }
         }
       }
     }
