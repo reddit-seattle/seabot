@@ -14,7 +14,8 @@
                 "targetId": "804639001226379294",
                 "timeBeforeClearing": {
                     "hours": 1
-                }
+                },
+                "numberOfMessages": 10
             }
         ]
     },
