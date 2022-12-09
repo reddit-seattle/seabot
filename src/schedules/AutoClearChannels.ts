@@ -1,4 +1,4 @@
-import { FetchMessagesOptions, TextChannel } from "discord.js";
+import { TextChannel } from "discord.js";
 import { AutoDeleteConfiguration } from "../configuration/ISeabotConfig";
 
 import IScheduledTask from "./IScheduledTask";
@@ -34,12 +34,12 @@ async function clearChannels() {
                 return;
             }
 
-            deleteMessages(channelToClear, channelClearInfo.numberofMessages);
+            deleteMessages(channelToClear, channelClearInfo.numberOfMessages);
         });
     });
 }
 
-async function deleteMessages(channel: TextChannel, numberOfMessages: number) {
+async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
     try {
         if (!channel.lastMessage) {
             return;
@@ -52,28 +52,27 @@ async function deleteMessages(channel: TextChannel, numberOfMessages: number) {
 
         const lastMessageAge = new Date().getTime() - channel.lastMessage.createdAt.getTime();
         const minimumMessageAge = configurationEntry.timeBeforeClearing.getMilliseconds();
-        if (lastMessageAge < minimumMessageAge) {
-            return;
+        let allMessages = await channel.messages.fetch();
+
+        // delete all messages over the maximum age
+        if (lastMessageAge >= minimumMessageAge ) {
+            const oldMessages = allMessages.filter(
+                (message) => message.createdAt.getTime() < maximumBulkMessageAge
+            );
+            await channel.bulkDelete(oldMessages);
         }
 
-        const fetchOptions: FetchMessagesOptions = {
-            limit: numberOfMessages,
-        };
+        // delete messages greater than maximum message count (if configured)
+        if(numberOfMessages && allMessages.size > numberOfMessages) {
+        
+            const messagesToPrune = allMessages.last(allMessages.size - numberOfMessages);
+            messagesToPrune.forEach((message) => {
+                if (message.deletable) {
+                    message.delete();
+                }
+            });
+        }
 
-        let messagesToDelete = await channel.messages.fetch(fetchOptions);
-
-        const bulkDelete = messagesToDelete.filter(
-            (message) => message.createdAt.getTime() < maximumBulkMessageAge && !message.pinned
-        );
-
-        const manualDelete = messagesToDelete.filter((message) => !bulkDelete.get(message.id));
-        manualDelete.forEach((message) => {
-            if (message.deletable) {
-                message.delete();
-            }
-        });
-
-        channel.bulkDelete(bulkDelete);
     } catch (e) {
         console.dir(e);
     }

@@ -3,7 +3,7 @@ import { Duration } from "../utils/Time/Duration";
 export type AutoDeleteConfiguration = {
     targetId: string;
     timeBeforeClearing: Duration;
-    numberofMessages: number;
+    numberOfMessages?: number;
 };
 
 export default interface ISeabotConfig {
