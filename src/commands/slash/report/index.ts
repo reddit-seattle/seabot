@@ -1,5 +1,3 @@
 import SubmitReport from "./SubmitReport";
 
-export default [
-    SubmitReport
-];
+export default [SubmitReport];

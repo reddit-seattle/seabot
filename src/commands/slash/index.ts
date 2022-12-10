@@ -9,14 +9,14 @@ import utilityCommands from "./utility";
 import weatherCommands from "./weather";
 
 const commands: SlashCommand[] = [
-    ...databaseCommands,
-    ...helpCommands,
-    ...mtgCommands,
-    ...reportCommands,
-    ...rjCommands,
-    ...roleCommands,
-    ...utilityCommands,
-    ...weatherCommands
-]
+  ...databaseCommands,
+  ...helpCommands,
+  ...mtgCommands,
+  ...reportCommands,
+  ...rjCommands,
+  ...roleCommands,
+  ...utilityCommands,
+  ...weatherCommands,
+];
 
 export default commands;
