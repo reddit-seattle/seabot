@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, Message } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 
 import SlashCommand from "../SlashCommand";
 
@@ -8,5 +8,5 @@ export default new SlashCommand({
     name: "coffee",
     description: "Ask for coffee",
     builder: new SlashCommandBuilder(),
-    execute: (message: Message) => message.channel.send(Strings.coffee),
+    execute: (interaction) => interaction.reply(Strings.coffee),
 });

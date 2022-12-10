@@ -21,11 +21,16 @@ export default new SlashCommand({
         const weekly = interaction.options.getBoolean("weekly") ?? false;
         if (location) {
             await interaction.deferReply();
-            const { forecast, geoInfo, embedBuilder } = await WeatherApi.getWeatherForecast(location);
+            const result = await WeatherApi.getWeatherForecast(location);
+            if(!result) {
+                await interaction.editReply(`Failed to get weather for ${location}`,);
+                return;
+            }
+            const { forecast, geoInfo, embedBuilder } = result;
             const geoString = (
                 geoInfo
                     ? [geoInfo.name, geoInfo?.state || null, geoInfo.country]
-                    : [forecast?.city?.name, forecast?.city?.country]
+                    : [forecast?.city?.name ??  null, forecast?.city?.country || null]
             )
                 .filter((val) => !!val)
                 .join(", "); // remove nulls and create string;
