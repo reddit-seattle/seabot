@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 
 import SlashCommand from "../SlashCommand";
 
-import { Strings } from "../../../utils/constants";
+import {Strings} from "../../../utils/constants";
 
 export default new SlashCommand({
   name: "coffee",

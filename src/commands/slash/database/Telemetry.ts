@@ -6,9 +6,10 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 
-import { Telemetry as TelemetryModel } from "../../../models/DBModels";
-import { Database } from "../../../utils/constants";
-import { DatabaseCommand } from "./DatabaseCommand";
+import {Telemetry as TelemetryModel} from "../../../models/DBModels";
+import {Database} from "../../../utils/constants";
+import {DatabaseCommand} from "./DatabaseCommand";
+import DBConnector from "../../../db/DBConnector";
 
 const name = "channelstats";
 const description = "Get Channel Telemetry Info";

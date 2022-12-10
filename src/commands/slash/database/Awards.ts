@@ -5,9 +5,10 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 
-import { Award as AwardModel } from "../../../models/DBModels";
-import { Database } from "../../../utils/constants";
-import { DatabaseCommand } from "./DatabaseCommand";
+import {Award as AwardModel} from "../../../models/DBModels";
+import {Database} from "../../../utils/constants";
+import {DatabaseCommand} from "./DatabaseCommand";
+import DBConnector from "../../../db/DBConnector";
 
 enum SubCommands {
   GIVE = "give",

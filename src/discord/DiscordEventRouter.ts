@@ -26,7 +26,6 @@ const eventsToResolve = [
   Events.GuildMemberRemove,
 ];
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export default class DiscordEventRouter {
   private _eventHandlers: Map<Events, Function[]> = new Map();

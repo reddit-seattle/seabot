@@ -5,7 +5,6 @@ import ContentCommand from "./ContentCommand";
 import { discordBot } from "../../server";
 import { replaceMentions } from "../../utils/helpers";
 import { REGEX, Strings } from "../../utils/constants";
-import { FunctionType } from "../../utils/types";
 
 type AutoResponse = {
   message?: (() => string) | string;

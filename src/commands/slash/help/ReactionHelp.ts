@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import {Message, EmbedBuilder, SlashCommandBuilder, ChatInputCommandInteraction} from "discord.js";
 
 import ReactionCommands from "../../reaction";
 import SlashCommand from "../SlashCommand";

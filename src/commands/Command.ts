@@ -1,3 +1,5 @@
+import {Message} from "discord.js";
+
 export interface CommandConfiguration {
   name: string;
   description: string;
