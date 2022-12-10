@@ -1,5 +1,3 @@
 import SetCustomRole from "./SetCustomRole";
 
-export default [
-    SetCustomRole
-];
+export default [SetCustomRole];

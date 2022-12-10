@@ -1,13 +1,13 @@
 export default interface IDatabase<T> {
-    init: () => Promise<void>;
+  init: () => Promise<void>;
 
-    find: (querySpec: string) => Promise<Array<T>>;
+  find: (querySpec: string) => Promise<Array<T>>;
 
-    addItem: (item: T) => Promise<T>;
+  addItem: (item: T) => Promise<T>;
 
-    getItem: (itemId: string) => Promise<T | undefined>;
+  getItem: (itemId: string) => Promise<T | undefined>;
 
-    deleteItem: (itemId: string) => Promise<T | undefined>;
+  deleteItem: (itemId: string) => Promise<T | undefined>;
 
-    getLastItem: () => Promise<T | undefined>;
+  getLastItem: () => Promise<T | undefined>;
 }

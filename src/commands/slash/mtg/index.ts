@@ -1,5 +1,3 @@
 import mtg from "./mtg";
 
-export default [
-    mtg,
-];
+export default [mtg];

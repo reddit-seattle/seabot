@@ -9,13 +9,13 @@ import Valheim from "./Valheim";
 import Whoops from "./Whoops";
 
 export default [
-    Coffee,
-    Ping,
-    Sarcasm,
-    Source,
-    Speak,
-    Status,
-    Tea,
-    Valheim,
-    Whoops
+  Coffee,
+  Ping,
+  Sarcasm,
+  Source,
+  Speak,
+  Status,
+  Tea,
+  Valheim,
+  Whoops,
 ];

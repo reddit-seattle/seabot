@@ -1,36 +1,36 @@
 {
-    "roleIds": {
-        "moderator": "994014272092897329",
-        "everyone": "994014272013205554",
-        "premium": "994014272092897329"
-    },
-    "userVoiceChannels": {
-        "triggerChannelId": "994014273074372636",
-        "groupId": "994014273074372635"
-    },
-    "autoDeleteMessages": {
-        "channels": [
-            {
-                "targetId": "994014273405726797",
-                "timeBeforeClearing": {
-                    "minutes": 5
-                },
-                "numberOfMessages": 5
-            }
-        ]
-    },
-    "channelIds": {
-        "DEBUG": "994014272751403105",
-        "MOD_LOG": "994014272751403105",
-        "MOD_REPORTS": "994014272751403105",
-        "RANT": "994014273405726797",
-        "USER_VOICE_GROUP": "994014273074372635"
-    },
-    "telemetry": {
-        "categories": [
-            "994014272751403099",
-            "994014273405726793",
-            "994014273732886541"
-        ]
-    }
+  "roleIds": {
+    "moderator": "994014272092897329",
+    "everyone": "994014272013205554",
+    "premium": "994014272092897329"
+  },
+  "userVoiceChannels": {
+    "triggerChannelId": "994014273074372636",
+    "groupId": "994014273074372635"
+  },
+  "autoDeleteMessages": {
+    "channels": [
+      {
+        "targetId": "994014273405726797",
+        "timeBeforeClearing": {
+          "minutes": 5
+        },
+        "numberOfMessages": 5
+      }
+    ]
+  },
+  "channelIds": {
+    "DEBUG": "994014272751403105",
+    "MOD_LOG": "994014272751403105",
+    "MOD_REPORTS": "994014272751403105",
+    "RANT": "994014273405726797",
+    "USER_VOICE_GROUP": "994014273074372635"
+  },
+  "telemetry": {
+    "categories": [
+      "994014272751403099",
+      "994014273405726793",
+      "994014273732886541"
+    ]
+  }
 }

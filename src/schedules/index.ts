@@ -1,5 +1,3 @@
 import AutoClearChannels from "./AutoClearChannels";
 
-export default [
-    AutoClearChannels
-];
+export default [AutoClearChannels];
