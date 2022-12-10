@@ -1,11 +1,11 @@
-import { MessageReaction, User } from "discord.js";
+import { MessageReaction, Message, User } from "discord.js";
 
 import { Command, CommandConfiguration } from "../Command";
 
 export interface ReactionCommandConfiguration extends CommandConfiguration {
     removeReaction?: boolean;
     emojiName?: string;
-    execute: (reaction: MessageReaction, user: User) => any | Promise<any>;
+    execute: (reaction: MessageReaction, message?: Message, user?: User) => any | Promise<any>;
 }
 
 export default class ReactionCommand extends Command {
@@ -24,13 +24,14 @@ export default class ReactionCommand extends Command {
         return this._configuration.removeReaction;
     }
 
-    public canExecute(...args: any[]) {
+    public canExecute() {
         return true;
     }
 
     public execute(...args: any[]): any {
-        const reaction = args[0];
-        const user = args[1];
-        this._configuration.execute(reaction, user);
+        const reaction = args?.[0];
+        const message = args?.[1];
+        const user = args?.[2];
+        this._configuration.execute(reaction, message, user);
     }
 }

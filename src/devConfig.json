@@ -6,7 +6,7 @@
     },
     "userVoiceChannels": {
         "triggerChannelId": "994014273074372636",
-        "userVoiceChannelGroupId": "994014273074372635"
+        "groupId": "994014273074372635"
     },
     "autoDeleteMessages": {
         "channels": [

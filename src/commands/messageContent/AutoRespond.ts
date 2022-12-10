@@ -15,9 +15,9 @@ type AutoResponse = {
 };
 
 const responseMap = new Map<string | RegExp, AutoResponse>([
-    [/hodor/i, { reaction: () => emojiFromName("door") }],
+    [/hodor/i, { reaction: '🚪' }],
     [/bisbopt/i, { reaction: () => emojiFromName("bisbopt") }],
-    [/duck/i, { reaction: () => emojiFromName("duck") }],
+    [/duck/i, { reaction: '🦆' }],
     [/69/i, { reaction: () => emojiFromName("nice"), trim: true }],
     [/420/i, { reaction: () => emojiFromName("weed"), trim: true }],
     [/puya[1ilӏ]{1,2}up/i, { reaction: () => emojiFromName("downvote") }],
@@ -73,8 +73,6 @@ export default new ContentCommand({
                         : response.reaction;
                 message.react(emoji);
             }
-            // One response per customer, please.
-            break;
         }
 
         function shouldRespond(trigger: string | RegExp, reaction: AutoResponse) {

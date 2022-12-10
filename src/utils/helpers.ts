@@ -10,13 +10,14 @@ import {
     PartialUser,
     User,
     ActionRowBuilder,
+    PartialMessage,
 } from "discord.js";
 import { v3 as NodeHue } from "node-hue-api";
 import { now } from "moment";
 import { APIInteractionDataResolvedChannel } from "discord-api-types/v10";
 import { ButtonStyle } from "discord-api-types/v10";
 
-import { ChannelIds, Config, Environment, GuildIds, REGEX } from "./constants";
+import { Config, Environment, REGEX } from "./constants";
 import { configuration } from "../server";
 
 /**
@@ -35,7 +36,7 @@ export function getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
     return o[propertyName]; // o[propertyName] is of type T[K]
 }
 
-export const replaceMentions: (message: Message) => string = (message) => {
+export const replaceMentions: (message: Message | PartialMessage) => string = (message) => {
     let { content } = message;
     content = content ? content : "";
 
@@ -164,7 +165,7 @@ type ModActionOptions = {
     messageLink?: string;
 };
 
-export const buildModActionRow = (options: ModActionOptions) => {
+export const buildModActionRow = (guildId: string, options: ModActionOptions) => {
     const ignoreButton = new ButtonBuilder()
         .setCustomId("ignoreReport")
         .setEmoji("🔇")
@@ -188,9 +189,9 @@ export const buildModActionRow = (options: ModActionOptions) => {
     if (options.messageLink || options?.channel?.id) {
         viewButton = new ButtonBuilder().setEmoji("👀").setLabel("View").setStyle(ButtonStyle.Link);
         if (options.messageLink) {
-            viewButton.setURL(options.messageLink);
+            viewButton?.setURL(options.messageLink);
         } else if (options?.channel?.id) {
-            viewButton.setURL(createChannelLink(options.channel.id));
+            viewButton?.setURL(createChannelLink(guildId, options.channel.id));
         }
     }
     const buttons = [
@@ -203,12 +204,12 @@ export const buildModActionRow = (options: ModActionOptions) => {
     return modActionRow;
 };
 
-export const createChannelLink = (channelId: string) => {
-    return `https://discordapp.com/channels/${GuildIds.Seattle}/${channelId}`;
+export const createChannelLink = (guildId: string, channelId: string) => {
+    return `https://discordapp.com/channels/${guildId}/${channelId}`;
 };
 
 export const processModReportInteractions = async (interaction: Interaction<CacheType>) => {
-    if (!interaction.isButton() || interaction.channelId != ChannelIds.MOD_REPORTS) return;
+    if (!interaction.isButton() || interaction.channelId != configuration.channelIds?.["MOD_REPORTS"]) return;
 
     const processDict: { [id: string]: (i: MessageComponentInteraction<CacheType>) => void } = {
         ignoreReport: async (i) => {

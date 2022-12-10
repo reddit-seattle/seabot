@@ -10,7 +10,7 @@ import ExpressServer from "./ExpressServer";
 import ISeabotConfig from "./configuration/ISeabotConfig";
 import TaskScheduler from "./schedules/TaskScheduler";
 
-import { ChannelIds, Environment, GuildIds } from "./utils/constants";
+import { Environment, GuildIds } from "./utils/constants";
 import { handleVoiceStatusUpdate } from "./functions/voiceChannelManagement";
 import { processModReportInteractions } from "./utils/helpers";
 
@@ -62,8 +62,8 @@ function announcePresence() {
     discordBot.client.guilds.cache.forEach(async (guild) => {
         console.log(guild.name);
         //announce when seabot process starts (only on /r/seattle currently)
-        if (!Environment.DEBUG && guild.id === GuildIds.Seattle) {
-            const debugChannel = await guild.channels.fetch(ChannelIds.DEBUG);
+        if (!Environment.DEBUG && configuration?.channelIds?.['DEBUG'] && guild.id === GuildIds.Seattle) {
+            const debugChannel = await guild.channels.fetch(configuration.channelIds?.['DEBUG']);
             (debugChannel as TextChannel)?.send("Greetings - SEABot is back online");
         }
     });
