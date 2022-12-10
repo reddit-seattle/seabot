@@ -67,12 +67,6 @@ export module Config {
 export module UserIDs {
     export const APOLLO = '475744554910351370';
 }
-export module ChannelIds {
-    export const RANT = '804639001226379294';
-    export const DEBUG = '541322708844281867';
-    export const MOD_LOG = '634526832816816128';
-    export const MOD_REPORTS = '1003017032364728330';
-}
 
 export module GuildIds {
     export const Seattle = '370945003566006272';

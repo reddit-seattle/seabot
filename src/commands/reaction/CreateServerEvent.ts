@@ -2,6 +2,7 @@ import {
     GuildScheduledEvent,
     GuildScheduledEventCreateOptions,
     GuildScheduledEventPrivacyLevel,
+    Message,
     MessageReaction,
     User,
 } from "discord.js";
@@ -19,10 +20,12 @@ export default new ReactionCommand({
     adminOnly: true,
     name: "schedule",
     description: `allows mods to create server events out of apollo messages`,
-    execute: async (reaction: MessageReaction, user: User): Promise<GuildScheduledEvent | undefined> => {
-        const message = reaction.message;
+    execute: async (reaction: MessageReaction, message?: Message, user?: User): Promise<GuildScheduledEvent | undefined> => {
         //dangerous - allow seabot to react to a bot's commands for creating server events
-        if (message.author?.id !== UserIDs.APOLLO || Environment.DEBUG || !isModReaction(reaction, user)) {
+        if(!user) {
+            return;
+        }
+        if (message?.author?.id !== UserIDs.APOLLO || Environment.DEBUG || !isModReaction(reaction, user)) {
             return;
         }
 

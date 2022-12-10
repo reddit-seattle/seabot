@@ -3,8 +3,9 @@ import { now } from "underscore";
 
 import SlashCommand from "../SlashCommand";
 
-import { ChannelIds, REGEX } from "../../../utils/constants";
+import { REGEX } from "../../../utils/constants";
 import { buildModActionRow } from "../../../utils/helpers";
+import { configuration } from "../../../server";
 
 export default new SlashCommand({
     name: "report",
@@ -46,7 +47,7 @@ export default new SlashCommand({
         }
         await interaction.deferReply({ ephemeral: true });
         const modReports = (await interaction.guild?.channels.cache
-            .get(ChannelIds.MOD_REPORTS)
+            .get(configuration.channelIds?.["MOD_REPORTS"])
             ?.fetch()) as TextChannel;
         const timestamp = Math.floor(now() / 1000);
         const reportEmbed = new EmbedBuilder({
@@ -84,7 +85,7 @@ export default new SlashCommand({
                 url: evidence?.url ?? "",
             },
         });
-        const modActionRow = buildModActionRow({
+        const modActionRow = buildModActionRow(interaction.guild?.id, {
             anon,
             user: user ?? undefined,
             channel: channel ?? undefined,

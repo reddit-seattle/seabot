@@ -1,4 +1,4 @@
-import { VoiceChannel, VoiceState } from "discord.js";
+import { CategoryChannel, ChannelType, VoiceChannel, VoiceState } from "discord.js";
 import { configuration } from "../server";
 import { VoiceConstants } from "../utils/constants";
 
@@ -12,7 +12,6 @@ export const handleVoiceStatusUpdate = (oldState: VoiceState, newState: VoiceSta
     if (newState?.member?.voice?.channel?.id == configuration.userVoiceChannels?.triggerChannelId) {
         createVoiceChannelForMember(newState);
     }
-    // if user has left a channel (no newstate.voiceChannel), delete it if it's empty
     if (
         //leaving voice (disconnect)
         (!newState.member?.voice?.channel || // or
@@ -37,18 +36,17 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
     const user_channel_name = `${user?.nickname ?? user?.user.username}'s voice chat`;
     const category_channel = guild.channels.cache.find(
         (channel) => channel.id === configuration.userVoiceChannels?.groupId
-    );
+    ) as CategoryChannel;
     // find channel group
     if (category_channel) {
         //TODO: if the user's channel already exists, just put them in that and prevent deletion
         // create channel for user
-        guild.channels
+        category_channel.children
             .create({
                 name: user_channel_name,
                 //voice channel
-                type: VoiceConstants.VOICE_TYPE,
-                //parent category
-                parent: category_channel.id,
+                type: ChannelType.GuildVoice,
+
                 //permissions
                 permissionOverwrites: [
                     //allow user to move members out of this channel
