@@ -36,7 +36,8 @@
   "scripts": {
     "build": "tsc",
     "seabot": "node dist/seabot.js",
-    "pack": "rimraf ./dist/ && webpack",
+    "pack:dev": "rimraf ./dist/ && webpack --config-name dev",
+    "pack": "rimraf ./dist/ && webpack --config-name prod",
     "start": " npm run build && npm run seabot",
     "launch": "npm ci && npm start",
     "dev": "nodemon -e ts,js,json --delay 2 --watch src --watch package.json --watch package-lock.json --watch tsconfig.json --watch dist\\seabotConfig.json --exec \"tsc && node dist/seabot.js\""
