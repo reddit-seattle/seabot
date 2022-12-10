@@ -26,6 +26,24 @@ const eventsToResolve = [
   Events.GuildMemberRemove,
 ];
 
+export interface EventResolutions  {
+    [Events.MessageCreate]: ((...args: ClientEvents[Events.MessageCreate] ) => Awaitable<void>)[]
+    [Events.MessageDelete]: ((...args: ClientEvents[Events.MessageDelete] ) => Awaitable<void>)[]
+    [Events.MessageReactionAdd]: ((...args: ClientEvents[Events.MessageReactionAdd]) => Awaitable<void>)[]
+    [Events.MessageReactionRemove]: ((...args: ClientEvents[Events.MessageReactionRemove]) => Awaitable<void>)[]
+    [Events.GuildMemberAdd]: ((...args: ClientEvents[Events.GuildMemberAdd]) => Awaitable<void>)[]
+    [Events.GuildMemberRemove]: ((...args: ClientEvents[Events.GuildMemberRemove]) => Awaitable<void>)[],
+    [Events.InteractionCreate]: ((...args: ClientEvents[Events.InteractionCreate]) => Awaitable<void>)[],
+    [Events.VoiceStateUpdate]: ((...args: ClientEvents[Events.VoiceStateUpdate]) => Awaitable<void>)[],
+    [Events.ClientReady]: ((...args: ClientEvents[Events.ClientReady]) => Awaitable<void>)[],
+    [Events.GuildMemberRemove]: ((...args: ClientEvents[Events.GuildMemberRemove]) => Awaitable<void>)[],
+}
+
+
+
+type DePartialize<T extends unknown[]> = Exclude<T extends [] ? [] :
+        T extends [infer H, ...infer R] ?
+        H extends Partialize<AllowedPartial> ? DePartialize<R> : [H, ...DePartialize<R>] : T, []>
 
 export default class DiscordEventRouter {
   private _eventHandlers: Map<Events, Function[]> = new Map();
