@@ -37,11 +37,11 @@ export default class WeatherApi {
         const currentWeather = await WeatherApi.callAPI<WeatherResponse>(uri);
 
         // The weather API encountered an error.
-        if (currentWeather.hasOwnProperty("cod")) {
+        if (!currentWeather) {
             return undefined;
         }
 
-        const geoInfo = (await WeatherApi.reverseGeoByCoord(currentWeather.coord))?.[0];
+        const geoInfo = (await WeatherApi.reverseGeoByCoord(currentWeather?.coord))?.[0];
         const embedBuilder = (title: string) => this.buildCurrentWeatherEmbed(currentWeather, title);
 
         return { currentWeather, geoInfo, embedBuilder };
@@ -56,7 +56,9 @@ export default class WeatherApi {
         const forecast = await (weekly
             ? WeatherApi.callAPI<WeeklyForecastResponse>(uri)
             : WeatherApi.callAPI<ForecastResponse>(uri));
-
+        if(!forecast?.city?.coord) {
+            return;
+        }
         const geoInfo = (await this.reverseGeoByCoord(forecast?.city.coord))?.[0];
         const embedBuilder = (title: string) =>
             weekly
@@ -164,6 +166,11 @@ export default class WeatherApi {
             },
             method: "GET",
         });
-        return (await result.json()) as T;
+        const data = await result.json();
+        // bad response
+        if('cod' in data && data.cod == "404") {
+            return null;
+        }
+        return data as T;
     }
 }

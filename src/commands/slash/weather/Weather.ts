@@ -18,8 +18,8 @@ export default new SlashCommand({
         const location = interaction.options.getString("location");
         const response = await WeatherApi.getCurrentWeather(location);
         if (!response) {
-            interaction.editReply("That's not a valid location!");
-            return;
+           interaction.editReply("That's not a valid location!");
+           return;
         }
 
         const { currentWeather, geoInfo, embedBuilder } = response;
@@ -27,7 +27,7 @@ export default new SlashCommand({
         const geoString = (
             geoInfo
                 ? [geoInfo.name, geoInfo?.state || null, geoInfo.country]
-                : [currentWeather?.name, currentWeather?.sys?.country]
+                : [currentWeather?.name ?? null, currentWeather?.sys?.country]
         )
             .filter((val) => !!val)
             .join(", "); // remove nulls and create string;
