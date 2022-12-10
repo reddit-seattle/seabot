@@ -9,7 +9,8 @@ export const handleVoiceStatusUpdate = (oldState: VoiceState, newState: VoiceSta
     if (oldState?.member?.user?.bot) return;
 
     // if user has joined the test channel, do the thing
-    if (newState?.member?.voice?.channel?.id == configuration.userVoiceChannels?.triggerChannelId) {
+    const config = configuration.userVoiceChannels;
+    if (newState?.member?.voice?.channel?.id == config?.triggerChannelId) {
         createVoiceChannelForMember(newState);
     }
     if (
@@ -18,9 +19,9 @@ export const handleVoiceStatusUpdate = (oldState: VoiceState, newState: VoiceSta
             //switching channel
             newState?.channelId != oldState?.channelId) &&
         //and you're not leaving the initial join channel
-        oldState?.channel?.id != configuration.userVoiceChannels?.triggerChannelId &&
+        oldState?.channel?.id != config?.triggerChannelId &&
         //and you ARE leaving a channel in the group
-        oldState?.channel?.parent?.id == configuration.userVoiceChannels?.groupId
+        oldState?.channel?.parent?.id == config?.groupId
     ) {
         // THEN delete the old channel
         deleteEmptyMemberVoiceChannel(oldState);
@@ -32,10 +33,11 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
     if (!state?.member?.user || !state?.member?.user.id) {
         return;
     }
+    const config = configuration.userVoiceChannels;
     const user = guild.members.cache.get(state?.member?.user?.id);
     const user_channel_name = `${user?.nickname ?? user?.user.username}'s voice chat`;
     const category_channel = guild.channels.cache.find(
-        (channel) => channel.id === configuration.userVoiceChannels?.groupId
+        (channel) => channel.id === config?.groupId
     ) as CategoryChannel;
     // find channel group
     if (category_channel) {
@@ -46,7 +48,6 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
                 name: user_channel_name,
                 //voice channel
                 type: ChannelType.GuildVoice,
-
                 //permissions
                 permissionOverwrites: [
                     //allow user to move members out of this channel
@@ -65,7 +66,8 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
 };
 
 export const deleteEmptyMemberVoiceChannel = (state: VoiceState) => {
-    if (state?.channel?.members?.size == 0 && state?.channel?.parent?.id == configuration.userVoiceChannels?.groupId) {
+    const config = configuration.userVoiceChannels;
+    if (state?.channel?.members?.size == 0 && state?.channel?.parent?.id == config?.groupId) {
         state?.channel?.delete();
     }
 };
