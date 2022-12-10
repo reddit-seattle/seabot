@@ -6,8 +6,8 @@ export default new SlashCommand({
     name: "source",
     description: "look at my insides",
     builder: new SlashCommandBuilder(),
-    execute: (interaction) => {
+    execute: async (interaction) => {
         const repoURL = "https://github.com/reddit-seattle/seabot";
-        interaction.reply(`Look at my insides!\n${repoURL}`);
+        await interaction.reply(`Look at my insides!\n${repoURL}`);
     },
 });

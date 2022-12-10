@@ -111,7 +111,7 @@ export default class DiscordBot {
 
     private async showNewMemberMessage(member: GuildMember) {
         if (Date.now() - member.user.createdTimestamp < minutesToMilliseconds(5)) {
-            member.send(`
+            await member.send(`
             Hey ${member.user.username} - just a reminder, your account needs to be at least 5 minutes old to chat. 
             While you wait, feel free to browse our welcome channel for some basic rules and channel descriptions.`);
         }

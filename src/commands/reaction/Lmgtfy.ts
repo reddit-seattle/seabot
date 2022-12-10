@@ -14,6 +14,6 @@ export default new ReactionCommand({
             return;
         }
         const resultantContent = replaceMentions(message);
-        message.reply(`https://lmgtfy.app/?q=${encodeURIComponent(resultantContent)}`);
+        await message.reply(`https://lmgtfy.app/?q=${encodeURIComponent(resultantContent)}`);
     },
 });

@@ -19,7 +19,7 @@ export default new ReactionCommand({
     adminOnly: true,
     name: "schedule",
     description: `allows mods to create server events out of apollo messages`,
-    execute: async (reaction: MessageReaction, user: User): Promise<GuildScheduledEvent | undefined> => {
+    execute: async (reaction: MessageReaction, user: User) => {
         const message = reaction.message;
         //dangerous - allow seabot to react to a bot's commands for creating server events
         if (message.author?.id !== UserIDs.APOLLO || Environment.DEBUG || !isModReaction(reaction, user)) {
@@ -69,6 +69,6 @@ ${footer?.text}`,
         //confirm event creation
         await message.react("✅");
         //attempt to message user who created it with link
-        await user.send(`Event created: ${event.url}`);
+        await reaction.client.user.send(`Event created: ${event.url}`);
     },
 });

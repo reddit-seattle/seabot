@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import {Message, EmbedBuilder, SlashCommandBuilder, ChatInputCommandInteraction} from "discord.js";
 
 import ReactionCommands from "../../reaction";
 import SlashCommand from "../SlashCommand";
@@ -11,10 +11,10 @@ export default new SlashCommand({
     help: "reactions",
     description: "Display reaction command help",
     builder: new SlashCommandBuilder().addStringOption(option => option.setName("command").setDescription("The command you would like help with")),
-    async execute(message: Message) {
+    execute: async (interaction: ChatInputCommandInteraction) => {
         // filter admin commands to only mods
         const filteredCommands = ReactionCommands.filter(
-            (command) => !command?.adminOnly || (command?.adminOnly && message.member?.roles.cache.has(configuration.roleIds.moderator))
+            (command) => !command?.adminOnly || (command?.adminOnly && interaction.member?.roles && interaction.inCachedGuild() && interaction.member?.roles.cache.has(configuration.roleIds.moderator))
         );
 
         const emojiIdMap = new Map<string, string>();
@@ -53,6 +53,6 @@ export default new SlashCommand({
                 },
             ],
         });
-        message.channel.send({ embeds: [embed] });
+        interaction.channel?.send({ embeds: [embed] });
     },
 });

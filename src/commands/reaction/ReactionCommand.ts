@@ -1,12 +1,12 @@
 import { MessageReaction, User } from "discord.js";
 
 import { Command, CommandConfiguration } from "../Command";
+import Reaction from "./index";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ReactionCommandConfiguration extends CommandConfiguration {
     removeReaction?: boolean;
     emojiName?: string;
-    execute: (reaction: MessageReaction, user: User) => any | Promise<any>;
+    execute: (reaction: MessageReaction, user: User) => Promise<void>;
 }
 
 export default class ReactionCommand extends Command {
@@ -29,9 +29,7 @@ export default class ReactionCommand extends Command {
         return true;
     }
 
-    public execute(...args: any[]): any {
-        const reaction = args[0];
-        const user = args[1];
-        this._configuration.execute(reaction, user);
+    public async execute(reaction: MessageReaction, user: User) {
+        await this._configuration.execute(reaction, user);
     }
 }

@@ -44,7 +44,7 @@ export default new SlashCommand({
             if (foundCommand) {
                 filteredCommands = [foundCommand];
             } else {
-                interaction.reply(`Command "${commandName}" does not exist.`);
+                await interaction.reply(`Command "${commandName}" does not exist.`);
             }
         }
 
@@ -67,6 +67,6 @@ export default new SlashCommand({
                 },
             ],
         });
-        interaction.reply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
     },
 });
