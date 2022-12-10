@@ -57,4 +57,3 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2A4CED61642B4E7FA66FA99139320C61 }}
           package: .
-          startup-command: 'node seabot.js'
