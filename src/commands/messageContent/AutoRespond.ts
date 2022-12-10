@@ -67,7 +67,7 @@ export default new ContentCommand({
                     typeof response.message === "function"
                         ? (response.message).call(response)
                         : response.message;
-                message.reply(reply);
+                await message.reply(reply);
             }
 
             if ('reaction' in response && response.reaction) {
