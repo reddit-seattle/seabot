@@ -1,14 +1,10 @@
 import moment from "moment";
-import {
-  ChatInputCommandInteraction,
-  EmbedBuilder,
-  PermissionFlagsBits,
-  SlashCommandBuilder,
-} from "discord.js";
+import {ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder} from "discord.js";
 
-import { Telemetry as TelemetryModel } from "../../../models/DBModels";
-import { Database } from "../../../utils/constants";
-import { DatabaseCommand } from "./DatabaseCommand";
+import {Telemetry as TelemetryModel} from "../../../models/DBModels";
+import {Database} from "../../../utils/constants";
+import {DatabaseCommand} from "./DatabaseCommand";
+import DBConnector from "../../../db/DBConnector";
 
 const name = "channelstats";
 const description = "Get Channel Telemetry Info";
@@ -37,10 +33,10 @@ async function handler(this: DatabaseCommand<TelemetryModel>, interaction: ChatI
     await interaction.deferReply();
     const channel = interaction.options.getChannel("channel", true);
     const { id: cat } = channel;
-    const results = await this.connector?.find(Database.Queries.TELEMETRY_BY_CHANNEL(cat));
+    const results = await (this.connector as DBConnector<TelemetryModel>)?.find(Database.Queries.TELEMETRY_BY_CHANNEL(cat));
     const embed = new EmbedBuilder().setTitle(`Message telemetry for ${channel.name}`).setFields(
         results
-            ? results.map((telemetry: any) => {  /* eslint-disable-line @typescript-eslint/no-explicit-any */
+            ? results.map((telemetry: TelemetryModel) => {
                   return {
                       name: moment.utc(telemetry.Window_End_Time).format("YYYY-MM-DD : HH:mm"),
                       value: `Messages: ${telemetry.COUNT_channelId}`,

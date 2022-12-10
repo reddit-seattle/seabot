@@ -26,10 +26,9 @@ const eventsToResolve = [
   Events.GuildMemberRemove,
 ];
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export default class DiscordEventRouter {
-    private _eventHandlers: Map<Events, FunctionType<any>[]> = new Map();
+    private _eventHandlers: Map<Events, FunctionType<unknown>[]> = new Map();
     private _client: Client;
 
     constructor(client: Client) {
@@ -47,22 +46,21 @@ export default class DiscordEventRouter {
       this.registerEventForHandlers(event);
     }
 
-    public removeEventListener(event: Events, handler: FunctionType<any>) {
+    public removeEventListener<T>(event: Events, handler: FunctionType<T>) {
         if (!this._eventHandlers.has(event)) {
             return;
         }
 
-        const handlerIndex = (this._eventHandlers.get(event) as Array<FunctionType<any>>).indexOf(handler);
+        const handlerIndex = (this._eventHandlers.get(event) as Array<FunctionType<T>>).indexOf(handler);
         if (handlerIndex > -1) {
             this._eventHandlers.get(event)?.splice(handlerIndex, 1);
         }
     }
 
-    const handlerIndex = (
-      this._eventHandlers.get(event) as Array<Function>
-    ).indexOf(handler);
-    if (handlerIndex > -1) {
-      this._eventHandlers.get(event)?.splice(handlerIndex, 1);
+    private registerEventForHandlers(eventType: Events) {
+        this._client.on(eventType.toString(), (...args) => {
+            this.handleEvents(eventType, args);
+        });
     }
   }
 

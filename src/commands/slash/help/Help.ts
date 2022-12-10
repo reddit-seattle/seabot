@@ -38,40 +38,35 @@ export default new SlashCommand({
             )
             .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
-    const commandName = interaction.options
-      .getString("command")
-      ?.toLowerCase()
-      .trim();
-    if (commandName) {
-      const foundCommand = filteredCommands.find(
-        (x) => x.name.toLowerCase() === commandName
-      );
-      if (foundCommand) {
-        filteredCommands = [foundCommand];
-      } else {
-        interaction.reply(`Command "${commandName}" does not exist.`);
-      }
-    }
+        const commandName = interaction.options.getString("command")?.toLowerCase().trim();
+        if (commandName) {
+            const foundCommand = filteredCommands.find((x) => x.name.toLowerCase() === commandName);
+            if (foundCommand) {
+                filteredCommands = [foundCommand];
+            } else {
+                await interaction.reply(`Command "${commandName}" does not exist.`);
+            }
+        }
 
-    const embed = new EmbedBuilder({
-      title: `SeaBot Help`,
-      description: "Commands",
-      color: 111111,
-      fields: [
-        ...filteredCommands.map((command) => {
-          return {
-            name: command.name,
-            value: `${command.description}\nExample: ${Config.prefix}${command.help}`,
-            inline: false,
-          };
-        }),
-        {
-          name: Strings.feedbackText,
-          inline: false,
-          value: Strings.newIssueURL,
-        },
-      ],
-    });
-    interaction.reply({ embeds: [embed] });
-  },
+        const embed = new EmbedBuilder({
+            title: `SeaBot Help`,
+            description: "Commands",
+            color: 111111,
+            fields: [
+                ...filteredCommands.map((command) => {
+                    return {
+                        name: command.name,
+                        value: `${command.description}\nExample: ${Config.prefix}${command.help}`,
+                        inline: false,
+                    };
+                }),
+                {
+                    name: Strings.feedbackText,
+                    inline: false,
+                    value: Strings.newIssueURL,
+                },
+            ],
+        });
+        await interaction.reply({ embeds: [embed] });
+    },
 });

@@ -1,13 +1,9 @@
-import {
-  SlashCommandBuilder,
-  ChatInputCommandInteraction,
-  EmbedBuilder,
-  PermissionFlagsBits,
-} from "discord.js";
+import {ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder} from "discord.js";
 
-import { Award as AwardModel } from "../../../models/DBModels";
-import { Database } from "../../../utils/constants";
-import { DatabaseCommand } from "./DatabaseCommand";
+import {Award as AwardModel} from "../../../models/DBModels";
+import {Database} from "../../../utils/constants";
+import {DatabaseCommand} from "./DatabaseCommand";
+import DBConnector from "../../../db/DBConnector";
 
 enum SubCommands {
   GIVE = "give",
@@ -86,14 +82,14 @@ async function handler(this: DatabaseCommand<AwardModel>, interaction: ChatInput
         interaction.guild?.systemChannel?.send(`${user.username} has been given an award!`);
     } else if (cmd === SubCommands.LIST) {
         const user = interaction.options.getUser("user", false);
-        const records = await this.connector.find(
+        const records = await (this.connector as DBConnector<AwardModel>).find(
             Database.Queries.AWARDS_BY_USER(user ? user.id : interaction.user.id)
         );
         if (records?.[0]) {
             const embed = new EmbedBuilder({
                 title: `Awards for ${user?.username || interaction.user.username}`,
                 description: `${records.length} award${records.length > 1 ? "s" : ""}:`,
-                fields: records.map((award: any, i: number) => {  /* eslint-disable-line @typescript-eslint/no-explicit-any */
+                fields: records.map((award: any, i: number) => {
                     return {
                         name: `${i + 1}: ${award.message || "No message"}`,
                         value: award.awardedOn.toString(),

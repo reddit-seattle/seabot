@@ -1,3 +1,5 @@
+import {Message} from "discord.js";
+
 export interface CommandConfiguration {
   name: string;
   description: string;
@@ -8,10 +10,7 @@ export interface CommandConfiguration {
 export abstract class Command {
   protected configuration: CommandConfiguration;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public abstract canExecute(...args: any[]): any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public abstract execute(...args: any[]): any;
+    public abstract canExecute(message: Message): boolean;
 
   public get name() {
     return this.configuration.name;

@@ -53,7 +53,19 @@ export default new SlashCommand({
           content: `No cards found for ${cardName}`,
           ephemeral: true,
         });
-      }
-    });
-  },
+        emitter.on("error", console.log);
+        emitter.on("end", () => {
+            if (cardFound) {
+                interaction.editReply({ embeds: [richEmbed] });
+            } else {
+                interaction.editReply({
+                    content: `No cards found for ${cardName}`,
+                    // hahaha
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    ephemeral: true,
+                });
+            }
+        });
+    },
 });

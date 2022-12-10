@@ -77,16 +77,9 @@ async function deleteMessages(channel: TextChannel, numberOfMessages: number) {
       await channel.bulkDelete(oldMessages);
     }
 
-    // delete messages greater than maximum message count (if configured)
-    if (numberOfMessages && allMessages.size > numberOfMessages) {
-      const messagesToPrune = allMessages.last(
-        allMessages.size - numberOfMessages
-      );
-      messagesToPrune.forEach((message) => {
-        if (message.deletable) {
-          message.delete();
-        }
-      });
+        await channel.bulkDelete(bulkDelete);
+    } catch (e) {
+        console.dir(e);
     }
   } catch (e) {
     console.dir(e);
