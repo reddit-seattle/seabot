@@ -9,7 +9,7 @@ import { VoiceConstants } from "../utils/constants";
 
 const { Permissions } = VoiceConstants;
 
-export const handleVoiceStatusUpdate = (
+export const handleVoiceStatusUpdate = async (
   oldState: VoiceState,
   newState: VoiceState
 ) => {
@@ -19,7 +19,7 @@ export const handleVoiceStatusUpdate = (
   // if user has joined the test channel, do the thing
   const config = configuration.userVoiceChannels;
   if (newState?.member?.voice?.channel?.id == config?.triggerChannelId) {
-    createVoiceChannelForMember(newState);
+    await createVoiceChannelForMember(newState);
   }
   if (
     //leaving voice (disconnect)
@@ -32,11 +32,11 @@ export const handleVoiceStatusUpdate = (
     oldState?.channel?.parent?.id == config?.groupId
   ) {
     // THEN delete the old channel
-    deleteEmptyMemberVoiceChannel(oldState);
+    await deleteEmptyMemberVoiceChannel(oldState);
   }
 };
 
-export const createVoiceChannelForMember = (state: VoiceState) => {
+export const createVoiceChannelForMember = async (state: VoiceState) => {
   const { guild } = state;
   if (!state?.member?.user || !state?.member?.user.id) {
     return;
@@ -53,39 +53,35 @@ export const createVoiceChannelForMember = (state: VoiceState) => {
   if (category_channel) {
     //TODO: if the user's channel already exists, just put them in that and prevent deletion
     // create channel for user
-    category_channel.children
-      .create({
-        name: user_channel_name,
-        //voice channel
-        type: ChannelType.GuildVoice,
-        //permissions
-        permissionOverwrites: [
-          //allow user to move members out of this channel
-          //note: MANAGE_CHANNELS as a permission overwrite on a single channel doesn't extend to the entire guild
-          {
-            id: user?.id!,
-            allow: [
-              Permissions.MOVE,
-              Permissions.MUTE,
-              Permissions.DEAFEN,
-              Permissions.MANAGE_CHANNELS,
-            ],
-          },
-        ],
-      })
-      .then((channel) => {
-        // add user to channel
-        state?.member?.voice?.setChannel(channel as unknown as VoiceChannel);
-      });
+    const created_channel = await category_channel.children.create({
+      name: user_channel_name,
+      //voice channel
+      type: ChannelType.GuildVoice,
+      //permissions
+      permissionOverwrites: [
+        //allow user to move members out of this channel
+        //note: MANAGE_CHANNELS as a permission overwrite on a single channel doesn't extend to the entire guild
+        {
+          id: user?.id!,
+          allow: [
+            Permissions.MOVE,
+            Permissions.MUTE,
+            Permissions.DEAFEN,
+            Permissions.MANAGE_CHANNELS,
+          ],
+        },
+      ],
+    });
+    await state?.member?.voice?.setChannel(created_channel);
   }
 };
 
-export const deleteEmptyMemberVoiceChannel = (state: VoiceState) => {
+export const deleteEmptyMemberVoiceChannel = async (state: VoiceState) => {
   const config = configuration.userVoiceChannels;
   if (
     state?.channel?.members?.size == 0 &&
     state?.channel?.parent?.id == config?.groupId
   ) {
-    state?.channel?.delete();
+    await state?.channel?.delete();
   }
 };
