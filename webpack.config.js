@@ -54,13 +54,21 @@ const sharedConfig = {
     optimization: bundleOptimizations,
 };
 
+const package_patterns = [
+    "package.json",
+    "package-lock.json"
+]
+
 const prodWebpackConfig = {
     mode: "production",
     name: "prod",
     ...sharedConfig,
     plugins: [
         new CopyPlugin({
-            patterns: ["src/seabotConfig.json"],
+            patterns: [
+                ...package_patterns,
+                "src/seabotConfig.json",
+            ],
         }),
     ],
 };
@@ -72,7 +80,10 @@ const devWebpackConfig = {
     plugins: [
         new CopyPlugin({
             // allows us to copy different config files to dist at build time
-            patterns: [{ from: "src/devConfig.json", to: "seabotConfig.json" }],
+            patterns: [
+                ...package_patterns,
+                { from: "src/devConfig.json", to: "seabotConfig.json" }
+            ],
         }),
     ],
 };
