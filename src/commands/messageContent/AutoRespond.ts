@@ -5,17 +5,20 @@ import ContentCommand from "./ContentCommand";
 import { discordBot } from "../../server";
 import { replaceMentions } from "../../utils/helpers";
 import { REGEX, Strings } from "../../utils/constants";
-import { FunctionType } from "../../utils/types";
 
 type AutoResponse = {
     message?: (() => string) | string;
-    reaction?: (() => GuildEmoji) | string;
+    reaction?: () => EmojiIdentifierResolvable;
     trim?: boolean;
     enableLinks?: boolean;
     chance?: number;
 };
 
-const responseMap = new Map<string | RegExp, AutoResponse>([
+
+
+type ResponseEntry =  [RegExp | string, AutoResponse]
+
+const responseList = [
     [/hodor/i, { reaction: () => emojiFromName("door") }],
     [/bisbopt/i, { reaction: () => emojiFromName("bisbopt") }],
     [/duck/i, { reaction: () => emojiFromName("duck") }],
@@ -25,7 +28,7 @@ const responseMap = new Map<string | RegExp, AutoResponse>([
     [/bruh/i, { reaction: () => emojiFromName("bruh") }],
     ["SEA", { message: "HAWKS!" }],
     [/(tbf|to be fair)/i, { message: Strings.letterkennyGif, chance: 0.75 }],
-]);
+]  as ResponseEntry[];
 
 function emojiFromName(emojiName: string): GuildEmoji {
     const emoji = discordBot.client.emojis.cache.find((x) => x.name === emojiName);
@@ -37,12 +40,12 @@ function emojiFromName(emojiName: string): GuildEmoji {
 }
 
 const trigger = new RegExp(
-    [...responseMap.keys()]
-        .map((key) => {
+    responseList
+        .map(([key]) => {
             if (typeof key === "string") {
                 return key;
             } else {
-                return (key as RegExp).source;
+                return key.source;
             }
         })
         .join("|"),
@@ -53,26 +56,26 @@ export default new ContentCommand({
     name: "autoreact",
     description: "Automatically reacts to messages when a certain string or regex is triggered.",
     trigger,
-    handler: (message: Message) => {
-        for (const [trigger, response] of responseMap) {
+    handler: async (message: Message) => {
+        for (const [trigger, response] of responseList) {
             if (!shouldRespond(trigger, response)) continue;
             const responseRoll = Math.random();
-            if (response.chance && response.chance < responseRoll) continue;
+            if ('chance' in response && response.chance && response.chance < responseRoll) continue;
 
-            if (response.message) {
+            if ('message' in response && response.message) {
                 const reply =
                     typeof response.message === "function"
-                        ? (response.message as FunctionType<string | MessagePayload | MessageReplyOptions>).call(response)
+                        ? (response.message).call(response)
                         : response.message;
-                message.reply(reply);
+                await message.reply(reply);
             }
 
-            if (response.reaction) {
+            if ('reaction' in response && response.reaction) {
                 const emoji =
                     typeof response.reaction === "function"
-                        ? (response.reaction as FunctionType<EmojiIdentifierResolvable>).call(response).toString()
+                        ? response.reaction.call(response).toString()
                         : response.reaction;
-                message.react(emoji);
+                await message.react(emoji);
             }
             // One response per customer, please.
             break;

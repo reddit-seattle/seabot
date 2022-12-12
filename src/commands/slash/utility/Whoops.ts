@@ -21,10 +21,10 @@ export default new SlashCommand({
         .addStringOption((option) => {
             return option.setName("bottomtext").setDescription("optional, replaces `fell off`").setRequired(false);
         }),
-    execute: (interaction) => {
+    execute: async (interaction) => {
         const emoji = interaction.options.getString("emote", true);
         const object = interaction.options.getString("object", true);
         const bottomText = interaction.options.getString("bottomtext", false);
-        interaction.reply(Strings.whoops(object, emoji, bottomText || undefined));
+        await interaction.reply(Strings.whoops(object, emoji, bottomText || undefined));
     },
 });

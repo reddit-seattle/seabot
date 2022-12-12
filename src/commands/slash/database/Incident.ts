@@ -36,7 +36,7 @@ async function handler(this: DatabaseCommand<IncidentModel>, interaction: ChatIn
         const incident = await this.connector.getLastItem();
         if (!incident) {
             // uh, we got a problem
-            interaction.followUp({
+            await interaction.followUp({
                 content: "No incidents yet. Hmm...",
                 ephemeral: true,
             });
@@ -44,7 +44,7 @@ async function handler(this: DatabaseCommand<IncidentModel>, interaction: ChatIn
         }
         const daysSince = millisecondsToDays(Date.now() - new Date(incident?.occurrence).getTime());
         // tell everyone
-        interaction.followUp({
+        await interaction.followUp({
             content: `It has been ${Math.round(daysSince)} day${
                 daysSince === 1 ? "" : "s"
             } since the last incident.\n***${incident.note ?? "No note provided for this incident."}***${
@@ -69,23 +69,23 @@ async function handler(this: DatabaseCommand<IncidentModel>, interaction: ChatIn
             const result = await this.connector.addItem(incident);
             if (result) {
                 //make a statement confirming db transaction
-                interaction.followUp(`Created incident id ${result.id}: ${result.note} at ${result.occurrence}`);
+                await interaction.followUp(`Created incident id ${result.id}: ${result.note} at ${result.occurrence}`);
                 //let everyone know we've reset to 0
-                interaction.guild?.systemChannel?.send(
+                await interaction.guild?.systemChannel?.send(
                     `Congratulations! It has now been \`0\` days since our last incident!\n***${
                         result.note ?? "No note provided for this incident."
                     }***${result.link ? `\n${result.link}` : ``}`
                 );
             } else {
                 // db transaction failed
-                interaction.followUp("Error creating incident record");
+                await interaction.followUp("Error creating incident record");
             }
         } else {
             // non-mod tried to add a new incident
-            interaction.followUp("You cannot perform this action. Ping a mod");
+            await interaction.followUp("You cannot perform this action. Ping a mod");
         }
     } else {
         // idk somehow you used the command without a subcommand
-        interaction.followUp("Subcommand required. RTFM");
+        await interaction.followUp("Subcommand required. RTFM");
     }
 }

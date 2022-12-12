@@ -31,10 +31,10 @@ export default new SlashCommand({
                 .join(", "); // remove nulls and create string;
             const title = `${weekly ? `Weekly f` : `F`}orecast for ${geoString}`;
             const embed = embedBuilder(title);
-            interaction.editReply({ embeds: [embed] });
+            await interaction.editReply({ embeds: [embed] });
             return;
         }
 
-        interaction.reply("You must specify a valid location for the forecast.");
+        await interaction.reply("You must specify a valid location for the forecast.");
     },
 });

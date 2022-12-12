@@ -10,12 +10,12 @@ export default new SlashCommand({
     help: "status",
     name: "status",
     builder: new SlashCommandBuilder(),
-    execute: (interaction) => {
+    execute: async (interaction) => {
         const process_uptime = Math.floor(process.uptime());
         const { client } = interaction;
         const { uptime } = client;
         const { versions, arch } = process;
-        interaction.reply({
+        await interaction.reply({
             embeds: [
                 new EmbedBuilder({
                     title: "SEABot Status",

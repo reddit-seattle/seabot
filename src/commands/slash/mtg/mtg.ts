@@ -49,6 +49,9 @@ export default new SlashCommand({
             } else {
                 interaction.editReply({
                     content: `No cards found for ${cardName}`,
+                    // hahaha
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     ephemeral: true,
                 });
             }

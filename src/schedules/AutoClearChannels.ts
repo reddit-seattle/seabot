@@ -67,7 +67,7 @@ async function deleteMessages(channel: TextChannel, numberOfMessages: number) {
             }
         });
 
-        channel.bulkDelete(bulkDelete);
+        await channel.bulkDelete(bulkDelete);
     } catch (e) {
         console.dir(e);
     }

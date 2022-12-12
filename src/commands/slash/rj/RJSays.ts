@@ -58,15 +58,14 @@ export default new SlashCommand({
                 option.addChoices(...sortedChoices.map((choice) => { return { name: choice, value: RJStrings[choice] }}));
                 return option;
             }),
-    execute: (interaction) => {
+    execute: async (interaction) => {
         const emote = interaction.options.getString("emote");
         if (!emote) {
             const options = _.unique(Object.values(RJStrings));
             const val = _.random(options.length - 1);
-            interaction.reply(textToEmojis(options[val]));
-            return;
+            await interaction.reply(textToEmojis(options[val]));
         } else {
-            interaction.reply(emote ? textToEmojis(emote) : "RJ does not know that command");
+            await interaction.reply(emote ? textToEmojis(emote) : "RJ does not know that command");
         }
     },
 });

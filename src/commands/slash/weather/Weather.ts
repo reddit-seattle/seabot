@@ -15,10 +15,10 @@ export default new SlashCommand({
         ),
     execute: async (interaction) => {
         await interaction.deferReply();
-        const location = interaction.options.getString("location");
+        const location = interaction.options.getString("location", true);
         const response = await WeatherApi.getCurrentWeather(location);
         if (!response) {
-            interaction.editReply("That's not a valid location!");
+            await interaction.editReply("That's not a valid location!");
             return;
         }
 
@@ -33,6 +33,6 @@ export default new SlashCommand({
             .join(", "); // remove nulls and create string;
         const titleString = `Current weather for ${geoString}`;
         const richEmbed = embedBuilder(titleString);
-        interaction.editReply({ embeds: [richEmbed] });
+        await interaction.editReply({ embeds: [richEmbed] });
     },
 });

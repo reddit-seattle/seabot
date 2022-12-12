@@ -15,7 +15,7 @@ export default new ReactionCommand({
         }
 
         const resultantContent = replaceMentions(message);
-        message.reply({
+        await message.reply({
             content: `https://www.google.com/search?q=${encodeURIComponent(resultantContent)}`,
             allowedMentions: {
                 repliedUser: false,

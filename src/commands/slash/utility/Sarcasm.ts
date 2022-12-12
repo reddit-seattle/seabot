@@ -11,10 +11,10 @@ export default new SlashCommand({
     builder: new SlashCommandBuilder().addStringOption((option) => {
         return option.setRequired(true).setName("text").setDescription(toSarcasticCase("The text to sarcasticize"));
     }),
-    execute: (interaction) => {
+    execute: async (interaction) => {
         const string = interaction.options.getString("text") ?? null;
         const emoji = discordBot.client.emojis.cache.find((x) => x.name === "stupidsponge");
         const spongeText = emoji?.toString() ?? "";
-        string && interaction.reply(`${spongeText} ${toSarcasticCase(string)} ${spongeText}`);
+        string && await interaction.reply(`${spongeText} ${toSarcasticCase(string)} ${spongeText}`);
     },
 });

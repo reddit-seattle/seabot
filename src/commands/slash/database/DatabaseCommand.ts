@@ -11,12 +11,15 @@ import { cosmosClient } from "../../../db/cosmosClient";
 type ConnectorType = "Awards" | "Incidents" | "MessageTelemetry";
 
 export class DatabaseCommand<ModelType extends ItemDefinition> extends SlashCommand {
-     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    private static connectorCache = new Map<string, any>(); 
+    private static  connectorCache = new Map<string, IDatabase<unknown>>();
 
-    public static getConnector<ModelType extends ItemDefinition>(connectorType: ConnectorType) {
-        if (DatabaseCommand.connectorCache.has(connectorType)) {
-            return DatabaseCommand.connectorCache.get(connectorType);
+    public static getConnector<ModelType extends ItemDefinition>(connectorType: ConnectorType) : IDatabase<ModelType>  {
+
+        if (DatabaseCommand.connectorCache.has(connectorType) ) {
+            const connector = (DatabaseCommand.connectorCache as Map<string, IDatabase<ModelType>>).get(connectorType)
+            if (connector) {
+                return connector
+            }
         }
 
         let connector: IDatabase<ModelType>;
@@ -43,9 +46,5 @@ export class DatabaseCommand<ModelType extends ItemDefinition> extends SlashComm
     constructor(connectorType: ConnectorType, configuration: SlashCommandConfiguration) {
         super(configuration);
         this._connector = DatabaseCommand.getConnector<ModelType>(connectorType);
-    }
-
-    public execute(...args: any[]) {  /* eslint-disable-line @typescript-eslint/no-explicit-any */
-        super.execute(...args);
     }
 }

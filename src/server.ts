@@ -34,11 +34,10 @@ async function startDiscordBot() {
     console.log("Starting bot...");
     try {
         const eventRouter = new DiscordEventRouter(discordBot.client);
-        eventRouter.addEventListener(Events.InteractionCreate, processModReportInteractions);
-        eventRouter.addEventListener(Events.VoiceStateUpdate, handleVoiceStatusUpdate);
-        eventRouter.addEventListener(Events.ClientReady, announcePresence);
-        eventRouter.addEventListener(Events.ClientReady, startTaskScheduler);
-
+        await eventRouter.addEventListener(Events.InteractionCreate, processModReportInteractions);
+        await eventRouter.addEventListener(Events.VoiceStateUpdate, handleVoiceStatusUpdate);
+        await eventRouter.addEventListener(Events.ClientReady, announcePresence);
+        await eventRouter.addEventListener(Events.ClientReady, startTaskScheduler);
         await discordBot.start(eventRouter);
     } catch (error) {
         console.error("Fatal error while starting bot:");

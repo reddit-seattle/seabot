@@ -1,8 +1,6 @@
-import { VoiceState, Interaction, CacheType, Message, MessageReaction, User, GuildMember } from "discord.js";
+import {CacheType, GuildMember, Interaction, Message, MessageReaction, User, VoiceState} from "discord.js";
 
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FunctionType<T> = (...args: any[]) => T;
 export type VoiceStateHandler = (oldState: VoiceState, newState: VoiceState) => void;
 export type InteractionHandler = (interaction: Interaction<CacheType>) => Promise<void>;
 export type MessageContentHandler = (message: Message) => Promise<void>;
