@@ -1,5 +1,5 @@
 import { promises as fs } from "fs";
-
+import * as Path from "path";
 import defaultConfig from "./defaultConfig";
 import ISeabotConfig from "./ISeabotConfig";
 
@@ -8,7 +8,7 @@ import { Duration } from "../utils/Time/Duration";
 export default async function loadConfiguration(
   path: string
 ): Promise<ISeabotConfig> {
-  path = `${path}\\seabotConfig.json`;
+  path = Path.join(path, `seabotConfig.json`);
   console.log(`Loading configuration file from "${path}"...`);
   let configuration = null;
 
