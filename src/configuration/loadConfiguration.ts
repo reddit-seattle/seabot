@@ -17,12 +17,15 @@ export default async function loadConfiguration(
     configuration = JSON.parse(
       (await fs.readFile(path)).toString()
     ) as ISeabotConfig;
+    console.log("Loaded Configuration:");
+    console.dir(configuration);
     if (configuration.autoDeleteMessages) {
-      configuration.autoDeleteMessages.channels.forEach((channel) => {
+      const { channels } = configuration.autoDeleteMessages;
+      for(const channel of channels) {
         if (channel.timeBeforeClearing) {
           channel.timeBeforeClearing = new Duration(channel.timeBeforeClearing);
         }
-      });
+      };
     }
   } catch (error) {
     /*
