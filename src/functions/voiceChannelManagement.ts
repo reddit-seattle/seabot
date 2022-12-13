@@ -17,6 +17,7 @@ export const handleVoiceStatusUpdate = async (
 
   // if user has joined the test channel, do the thing
   const config = configuration.userVoiceChannels;
+  // TODO: REMOVE DEBUG
   Environment.DEBUG && console.dir(config);
   if (newState?.member?.voice?.channel?.id == config?.triggerChannelId) {
     Environment.DEBUG && console.dir("Triggering create voice channel for member");
