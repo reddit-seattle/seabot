@@ -26,8 +26,16 @@ export default new SlashCommand({
     const weekly = interaction.options.getBoolean("weekly") ?? false;
     if (location) {
       await interaction.deferReply();
-      const { forecast, geoInfo, embedBuilder } =
-        await WeatherApi.getWeatherForecast(location);
+      const response = await WeatherApi.getWeatherForecast(location);
+      if (!response) {
+        await interaction.editReply(
+          `Error getting a weather forecast response for ${location}`
+        );
+        return;
+      }
+
+      const { forecast, geoInfo, embedBuilder } = response;
+
       const geoString = (
         geoInfo
           ? [geoInfo.name, geoInfo?.state || null, geoInfo.country]

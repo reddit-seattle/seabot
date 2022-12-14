@@ -54,7 +54,6 @@ export default new SlashCommand({
       } else {
         await interaction.editReply({
           content: `No cards found for ${cardName}`,
-          ephemeral: true,
         });
       }
     });

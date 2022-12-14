@@ -1,6 +1,6 @@
 import { CategoryChannel, ChannelType, VoiceState } from "discord.js";
 import { configuration } from "../server";
-import { Environment, VoiceConstants } from "../utils/constants";
+import { VoiceConstants } from "../utils/constants";
 
 const { Permissions } = VoiceConstants;
 
@@ -27,51 +27,44 @@ export const handleVoiceStatusUpdate = async (
   }
 };
 
-export const createVoiceChannelForMember = (state: VoiceState) => {
+export const createVoiceChannelForMember = async (state: VoiceState) => {
   const { guild } = state;
   if (!state?.member?.user || !state?.member?.user.id) {
     return;
   }
-  const user = guild.members.cache.get(state?.member?.user?.id);
-  if (!user?.id) {
-    return;
-  }
+  const userId = state.member.user.id;
+  const user = await guild.members.cache.get(userId);
+  const config = configuration.userVoiceChannels;
   const user_channel_name = `${
     user?.nickname ?? user?.user.username
   }'s voice chat`;
-  const category_channel = guild.channels.cache.find(
-    (channel) => channel.id === configuration.userVoiceChannels?.groupId
-  );
+  const category_channel = (await guild.channels.cache.find(
+    (channel) => channel.id === config?.groupId
+  )) as CategoryChannel;
   // find channel group
   if (category_channel) {
     //TODO: if the user's channel already exists, just put them in that and prevent deletion
     // create channel for user
-    guild.channels
-      .create({
-        name: user_channel_name,
-        //voice channel
-        type: VoiceConstants.VOICE_TYPE,
-        //parent category
-        parent: category_channel.id,
-        //permissions
-        permissionOverwrites: [
-          //allow user to move members out of this channel
-          //note: MANAGE_CHANNELS as a permission overwrite on a single channel doesn't extend to the entire guild
-          {
-            id: user?.id,
-            allow: [
-              Permissions.MOVE,
-              Permissions.MUTE,
-              Permissions.DEAFEN,
-              Permissions.MANAGE_CHANNELS,
-            ],
-          },
-        ],
-      })
-      .then((channel) => {
-        // add user to channel
-        state?.member?.voice?.setChannel(channel as unknown as VoiceChannel);
-      });
+    const created_channel = await category_channel.children.create({
+      name: user_channel_name,
+      //voice channel
+      type: ChannelType.GuildVoice,
+      //permissions
+      permissionOverwrites: [
+        //allow user to move members out of this channel
+        //note: MANAGE_CHANNELS as a permission overwrite on a single channel doesn't extend to the entire guild
+        {
+          id: userId,
+          allow: [
+            Permissions.MOVE,
+            Permissions.MUTE,
+            Permissions.DEAFEN,
+            Permissions.MANAGE_CHANNELS,
+          ],
+        },
+      ],
+    });
+    await state?.member?.voice?.setChannel(created_channel);
   }
 };
 

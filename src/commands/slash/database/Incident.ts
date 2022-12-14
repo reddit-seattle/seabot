@@ -5,37 +5,9 @@ import {
 } from "discord.js";
 
 import { configuration } from "../../../server";
-import { Database } from "../../../utils/constants";
-import { DatabaseCommand } from "./DatabaseCommand";
+import { ConnectorType, DatabaseCommand } from "./DatabaseCommand";
 import { Incident as IncidentModel } from "../../../models/DBModels";
 import { millisecondsToDays } from "../../../utils/Time/conversion";
-
-export default new DatabaseCommand<IncidentModel>(
-  Database.Containers.INCIDENTS,
-  {
-    name: "incident",
-    description: "How many days since our last incident?",
-    help: "incident",
-    builder: new SlashCommandBuilder()
-      .addSubcommand((cmd) =>
-        cmd.setName("last").setDescription("days since last `incident`")
-      )
-      .addSubcommand((cmd) =>
-        cmd
-          .setName("new")
-          .setDescription("indicates that a new incident has occurred")
-          .addStringOption((option) =>
-            option
-              .setName("link")
-              .setDescription("message link to start of incident")
-          )
-          .addStringOption((option) =>
-            option.setName("note").setDescription("what went down")
-          )
-      ),
-    execute: handler,
-  }
-);
 
 enum SubCommands {
   LAST = "last",
@@ -115,3 +87,32 @@ async function handler(
     await interaction.followUp("Subcommand required. RTFM");
   }
 }
+
+const config = {
+  name: "incident",
+  description: "How many days since our last incident?",
+  help: "incident",
+  builder: new SlashCommandBuilder()
+    .addSubcommand((cmd) =>
+      cmd.setName("last").setDescription("days since last `incident`")
+    )
+    .addSubcommand((cmd) =>
+      cmd
+        .setName("new")
+        .setDescription("indicates that a new incident has occurred")
+        .addStringOption((option) =>
+          option
+            .setName("link")
+            .setDescription("message link to start of incident")
+        )
+        .addStringOption((option) =>
+          option.setName("note").setDescription("what went down")
+        )
+    ),
+  execute: handler,
+};
+
+export default new DatabaseCommand<IncidentModel>(
+  ConnectorType.Incidents,
+  config
+);

@@ -7,7 +7,7 @@ import {
 
 import { Award as AwardModel } from "../../../models/DBModels";
 import { Database } from "../../../utils/constants";
-import { DatabaseCommand } from "./DatabaseCommand";
+import { DatabaseCommand, ConnectorType } from "./DatabaseCommand";
 import DBConnector from "../../../db/DBConnector";
 
 enum SubCommands {
@@ -53,10 +53,7 @@ const config = {
   execute: handler,
 };
 
-export default new DatabaseCommand<AwardModel>(
-  Database.Containers.AWARDS,
-  config
-);
+export default new DatabaseCommand<AwardModel>(ConnectorType.Awards, config);
 
 async function handler(
   this: DatabaseCommand<AwardModel>,

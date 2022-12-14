@@ -4,8 +4,6 @@ import {
   ClientEvents,
   Events,
   Partialize,
-  PartialMessage,
-  Partials,
 } from "discord.js";
 import { Awaitable } from "@discordjs/util";
 
@@ -63,7 +61,7 @@ type DePartialize<T extends unknown[]> = Exclude<
 >;
 
 export default class DiscordEventRouter {
-  private _eventHandlers2: EventResolutions = {
+  private _eventHandlers: EventResolutions = {
     [Events.MessageCreate]: [],
     [Events.MessageDelete]: [],
     [Events.MessageReactionAdd]: [],
@@ -87,11 +85,11 @@ export default class DiscordEventRouter {
       ...args: DePartialize<Parameters<EventResolutions[T][number]>>
     ) => ReturnType<EventResolutions[T][number]>
   ) {
-    if (!this._eventHandlers2[event].length) {
+    if (!this._eventHandlers[event].length) {
       await this.registerEventForHandlers(event);
     }
 
-    (this._eventHandlers2[event] as EventResolutions[T][number][]).push(
+    (this._eventHandlers[event] as EventResolutions[T][number][]).push(
       handler as unknown as EventResolutions[T][number]
     );
   }
@@ -109,7 +107,7 @@ export default class DiscordEventRouter {
     eventType: K,
     eventArgs: Parameters<EventResolutions[K][number]>
   ) {
-    const handlers = this._eventHandlers2[eventType];
+    const handlers = this._eventHandlers[eventType];
     if (!handlers) return;
     const partialResolvedEventArgs = await this.resolvePartialsInArgs<K>(
       eventType,

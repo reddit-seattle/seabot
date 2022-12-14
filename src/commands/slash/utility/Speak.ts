@@ -7,7 +7,7 @@ export default new SlashCommand({
   name: "speak",
   description: "Gives SeaBot a voice!",
   builder: new SlashCommandBuilder()
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
     .addStringOption((opt) =>
       opt.setName("text").setDescription("what to say").setRequired(true)
     ),

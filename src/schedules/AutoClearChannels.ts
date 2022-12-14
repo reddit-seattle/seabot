@@ -30,7 +30,7 @@ async function clearChannels() {
         return;
       }
 
-      deleteMessages(channelToClear, channelClearInfo.numberOfMessages);
+      deleteMessages(channelToClear, channelClearInfo?.numberOfMessages ?? 0);
     });
   });
 }
@@ -40,25 +40,6 @@ async function deleteMessages(channel: TextChannel, numberOfMessages: number) {
     if (!channel.lastMessage) {
       return;
     }
-
-    const configurationEntry = getConfigurationEntry(channel.id);
-    if (!configurationEntry) {
-      return;
-    }
-
-    const lastMessageAge =
-      new Date().getTime() - channel.lastMessage.createdAt.getTime();
-    const minimumMessageAge =
-      configurationEntry.timeBeforeClearing.getMilliseconds();
-    if (lastMessageAge < minimumMessageAge) {
-      return;
-    }
-
-    const fetchOptions: FetchMessagesOptions = {
-      limit: numberOfMessages,
-    };
-
-    const messagesToDelete = await channel.messages.fetch(fetchOptions);
 
     const configurationEntry = getConfigurationEntry(channel.id);
     if (!configurationEntry) {
@@ -79,7 +60,17 @@ async function deleteMessages(channel: TextChannel, numberOfMessages: number) {
       await channel.bulkDelete(oldMessages);
     }
 
-    await channel.bulkDelete(bulkDelete);
+    // delete messages greater than maximum message count (if configured)
+    if (numberOfMessages && allMessages.size > numberOfMessages) {
+      const messagesToPrune = allMessages.last(
+        allMessages.size - numberOfMessages
+      );
+      messagesToPrune.forEach((message) => {
+        if (message.deletable) {
+          message.delete();
+        }
+      });
+    }
   } catch (e) {
     console.dir(e);
   }

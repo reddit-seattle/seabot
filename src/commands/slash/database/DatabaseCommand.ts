@@ -8,7 +8,11 @@ import SlashCommand, { SlashCommandConfiguration } from "../SlashCommand";
 import { Database } from "../../../utils/constants";
 import { cosmosClient } from "../../../db/cosmosClient";
 
-type ConnectorType = "Awards" | "Incidents" | "MessageTelemetry";
+export enum ConnectorType {
+  "Awards" = "AWARDS",
+  "Incidents" = "INCIDENTS",
+  "MessageTelemetry" = "TELEMETRY",
+}
 
 export class DatabaseCommand<
   ModelType extends ItemDefinition
@@ -46,5 +50,17 @@ export class DatabaseCommand<
     });
 
     return connector;
+  }
+
+  private _connector;
+  public get connector() {
+    return this._connector;
+  }
+  constructor(
+    connectorType: ConnectorType,
+    configuration: SlashCommandConfiguration
+  ) {
+    super(configuration);
+    this._connector = DatabaseCommand.getConnector<ModelType>(connectorType);
   }
 }

@@ -1,4 +1,9 @@
-import { SlashCommandBuilder, EmbedBuilder, TextChannel } from "discord.js";
+import {
+  SlashCommandBuilder,
+  EmbedBuilder,
+  TextChannel,
+  ChatInputCommandInteraction,
+} from "discord.js";
 import { now } from "underscore";
 
 import SlashCommand from "../SlashCommand";
@@ -40,8 +45,16 @@ export default new SlashCommand({
     .addStringOption((o) =>
       o.setName("message").setDescription("Message link to content")
     ),
-  execute: async (interaction) => {
-    const { options } = interaction;
+  execute: async (interaction: ChatInputCommandInteraction) => {
+    const { options, guild } = interaction;
+    if (!guild || !guild?.id) {
+      await interaction.reply({
+        ephemeral: true,
+        content:
+          "something bad happened tracking this command interaction. ask a mod for help",
+      });
+      return;
+    }
     // only get username if not anonymous.
     const anon = options.getBoolean("anon", true);
     const username = anon ? "anonymous" : interaction.user.username;
@@ -63,8 +76,15 @@ export default new SlashCommand({
       return;
     }
     await interaction.deferReply({ ephemeral: true });
+    const reportChannelId = configuration.channelIds?.["MOD_REPORTS"];
+    if (!reportChannelId) {
+      await interaction.editReply(
+        "Please tell the mods to configure their reporting channel"
+      );
+      return;
+    }
     const modReports = (await interaction.guild?.channels.cache
-      .get(configuration.channelIds?.["MOD_REPORTS"])
+      .get(reportChannelId)
       ?.fetch()) as TextChannel;
     const timestamp = Math.floor(now() / 1000);
     const reportEmbed = new EmbedBuilder({
@@ -102,7 +122,7 @@ export default new SlashCommand({
         url: evidence?.url ?? "",
       },
     });
-    const modActionRow = buildModActionRow(interaction.guild?.id, {
+    const modActionRow = buildModActionRow(guild.id, {
       anon,
       user: user ?? undefined,
       channel: channel ?? undefined,

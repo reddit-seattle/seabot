@@ -16,6 +16,9 @@ export default class ReactionCommandRouter extends CommandRouter {
     this.eventRouter.addEventListener(
       Events.MessageReactionAdd,
       async (reaction: MessageReaction, user: User) => {
+        if (reaction.partial) {
+          reaction = await reaction.fetch();
+        }
         const { message, emoji } = reaction;
         const alreadyReacted = (reaction.count && reaction.count > 1) == true;
 
@@ -26,7 +29,7 @@ export default class ReactionCommandRouter extends CommandRouter {
 
         try {
           if (emoji.name && commandMap.has(emoji.name)) {
-            const command = commandMap.get(emoji.id) as ReactionCommand;
+            const command = commandMap.get(emoji.name) as ReactionCommand;
             if (command.execute) {
               await command.execute(reaction, user);
             }

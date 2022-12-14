@@ -11,6 +11,7 @@ import {
   User,
   ActionRowBuilder,
   PartialMessage,
+  ChatInputCommandInteraction,
 } from "discord.js";
 import { v3 as NodeHue } from "node-hue-api";
 import { now } from "moment";
@@ -102,14 +103,19 @@ export const SetHueTokens = async (
   }
 };
 
-export const HueInitialize = async (message: Message) => {
+export const HueInitialize = async (
+  interaction: ChatInputCommandInteraction
+) => {
+  if (!interaction.replied) {
+    await interaction.deferReply({ ephemeral: true });
+  }
   const { hueClientId, hueClientSecret, Constants } = Environment;
   if (!hueClientId || !hueClientSecret) {
     return;
   }
   const enabled = process.env[Environment.Constants.hueEnabled] == "true";
   if (!enabled) {
-    message.channel.send(
+    await interaction.editReply(
       "Hue commands are currently disabled. Ask burn to turn them on pretty please"
     );
     return;
@@ -144,7 +150,7 @@ export const HueInitialize = async (message: Message) => {
       return api;
     } catch (e: unknown) {
       console.dir(e);
-      message.channel.send(
+      await interaction.editReply(
         "Error connecting with access tokens, Burn may need to run `$hueInit`."
       );
     }
@@ -253,7 +259,7 @@ export const processModReportInteractions = async (
 ) => {
   if (
     !interaction.isButton() ||
-    interaction.channelId != ChannelIds.MOD_REPORTS
+    interaction.channelId != configuration.channelIds?.["MOD_REPORTS"]
   )
     return;
 

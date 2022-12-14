@@ -2,6 +2,7 @@ import {
   SlashCommandBuilder,
   Message,
   ChatInputCommandInteraction,
+  EmbedBuilder,
 } from "discord.js";
 
 import SlashCommand from "../SlashCommand";
@@ -13,13 +14,23 @@ export default new SlashCommand({
   description: "show valheim server info",
   builder: new SlashCommandBuilder(),
   execute: async (interaction: ChatInputCommandInteraction) => {
-    interaction;
-    // message.channel.send(
-    //     `**Valheim Dedicated Server Information**:
-    // server: \`${ServerInfo.Valheim.serverName}\`
-    // ip: \`${ServerInfo.Valheim.ipAddress}\`
-    // password: \`${ServerInfo.Valheim.access}\`
-    // `
-    // )
+    await interaction.reply({
+      embeds: [
+        new EmbedBuilder({
+          title: `**Valheim Dedicated Server Information**`,
+          description: ServerInfo.Valheim.serverName,
+          fields: [
+            {
+              name: "IP",
+              value: ServerInfo.Valheim.ipAddress,
+            },
+            {
+              name: "pass",
+              value: ServerInfo.Valheim.access ?? "`undefined`",
+            },
+          ],
+        }),
+      ],
+    });
   },
 });

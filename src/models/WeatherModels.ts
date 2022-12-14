@@ -120,7 +120,7 @@ export interface ForecastResponse {
 }
 
 export interface WeatherResponse {
-  cod?: unknown;
+  cod?: string;
   coord: Coord;
   wind: {
     deg: number;
