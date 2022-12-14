@@ -1,4 +1,4 @@
-import {Message} from "discord.js";
+import { Message } from "discord.js";
 
 export interface CommandConfiguration {
   name: string;
@@ -10,7 +10,7 @@ export interface CommandConfiguration {
 export abstract class Command {
   protected configuration: CommandConfiguration;
 
-    public abstract canExecute(message: Message): boolean;
+  public abstract canExecute(message: Message): boolean;
 
   public get name() {
     return this.configuration.name;

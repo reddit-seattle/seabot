@@ -21,11 +21,11 @@ export default async function loadConfiguration(
     console.dir(configuration);
     if (configuration.autoDeleteMessages) {
       const { channels } = configuration.autoDeleteMessages;
-      for(const channel of channels) {
+      for (const channel of channels) {
         if (channel.timeBeforeClearing) {
           channel.timeBeforeClearing = new Duration(channel.timeBeforeClearing);
         }
-      };
+      }
     }
   } catch (error) {
     /*

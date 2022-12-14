@@ -36,27 +36,29 @@ async function clearChannels() {
 }
 
 async function deleteMessages(channel: TextChannel, numberOfMessages: number) {
-    try {
-        if (!channel.lastMessage) {
-            return;
-        }
+  try {
+    if (!channel.lastMessage) {
+      return;
+    }
 
-        const configurationEntry = getConfigurationEntry(channel.id);
-        if (!configurationEntry) {
-            return;
-        }
+    const configurationEntry = getConfigurationEntry(channel.id);
+    if (!configurationEntry) {
+      return;
+    }
 
-        const lastMessageAge = new Date().getTime() - channel.lastMessage.createdAt.getTime();
-        const minimumMessageAge = configurationEntry.timeBeforeClearing.getMilliseconds();
-        if (lastMessageAge < minimumMessageAge) {
-            return;
-        }
+    const lastMessageAge =
+      new Date().getTime() - channel.lastMessage.createdAt.getTime();
+    const minimumMessageAge =
+      configurationEntry.timeBeforeClearing.getMilliseconds();
+    if (lastMessageAge < minimumMessageAge) {
+      return;
+    }
 
-        const fetchOptions: FetchMessagesOptions = {
-            limit: numberOfMessages,
-        };
+    const fetchOptions: FetchMessagesOptions = {
+      limit: numberOfMessages,
+    };
 
-        const messagesToDelete = await channel.messages.fetch(fetchOptions);
+    const messagesToDelete = await channel.messages.fetch(fetchOptions);
 
     const configurationEntry = getConfigurationEntry(channel.id);
     if (!configurationEntry) {
@@ -77,10 +79,7 @@ async function deleteMessages(channel: TextChannel, numberOfMessages: number) {
       await channel.bulkDelete(oldMessages);
     }
 
-        await channel.bulkDelete(bulkDelete);
-    } catch (e) {
-        console.dir(e);
-    }
+    await channel.bulkDelete(bulkDelete);
   } catch (e) {
     console.dir(e);
   }

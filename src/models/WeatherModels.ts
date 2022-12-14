@@ -120,23 +120,23 @@ export interface ForecastResponse {
 }
 
 export interface WeatherResponse {
-    cod?: unknown;
-    coord: Coord;
-    wind: {
-        deg: number;
-        speed: string;
-    },
-    name: string,
-    main: {
-        temp: string;
-        humidity: string;
-    },
-    weather: {
-        description: string;
-    }[],
-    sys: {
-        country: string;
-    }
+  cod?: unknown;
+  coord: Coord;
+  wind: {
+    deg: number;
+    speed: string;
+  };
+  name: string;
+  main: {
+    temp: string;
+    humidity: string;
+  };
+  weather: {
+    description: string;
+  }[];
+  sys: {
+    country: string;
+  };
 }
 
 export interface Category {

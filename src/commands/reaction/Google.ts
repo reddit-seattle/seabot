@@ -14,12 +14,14 @@ export default new ReactionCommand({
       return;
     }
 
-        const resultantContent = replaceMentions(message);
-        await message.reply({
-            content: `https://www.google.com/search?q=${encodeURIComponent(resultantContent)}`,
-            allowedMentions: {
-                repliedUser: false,
-            },
-        });
-    },
+    const resultantContent = replaceMentions(message);
+    await message.reply({
+      content: `https://www.google.com/search?q=${encodeURIComponent(
+        resultantContent
+      )}`,
+      allowedMentions: {
+        repliedUser: false,
+      },
+    });
+  },
 });

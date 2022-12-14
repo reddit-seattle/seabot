@@ -29,44 +29,53 @@ const RJStrings: { [id: string]: string } = {
 };
 
 function textToEmojis(text: string) {
-    const emojiPattern = /(?<=<).*?(?=>)/g;
-    const emojis = text.matchAll(emojiPattern);
+  const emojiPattern = /(?<=<).*?(?=>)/g;
+  const emojis = text.matchAll(emojiPattern);
 
-    for (const emoji of emojis) {
-        const discordEmoji = discordBot.client.emojis.cache.find((x) => x.name === emoji[0]);
-        if (discordEmoji) {
-            text = text.replace(`<${emoji[0]}>`, `<:${discordEmoji.name}:${discordEmoji.id}>`);
-        } else {
-            throw new Error(`Unhandled emoji in string: "${emoji}" in "${text}`);
-        }
+  for (const emoji of emojis) {
+    const discordEmoji = discordBot.client.emojis.cache.find(
+      (x) => x.name === emoji[0]
+    );
+    if (discordEmoji) {
+      text = text.replace(
+        `<${emoji[0]}>`,
+        `<:${discordEmoji.name}:${discordEmoji.id}>`
+      );
+    } else {
+      throw new Error(`Unhandled emoji in string: "${emoji}" in "${text}`);
     }
   }
-
   return text;
 }
 
 export default new SlashCommand({
-    name: "rj",
-    help: "rj list",
-    description: "makes funny little RJ emotes",
-    builder: () =>
-        new SlashCommandBuilder()
-            .setName("rj")
-            .setDescription("makes funny little RJ emotes")
-            .addStringOption((option) => {
-                option.setName("emote").setDescription("which emote would you like");
-                const sortedChoices = Object.keys(RJStrings).sort();
-                option.addChoices(...sortedChoices.map((choice) => { return { name: choice, value: RJStrings[choice] }}));
-                return option;
-            }),
-    execute: async (interaction) => {
-        const emote = interaction.options.getString("emote");
-        if (!emote) {
-            const options = _.unique(Object.values(RJStrings));
-            const val = _.random(options.length - 1);
-            await interaction.reply(textToEmojis(options[val]));
-        } else {
-            await interaction.reply(emote ? textToEmojis(emote) : "RJ does not know that command");
-        }
-    },
+  name: "rj",
+  help: "rj list",
+  description: "makes funny little RJ emotes",
+  builder: () =>
+    new SlashCommandBuilder()
+      .setName("rj")
+      .setDescription("makes funny little RJ emotes")
+      .addStringOption((option) => {
+        option.setName("emote").setDescription("which emote would you like");
+        const sortedChoices = Object.keys(RJStrings).sort();
+        option.addChoices(
+          ...sortedChoices.map((choice) => {
+            return { name: choice, value: RJStrings[choice] };
+          })
+        );
+        return option;
+      }),
+  execute: async (interaction) => {
+    const emote = interaction.options.getString("emote");
+    if (!emote) {
+      const options = _.unique(Object.values(RJStrings));
+      const val = _.random(options.length - 1);
+      await interaction.reply(textToEmojis(options[val]));
+    } else {
+      await interaction.reply(
+        emote ? textToEmojis(emote) : "RJ does not know that command"
+      );
+    }
+  },
 });

@@ -24,5 +24,5 @@ export default abstract class CommandRouter {
     this.initialize(commands);
   }
 
-    public abstract initialize(commands: Command[]): void;
+  public abstract initialize(commands: Command[]): void;
 }

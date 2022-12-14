@@ -1,12 +1,12 @@
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master, dev ]
+    branches: [master, dev]
   pull_request:
-    branches: [ master, dev ]
+    branches: [master, dev]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -26,13 +26,13 @@ jobs:
         uses: actions/setup-node@v2.1.4
         with:
           node-version: 16
-          
+
       - name: install
         run: |
           npm ci
       - name: build
         run: |
           npm run build
-      # Tests are pointless at this point anyway 
+      # Tests are pointless at this point anyway
       # - name: test
-      #   run: npm test -- --coverage 
+      #   run: npm test -- --coverage

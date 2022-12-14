@@ -113,10 +113,10 @@ export default class DiscordBot {
     }
   }
 
-    private startCommandRouters(eventRouter: DiscordEventRouter) {
-        console.log("Starting command router...");
-        createCommandRouters(eventRouter, this);
-    }
+  private startCommandRouters(eventRouter: DiscordEventRouter) {
+    console.log("Starting command router...");
+    createCommandRouters(eventRouter, this);
+  }
 
   private async showRevolvingSimpsonsDoor(member: GuildMember) {
     if (!member.joinedAt) return;
@@ -127,10 +127,11 @@ export default class DiscordBot {
         "https://media.giphy.com/media/fDO2Nk0ImzvvW/giphy.gif"
       );
     }
+  }
 
-    private async showNewMemberMessage(member: GuildMember) {
-        if (Date.now() - member.user.createdTimestamp < minutesToMilliseconds(5)) {
-            await member.send(`
+  private async showNewMemberMessage(member: GuildMember) {
+    if (Date.now() - member.user.createdTimestamp < minutesToMilliseconds(5)) {
+      await member.send(`
             Hey ${member.user.username} - just a reminder, your account needs to be at least 5 minutes old to chat. 
             While you wait, feel free to browse our welcome channel for some basic rules and channel descriptions.`);
     }

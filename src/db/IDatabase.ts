@@ -1,4 +1,4 @@
-import {SqlQuerySpec} from "@azure/cosmos";
+import { SqlQuerySpec } from "@azure/cosmos";
 
 export default interface IDatabase<T> {
   init: () => Promise<void>;

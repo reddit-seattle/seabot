@@ -1,4 +1,4 @@
-import {Events, MessageReaction, User} from "discord.js";
+import { Events, MessageReaction, User } from "discord.js";
 
 import CommandRouter from "../CommandRouter";
 import ReactionCommand from "./ReactionCommand";
@@ -13,34 +13,31 @@ export default class ReactionCommandRouter extends CommandRouter {
       );
     });
 
-        this.eventRouter.addEventListener(Events.MessageReactionAdd, async (reaction: MessageReaction, user: User) => {
-            const { message, emoji } = reaction;
-            const alreadyReacted = (reaction.count && reaction.count > 1) == true;
+    this.eventRouter.addEventListener(
+      Events.MessageReactionAdd,
+      async (reaction: MessageReaction, user: User) => {
+        const { message, emoji } = reaction;
+        const alreadyReacted = (reaction.count && reaction.count > 1) == true;
 
         // this prevents the same reaction command from firing multiple times
         if (message.author?.bot || !emoji.id || alreadyReacted) {
           return;
         }
 
-            try {
-                if (emoji.name && commandMap.has(emoji.name)) {
-                    const command = commandMap.get(emoji.id) as ReactionCommand;
-                    if (command.execute) {
-                        await command.execute(reaction, user);
-                    }
+        try {
+          if (emoji.name && commandMap.has(emoji.name)) {
+            const command = commandMap.get(emoji.id) as ReactionCommand;
+            if (command.execute) {
+              await command.execute(reaction, user);
+            }
 
-                    if (command.removeReaction) {
-                        await reaction.remove();
-                    }
-                }
-            } catch (e: unknown) {
-                console.dir(e);
-                await message.react("💩");
+            if (command.removeReaction) {
+              await reaction.remove();
             }
           }
-        } catch (e: any) {
+        } catch (e: unknown) {
           console.dir(e);
-          message.react("💩");
+          await message.react("💩");
         }
       }
     );

@@ -4,7 +4,6 @@ about: Suggest new functionality
 title: "[Feature Request]"
 labels: enhancement
 assignees: burn-piano-island
-
 ---
 
 **Is your feature request related to a problem? Please describe.**

@@ -54,14 +54,14 @@ export default new SlashCommand({
           ],
         });
 
-                await interaction.editReply({ embeds: [embed] });
-                return;
-            }
+        await interaction.editReply({ embeds: [embed] });
+        return;
+      }
 
-            await interaction.editReply(`Could not find forecast for ${location}`);
-            return;
-        }
+      await interaction.editReply(`Could not find forecast for ${location}`);
+      return;
+    }
 
-        await interaction.reply("The location provided is not a valid zip code.");
-    },
+    await interaction.reply("The location provided is not a valid zip code.");
+  },
 });

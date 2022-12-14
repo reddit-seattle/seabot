@@ -4,23 +4,20 @@ import { Message, TextChannel } from "discord.js";
 import { configuration } from "../server";
 
 export class MessageTelemetryLogger {
-    private client: EventHubProducerClient;
-    private messageQueueSize = 10;
-    private batch: EventDataBatch | undefined;
-    public Ready: Promise<unknown>;
-    constructor(eh: EventHubProducerClient) {
-        this.client = eh;
-        this.Ready = new Promise((res, rej) => {
-            try {
-                this.CreateBatch().then(
-                    () => res(true)
-                );
-            }
-            catch(ex: unknown) {
-                rej(false);
-            }
-        });
-    }
+  private client: EventHubProducerClient;
+  private messageQueueSize = 10;
+  private batch: EventDataBatch | undefined;
+  public Ready: Promise<unknown>;
+  constructor(eh: EventHubProducerClient) {
+    this.client = eh;
+    this.Ready = new Promise((res, rej) => {
+      try {
+        this.CreateBatch().then(() => res(true));
+      } catch (ex: unknown) {
+        rej(false);
+      }
+    });
+  }
 
   async logMessageTelemetry(message: Message) {
     const { channel } = message;

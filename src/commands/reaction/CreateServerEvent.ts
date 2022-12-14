@@ -19,17 +19,21 @@ import {
 const maximumEventDescriptionLength = 300;
 
 export default new ReactionCommand({
-    emojiName: "calendar",
-    removeReaction: true,
-    adminOnly: true,
-    name: "schedule",
-    description: `allows mods to create server events out of apollo messages`,
-    execute: async (reaction: MessageReaction, user: User) => {
-        const message = reaction.message;
-        //dangerous - allow seabot to react to a bot's commands for creating server events
-        if (message.author?.id !== UserIDs.APOLLO || Environment.DEBUG || !isModReaction(reaction, user)) {
-            return;
-        }
+  emojiName: "calendar",
+  removeReaction: true,
+  adminOnly: true,
+  name: "schedule",
+  description: `allows mods to create server events out of apollo messages`,
+  execute: async (reaction: MessageReaction, user: User) => {
+    const message = reaction.message;
+    //dangerous - allow seabot to react to a bot's commands for creating server events
+    if (
+      message.author?.id !== UserIDs.APOLLO ||
+      Environment.DEBUG ||
+      !isModReaction(reaction, user)
+    ) {
+      return;
+    }
 
     const embed = reaction.message.embeds?.[0];
     const { title, description, image, fields, footer } = embed;
@@ -72,14 +76,14 @@ ${calendarUrl}
 Event link: ${url}
 
 ${footer?.text}`,
-            entityMetadata: {
-                location: "See event link in description",
-            },
-            reason: `Auto-created event from bot react: ${url}`,
-        } as GuildScheduledEventCreateOptions)) as GuildScheduledEvent;
-        //confirm event creation
-        await message.react("✅");
-        //attempt to message user who created it with link
-        await reaction.client.user.send(`Event created: ${event.url}`);
-    },
+      entityMetadata: {
+        location: "See event link in description",
+      },
+      reason: `Auto-created event from bot react: ${url}`,
+    } as GuildScheduledEventCreateOptions)) as GuildScheduledEvent;
+    //confirm event creation
+    await message.react("✅");
+    //attempt to message user who created it with link
+    await reaction.client.user.send(`Event created: ${event.url}`);
+  },
 });
