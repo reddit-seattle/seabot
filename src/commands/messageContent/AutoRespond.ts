@@ -22,7 +22,7 @@ const responseMap = new Map<string | RegExp, AutoResponse>([
   [/420/i, { reaction: () => emojiFromName("weed"), trim: true }],
   [/puya[1ilӏ]{1,2}up/i, { reaction: () => emojiFromName("downvote") }],
   [/bruh/i, { reaction: () => emojiFromName("bruh") }],
-  ["SEA", { message: "HAWKS!" }],
+  [/^SEA$/im, { message: "HAWKS!" }],
   [/(tbf|to be fair)/i, { message: Strings.letterkennyGif, chance: 0.75 }],
 ]);
 
