@@ -4,12 +4,8 @@ import { AutoDeleteConfiguration } from "../configuration/ISeabotConfig";
 import IScheduledTask from "./IScheduledTask";
 
 import { configuration } from "../server";
-import { daysToMilliseconds } from "../utils/Time/conversion";
 import { discordBot } from "../server";
 import { Duration } from "../utils/Time/Duration";
-
-// Discord only allows us to bulk delete messages under 14 days old.
-const maximumBulkMessageAge = daysToMilliseconds(14) - 1;
 
 const AutoClearChannels: IScheduledTask = {
   name: "AutoClearChannel",
@@ -46,17 +42,17 @@ async function deleteMessages(channel: TextChannel, numberOfMessages: number) {
       return;
     }
 
-    const lastMessageAge =
-      new Date().getTime() - channel.lastMessage.createdAt.getTime();
-    const minimumMessageAge =
-      configurationEntry.timeBeforeClearing.getMilliseconds();
+    // delete everything before this
+    const minimumMessageCreatedTime =
+      Date.now() - configurationEntry.timeBeforeClearing.getMilliseconds() - 1;
+
     let allMessages = await channel.messages.fetch();
 
     // delete all messages over the maximum age
-    if (lastMessageAge >= minimumMessageAge) {
-      const oldMessages = allMessages.filter(
-        (message) => message.createdAt.getTime() < maximumBulkMessageAge
-      );
+    const oldMessages = allMessages.filter(
+      (message) => message.createdAt.getTime() < minimumMessageCreatedTime
+    );
+    if(oldMessages?.size) {
       await channel.bulkDelete(oldMessages);
     }
 
