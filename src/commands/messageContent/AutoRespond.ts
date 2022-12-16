@@ -23,7 +23,7 @@ type AutoResponse = {
 type ResponseEntry = [RegExp | string, AutoResponse];
 
 const responseList = [
-  [/hodor/i, { reaction: () => emojiFromName("door") }],
+  [/hodor/i, { reaction: () => "🚪" }],
   [/bisbopt/i, { reaction: () => emojiFromName("bisbopt") }],
   [/duck/i, { reaction: () => emojiFromName("duck") }],
   [/69/i, { reaction: () => emojiFromName("nice"), trim: true }],
