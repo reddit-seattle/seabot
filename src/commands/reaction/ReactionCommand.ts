@@ -1,7 +1,6 @@
-import { MessageReaction, Message, User } from "discord.js";
+import { MessageReaction, User } from "discord.js";
 
 import { Command, CommandConfiguration } from "../Command";
-import Reaction from "./index";
 
 export interface ReactionCommandConfiguration extends CommandConfiguration {
   removeReaction?: boolean;

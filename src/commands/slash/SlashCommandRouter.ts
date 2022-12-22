@@ -1,5 +1,4 @@
 import {
-  ClientEvents,
   Events,
   Interaction,
   RESTPostAPIApplicationCommandsJSONBody,

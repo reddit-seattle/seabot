@@ -46,13 +46,13 @@ async function deleteMessages(channel: TextChannel, numberOfMessages: number) {
     const minimumMessageCreatedTime =
       Date.now() - configurationEntry.timeBeforeClearing.getMilliseconds() - 1;
 
-    let allMessages = await channel.messages.fetch();
+    const allMessages = await channel.messages.fetch();
 
     // delete all messages over the maximum age
     const oldMessages = allMessages.filter(
       (message) => message.createdAt.getTime() < minimumMessageCreatedTime
     );
-    if(oldMessages?.size) {
+    if (oldMessages?.size) {
       await channel.bulkDelete(oldMessages);
     }
 

@@ -2,7 +2,6 @@ import {
   GuildScheduledEvent,
   GuildScheduledEventCreateOptions,
   GuildScheduledEventPrivacyLevel,
-  Message,
   MessageReaction,
   User,
 } from "discord.js";

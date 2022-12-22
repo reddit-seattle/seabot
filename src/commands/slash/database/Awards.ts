@@ -5,7 +5,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 
-import { Award as AwardModel } from "../../../models/DBModels";
+import { Award } from "../../../models/DBModels";
 import { Database } from "../../../utils/constants";
 import { DatabaseCommand, ConnectorType } from "./DatabaseCommand";
 import DBConnector from "../../../db/DBConnector";
@@ -53,10 +53,10 @@ const config = {
   execute: handler,
 };
 
-export default new DatabaseCommand<AwardModel>(ConnectorType.Awards, config);
+export default new DatabaseCommand<Award>(ConnectorType.Awards, config);
 
 async function handler(
-  this: DatabaseCommand<AwardModel>,
+  this: DatabaseCommand<Award>,
   interaction: ChatInputCommandInteraction
 ) {
   await interaction.deferReply({ ephemeral: true });
@@ -71,7 +71,7 @@ async function handler(
       return;
     }
     const message = interaction.options.getString("message", false);
-    const award: AwardModel = {
+    const award: Award = {
       awardedBy: interaction.user.id,
       awardedTo: user.id,
       awardedOn: new Date(),
@@ -89,14 +89,14 @@ async function handler(
     );
   } else if (cmd === SubCommands.LIST) {
     const user = interaction.options.getUser("user", false);
-    const records = await (this.connector as DBConnector<AwardModel>).find(
+    const records = await (this.connector as DBConnector<Award>).find(
       Database.Queries.AWARDS_BY_USER(user ? user.id : interaction.user.id)
     );
     if (records?.[0]) {
       const embed = new EmbedBuilder({
         title: `Awards for ${user?.username || interaction.user.username}`,
         description: `${records.length} award${records.length > 1 ? "s" : ""}:`,
-        fields: records.map((award: any, i: number) => {
+        fields: records.map((award: Award, i: number) => {
           return {
             name: `${i + 1}: ${award.message || "No message"}`,
             value: award.awardedOn.toString(),

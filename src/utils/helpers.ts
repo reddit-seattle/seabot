@@ -10,7 +10,6 @@ import {
   PartialUser,
   User,
   ActionRowBuilder,
-  PartialMessage,
   ChatInputCommandInteraction,
 } from "discord.js";
 import { v3 as NodeHue } from "node-hue-api";

@@ -1,4 +1,4 @@
-import { ItemDefinition } from "@azure/cosmos";
+import { ItemDefinition, SqlQuerySpec } from "@azure/cosmos";
 
 import IDatabase from "./IDatabase";
 
@@ -11,7 +11,7 @@ export default class InMemoryDbConnector<T extends ItemDefinition>
     console.log("Initialized in-memory database connector");
   }
 
-  async find(querySpec: string) {
+  async find(querySpec: string | SqlQuerySpec) {
     return this._memoryStore.filter((x) => x.id === querySpec);
   }
 

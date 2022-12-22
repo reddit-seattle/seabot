@@ -1,8 +1,4 @@
-import {
-  ChatInputCommandInteraction,
-  Message,
-  SlashCommandBuilder,
-} from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { v3 as NodeHue } from "node-hue-api";
 
 import SlashCommand from "../SlashCommand";

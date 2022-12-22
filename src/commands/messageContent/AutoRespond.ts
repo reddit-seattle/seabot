@@ -1,10 +1,4 @@
-import {
-  EmojiIdentifierResolvable,
-  GuildEmoji,
-  Message,
-  MessagePayload,
-  MessageReplyOptions,
-} from "discord.js";
+import { EmojiIdentifierResolvable, GuildEmoji, Message } from "discord.js";
 
 import ContentCommand from "./ContentCommand";
 
@@ -89,8 +83,6 @@ export default new ContentCommand({
             : response.reaction;
         await message.react(emoji);
       }
-      // One response per customer, please.
-      break;
     }
 
     function shouldRespond(trigger: string | RegExp, reaction: AutoResponse) {

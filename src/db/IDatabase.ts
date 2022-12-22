@@ -3,7 +3,7 @@ import { SqlQuerySpec } from "@azure/cosmos";
 export default interface IDatabase<T> {
   init: () => Promise<void>;
 
-  find: (querySpec: string) => Promise<Array<T>>;
+  find: (querySpec: string | SqlQuerySpec) => Promise<Array<T>>;
 
   addItem: (item: T) => Promise<T>;
 

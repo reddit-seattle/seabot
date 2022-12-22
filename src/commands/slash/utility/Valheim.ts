@@ -1,6 +1,5 @@
 import {
   SlashCommandBuilder,
-  Message,
   ChatInputCommandInteraction,
   EmbedBuilder,
 } from "discord.js";
