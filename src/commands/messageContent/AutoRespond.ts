@@ -23,7 +23,7 @@ const responseMap = new Map<string | RegExp, AutoResponse>([
   [/puya[1ilӏ]{1,2}up/i, { reaction: () => emojiFromName("downvote") }],
   [/bruh/i, { reaction: () => emojiFromName("bruh") }],
   [/^SEA$/im, { message: "HAWKS!" }],
-  [/(tbf|to be fair)/i, { message: Strings.letterkennyGif, chance: 0.75 }],
+  [/(tbf|to be fair)/i, { message: Strings.letterkennyGif, chance: 0.33 }],
 ]);
 
 function emojiFromName(emojiName: string): GuildEmoji {
