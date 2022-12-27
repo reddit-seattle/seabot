@@ -118,71 +118,9 @@ export default class DiscordBot {
       Events.GuildMemberRemove,
       this.showRevolvingSimpsonsDoor
     );
-    eventRouter.addEventListener(
-      Events.ThreadCreate,
-      async (thread: ThreadChannel, newlyCreated: boolean) => {
-        if (newlyCreated) {
-          const { guild, name } = thread;
-          const owner = await thread.fetchOwner();
-          await this.modLogEntry(guild, {
-            embeds: [
-              new EmbedBuilder({
-                title:  `${thread.type === ChannelType.PrivateThread ? 'Private ' : ''}Thread created`,
-                description: name,
-                fields: [
-                {
-                  name: 'Owner',
-                  value: owner?.user?.username ?? '`oops`'
-                },
-                {
-                  name: 'Created',
-                  value: thread.createdAt?.toDateString() ?? '`oops`',
-                },
-                {
-                  name: 'Link',
-                  value: `[View Thread in ${thread.parent?.name ?? 'channel'}](${thread.url})`
-                }
-                ]
-              })
-            ]
-          });
-        }
-      }
-    );
-    eventRouter.addEventListener(
-      Events.ThreadDelete,
-      async (thread: ThreadChannel) => {
-        const { guild, name } = thread;
-        const owner = await thread.fetchOwner();
-        const lastMessage = await (await thread.fetch()).lastMessage?.fetch();
-        await this.modLogEntry(guild, {
-          embeds: [
-            new EmbedBuilder({
-              title:  `Thread deleted`,
-              description: name,
-              fields: [
-              {
-                name: 'Created',
-                value: thread.createdAt?.toDateString() ?? '`oops`',
-              },
-              {
-                name: 'Owner',
-                value: owner?.user?.username ?? '`oops`',
-              },
-              {
-                name: 'Messages',
-                value: `${thread.messageCount}`
-              },
-              {
-                name: 'Last message',
-                value: lastMessage?.content ?? '`oops`'
-              }
-              ]
-            })
-          ]
-        });
-      }
-    )
+    eventRouter.addEventListener(Events.ThreadCreate, this.logThreadCreation);
+    eventRouter.addEventListener(Events.ThreadDelete, this.logThreadDeletion);
+
     if (Environment.sendTelemetry && logger) {
       eventRouter.addEventListener(
         Events.MessageCreate,
@@ -207,6 +145,84 @@ export default class DiscordBot {
     }
   }
 
+  private async logThreadDeletion(thread: ThreadChannel) {
+    const { guild, name, lastMessage, id } = thread;
+    const owner = thread.ownerId
+      ? await guild.members.cache.get(thread.ownerId)
+      : undefined;
+    await this.modLogEntry(guild, {
+      embeds: [
+        new EmbedBuilder({
+          title: `Thread deleted`,
+          description: name,
+          fields: [
+            {
+              name: "Created",
+              value: thread.createdAt?.toDateString() ?? "`idk`",
+            },
+            {
+              name: "Owner",
+              value: owner?.user?.username ?? "`idk`",
+            },
+            {
+              name: "Messages",
+              value: `${thread.messageCount}`,
+            },
+            {
+              name: "Last message",
+              value:
+                lastMessage?.content ?? "`Could not retrieve last message`",
+            },
+            {
+              name: "Thread ID",
+              value: id,
+            },
+          ],
+        }),
+      ],
+    });
+  }
+
+  private async logThreadCreation(
+    thread: ThreadChannel,
+    newlyCreated: boolean
+  ) {
+    if (newlyCreated) {
+      const { guild, name, id } = thread;
+      const owner = await thread.fetchOwner();
+      await this.modLogEntry(guild, {
+        embeds: [
+          new EmbedBuilder({
+            title: `${
+              thread.type === ChannelType.PrivateThread ? "Private " : ""
+            }Thread created`,
+            description: name,
+            fields: [
+              {
+                name: "Owner",
+                value: owner?.user?.username ?? "`idk`",
+              },
+              {
+                name: "Created",
+                value: thread.createdAt?.toDateString() ?? "`idk`",
+              },
+              {
+                name: "Link",
+                value: `[View Thread in ${thread.parent?.name ?? "channel"}](${
+                  thread.url
+                })`,
+              },
+              {
+                name: "Thread ID",
+                value: id,
+              },
+            ],
+          }),
+        ],
+      });
+    }
+  }
+
   private async showNewMemberMessage(member: GuildMember) {
     if (Date.now() - member.user!.createdTimestamp < minutesToMilliseconds(5)) {
       member.send(`
@@ -217,12 +233,14 @@ export default class DiscordBot {
     }
   }
 
-  private async modLogEntry(guild: Guild, content: string | MessagePayload | MessageCreateOptions) {
-    if(!this._modLogChannelId) return;
+  private async modLogEntry(
+    guild: Guild,
+    content: string | MessagePayload | MessageCreateOptions
+  ) {
+    if (!this._modLogChannelId) return;
     const logChannel = await guild.channels.fetch(this._modLogChannelId);
     if (logChannel?.isTextBased()) {
       await logChannel.send(content);
     }
   }
-
 }
