@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - bpi
+name: send it
 
 on:
   push:
@@ -30,11 +30,14 @@ jobs:
       - name: pack it up
         run: npm run pack --if-present
 
+      - name: tie it down
+        run: zip -r deploy.zip dist
+
       - name: upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: node-app
-          path: dist
+          path: deploy.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -56,4 +59,4 @@ jobs:
           app-name: 'bpi'
           slot-name: 'production'
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_a2eaf46bf295409e962e329c53788d4d }}
-          package: .
+          package: deploy.zip
