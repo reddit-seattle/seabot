@@ -68,11 +68,6 @@ export default class DiscordBot {
     return this._errorLogger;
   }
 
-  private _modLogChannelId: string | undefined;
-  public get modLogChannelId() {
-    return this._modLogChannelId;
-  }
-
   constructor() {
     /*
         TODO: This code can be enabled once there is a cosmos database set up to receive errors.
@@ -81,7 +76,6 @@ export default class DiscordBot {
             : new DBConnector<Error>(cosmosClient as CosmosClient, Database.DATABASE_ID, "Logs");
         */
     this._errorLogger = new ErrorLogger(new InMemoryDbConnector<Error>());
-    this._modLogChannelId = configuration.channelIds?.["MOD_LOG"];
   }
 
   public async login(botToken: string) {
@@ -150,7 +144,7 @@ export default class DiscordBot {
     const owner = thread.ownerId
       ? await guild.members.cache.get(thread.ownerId)
       : undefined;
-    await this.modLogEntry(guild, {
+    await modLogEntry(guild, {
       embeds: [
         new EmbedBuilder({
           title: `Thread deleted`,
@@ -190,7 +184,7 @@ export default class DiscordBot {
     if (newlyCreated) {
       const { guild, name, id } = thread;
       const owner = await thread.fetchOwner();
-      await this.modLogEntry(guild, {
+      await modLogEntry(guild, {
         embeds: [
           new EmbedBuilder({
             title: `${
@@ -232,15 +226,16 @@ export default class DiscordBot {
             While you wait, feel free to browse our welcome channel for some basic rules and channel descriptions.`);
     }
   }
-
-  private async modLogEntry(
-    guild: Guild,
-    content: string | MessagePayload | MessageCreateOptions
-  ) {
-    if (!this._modLogChannelId) return;
-    const logChannel = await guild.channels.fetch(this._modLogChannelId);
-    if (logChannel?.isTextBased()) {
-      await logChannel.send(content);
-    }
-  }
 }
+
+const modLogEntry = async (
+  guild: Guild,
+  content: string | MessagePayload | MessageCreateOptions
+) => {
+  const modLogChannelId = configuration.channelIds?.["MOD_LOG"];
+  if (!modLogChannelId) return;
+  const logChannel = await guild.channels.fetch(modLogChannelId);
+  if (logChannel?.isTextBased()) {
+    await logChannel.send(content);
+  }
+};
