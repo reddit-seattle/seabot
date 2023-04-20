@@ -25,6 +25,12 @@ export default new SlashCommand({
             await fetch(`https://reddit.com/r/${subreddit}/about.json`)
         ).json();
         const { data: aboutData } = aboutResponse;
+
+        if (!aboutData) {
+            interaction.followUp("That subreddit returned no public data.");
+            return;
+        }
+
         const {
             public_description,
             over18,
@@ -34,6 +40,7 @@ export default new SlashCommand({
             display_name_prefixed,
         } = aboutData;
 
+        // shame, shame
         if (over18) {
             interaction.followUp({ ephemeral: true, content: "ಠ_ಠ" });
             return;
