@@ -7,6 +7,7 @@ import rjCommands from "./rj";
 import roleCommands from "./role";
 import utilityCommands from "./utility";
 import weatherCommands from "./weather";
+import redditCommands from "./reddit";
 
 const commands: SlashCommand[] = [
   ...databaseCommands,
@@ -17,6 +18,7 @@ const commands: SlashCommand[] = [
   ...roleCommands,
   ...utilityCommands,
   ...weatherCommands,
+  ...redditCommands,
 ];
 
 export default commands;
