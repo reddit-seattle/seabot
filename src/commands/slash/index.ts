@@ -9,6 +9,7 @@ import utilityCommands from "./utility";
 import weatherCommands from "./weather";
 import redditCommands from "./reddit";
 import modCommands from "./mod";
+import timeoutCommands from "./timeout"
 
 const commands: SlashCommand[] = [
   ...databaseCommands,
@@ -21,6 +22,7 @@ const commands: SlashCommand[] = [
   ...weatherCommands,
   ...redditCommands,
   ...modCommands,
+  ...timeoutCommands,
 ];
 
 export default commands;
