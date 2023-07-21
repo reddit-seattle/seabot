@@ -46,6 +46,7 @@ export default class SlashCommandRouter extends CommandRouter {
         const command = commands[commandName];
         if (command?.builder) {
           registeredCommands.push(command.builder.toJSON());
+          console.dir(command)
         }
       }
 
