@@ -132,8 +132,8 @@ export default class DiscordBot {
     if (!member.joinedAt) return;
 
     if (Date.now() - member.joinedAt.getTime() < minutesToMilliseconds(5)) {
-      const { guild, nickname } = member;
-      guild?.systemChannel?.send(`Thanks for stopping by, ${nickname}
+      const { guild, nickname, user } = member;
+      guild?.systemChannel?.send(`Thanks for stopping by, ${nickname ?? user.username}
         https://media.giphy.com/media/fDO2Nk0ImzvvW/giphy.gif`
       );
     }
