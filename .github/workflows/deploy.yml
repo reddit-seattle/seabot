@@ -1,0 +1,40 @@
+name: send it to prod
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+        required: true
+jobs:
+  build:
+    uses: "./.github/workflows/build.yml"
+    with:
+      dev: false
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: seabot
+
+      - name: "Deploy to Azure Web App"
+        id: deploy-to-webapp
+        env:
+          profile: ${{ inputs.environment == 'production' && secrets.AzureAppService_PublishProfile_a2eaf46bf295409e962e329c53788d4d || secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2A4CED61642B4E7FA66FA99139320C61 }}
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "bpi"
+          slot-name: "production"
+          publish-profile: ${{ env.profile }}
+          package: seabot.zip
