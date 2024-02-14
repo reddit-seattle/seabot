@@ -36,6 +36,7 @@
   "scripts": {
     "clean": "rimraf ./dist/",
     "build": "npm run clean && tsc",
+    "tsc": "tsc",
     "install:dist": "cd ./dist/ && npm ci --omit=dev",
     "seabot": "node dist/server.js",
     "pack:dev": "npm run clean && webpack --config-name dev && npm run install:dist",

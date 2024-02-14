@@ -1,34 +1,67 @@
-import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  GuildMember,
+  SlashCommandBuilder,
+} from "discord.js";
 import SlashCommand from "../SlashCommand";
 
-const MAX_TIMEOUT = 1000 * 60 * 60 * 4; // 4 hours
+const MAX_TIMEOUT_IN_MINUTES = 60 * 4; // 4 hours
+
+const MINUTES = "M";
+const HOURS = "H";
 
 export default new SlashCommand({
-    name: 'time-me-out',
-    description: 'take a timeout',
-    builder: new SlashCommandBuilder()
-        .setName('time-me-out')
-        .setDescription('take a timeout')
-        .addIntegerOption(opt => 
-            opt.setName('seconds')
-                .setDescription('seconds to be timed out for (default 60)')
-                .setRequired(false)
-        ),
-    execute: async (interaction: ChatInputCommandInteraction) => {
-        const {options, channel} = interaction;
-        await interaction.deferReply({ephemeral: true});
-        const timeoutSeconds = options.getInteger('seconds', false) ?? 60;
+  name: "time-me-out",
+  description: "take a timeout",
+  builder: new SlashCommandBuilder()
+    .setName("time-me-out")
+    .setDescription("take a timeout")
+    .addIntegerOption((opt) =>
+      opt.setName("amount").setRequired(true).setDescription("how many")
+    )
+    .addStringOption((opt) =>
+      opt
+        .setName("unit")
+        .setRequired(true)
+        .setDescription("hours / minutes")
+        .setChoices(
+          { name: "hours", value: HOURS },
+          { name: "minutes", value: MINUTES }
+        )
+    ),
+  execute: async (interaction: ChatInputCommandInteraction) => {
+    const { options, channel } = interaction;
+    const member = interaction.member as GuildMember;
 
-        if (timeoutSeconds >= MAX_TIMEOUT) {
-            await interaction.followUp("sorry that's too long, go touch grass on your own instead");
-        }
-        else {
-            const timeoutMilliseconds = timeoutSeconds * 1000;
-            const member = interaction.member as GuildMember;
-            await member.timeout(timeoutMilliseconds);
-            await interaction.followUp("enjoy the timeout, message a mod if you need help");
-            const { user } = member;
-            await channel?.send(`${user.username} has taken a timeout`);
-        }
+    // ephemeral response (private)
+    await interaction.deferReply({ ephemeral: true });
+
+    // get inputs
+    const timeoutAmount = options.getInteger("amount", true);
+    const timeoutUnit = options.getString("unit", true);
+
+    // do a lil math
+    const timeoutInMinutes = timeoutAmount * (timeoutUnit == HOURS ? 60 : 1);
+
+    // do a lil logic
+    if (timeoutInMinutes <= 0 || timeoutInMinutes > MAX_TIMEOUT_IN_MINUTES) {
+      await interaction.followUp(
+        "sorry that's too long, go touch grass on your own instead"
+      );
+    } else {
+      // more math
+      const timeoutMilliseconds = timeoutInMinutes * 60 * 1000;
+
+      // timeout
+      await member.timeout(timeoutMilliseconds, "self-inflicted");
+
+      // tell the user
+      await interaction.followUp(
+        "Enjoy the timeout, message a mod if you need help."
+      );
+
+      // let everyone else know
+      await channel?.send(`${member.displayName} has taken a timeout`);
     }
-})
+  },
+});
