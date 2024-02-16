@@ -1,4 +1,4 @@
-name: send it to prod
+name: send it
 
 on:
   push:
@@ -32,9 +32,10 @@ jobs:
         id: deploy-to-webapp
         env:
           profile: ${{ inputs.environment == 'production' && secrets.AzureAppService_PublishProfile_a2eaf46bf295409e962e329c53788d4d || secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2A4CED61642B4E7FA66FA99139320C61 }}
+          app-name: ${{ inputs.environment == 'production' && 'bpi' || 'seabot-dev' }}
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "bpi"
+          app-name: ${{ env.app-name }}
           slot-name: "production"
           publish-profile: ${{ env.profile }}
           package: seabot.zip
