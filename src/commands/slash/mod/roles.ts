@@ -6,7 +6,8 @@ import SlashCommand from "../SlashCommand";
 
 // roles that can be assigned
 const ASSIGNABLE_ROLES = [
-    '884099771286036502'
+    '884099771286036502',
+    '853016973804699689'
 ];
 
 // users who can't be assigned roles
