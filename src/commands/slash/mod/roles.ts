@@ -3,6 +3,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import SlashCommand from "../SlashCommand";
+import { any } from "underscore";
 
 // roles that can be assigned
 const ASSIGNABLE_ROLES = [
@@ -46,7 +47,7 @@ export default new SlashCommand({
 
         const guildUser = interaction.guild?.members.cache.get(user.id);
         const userRoles = guildUser?.roles.cache.map(x => x.id) ?? [];
-        if (!userRoles.map(role => IMMUNE_ROLES.indexOf(role) >= 0 ).length) {
+        if (!any(userRoles, (role) => IMMUNE_ROLES.indexOf(role) >= 0)) {
             await guildUser?.roles.add(id);
             await interaction.followUp(`${user.displayName} has been given the \`${roleToAssign.name}\` role`)
             return;
