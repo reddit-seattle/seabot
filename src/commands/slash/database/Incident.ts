@@ -9,6 +9,7 @@ import { Database } from "../../../utils/constants";
 import { DatabaseCommand } from "./DatabaseCommand";
 import { Incident as IncidentModel } from "../../../models/DBModels";
 import { millisecondsToDays } from "../../../utils/Time/conversion";
+import { relativeDateString } from "../../../utils/helpers";
 
 export default new DatabaseCommand<IncidentModel>(
   Database.Containers.INCIDENTS,
@@ -19,6 +20,9 @@ export default new DatabaseCommand<IncidentModel>(
     builder: new SlashCommandBuilder()
       .addSubcommand((cmd) =>
         cmd.setName("last").setDescription("days since last `incident`")
+      )
+      .addSubcommand((cmd) =>
+        cmd.setName("list").setDescription("list our incidents (please use sparingly)")
       )
       .addSubcommand((cmd) =>
         cmd
@@ -40,6 +44,7 @@ export default new DatabaseCommand<IncidentModel>(
 enum SubCommands {
   LAST = "last",
   NEW = "new",
+  LIST = "list",
 }
 
 async function handler(
@@ -110,6 +115,29 @@ async function handler(
       // non-mod tried to add a new incident
       interaction.followUp("You cannot perform this action. Ping a mod");
     }
+  } else if (cmd === SubCommands.LIST) {
+     //not a private response
+     await interaction.deferReply({ ephemeral: false });
+
+     const incidents = (await this.connector.listAll() as IncidentModel[])?.reverse().slice(0, 10);
+     if (!incidents?.length) {
+       // uh, we got a problem
+       interaction.followUp({
+         content: "No incidents yet. Hmm...",
+         ephemeral: true,
+       });
+       return;
+     }
+     
+     // tell everyone
+     interaction.followUp({
+       content: incidents.map((incident) => {
+        const note = incident.note || 'Unknown incident';
+        const incidentText = incident.link ? `[${note}](<${incident.link}>)` : note;
+        return `- ${incidentText}: ${relativeDateString(incident.occurrence)}`;
+       }).join("\n"),
+       ephemeral: false,
+     });
   } else {
     // idk somehow you used the command without a subcommand
     interaction.followUp("Subcommand required. RTFM");

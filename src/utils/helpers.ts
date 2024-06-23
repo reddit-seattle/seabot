@@ -19,6 +19,7 @@ import { ButtonStyle } from "discord-api-types/v10";
 
 import { Config, Environment, REGEX } from "./constants";
 import { configuration } from "../server";
+import { getUnixTime } from "date-fns";
 
 /**
  * Splits message content into an array of arguments by spaces.
@@ -168,6 +169,12 @@ export const parseApolloMarkdownLink = (apolloLink: string) => {
     url: parsed?.[2],
   };
 };
+
+export const relativeDateString = (input: string | Date) => {
+  const time = getUnixTime(new Date(input))
+  return `<t:${time}:R>`
+}
+
 
 export const isModReaction = (
   reacc: MessageReaction,

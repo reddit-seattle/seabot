@@ -79,6 +79,14 @@ export default class DBConnector<T extends ItemDefinition>
     return resource;
   }
 
+  async listAll(): Promise<T[]> {
+    if (!this.container) {
+      throw new Error("Collection is not initialized.");
+    }
+    const all = await this.container.items.readAll<T>();
+    return (await all.fetchAll()).resources;
+  }
+
   async deleteItem(itemId: string) {
     if (!this.container) {
       throw new Error("Collection is not initialized.");
