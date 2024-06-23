@@ -6,6 +6,7 @@
   "dependencies": {
     "@azure/cosmos": "^3.15.1",
     "@azure/event-hubs": "^5.8.0",
+    "date-fns": "^3.6.0",
     "discord-api-types": "^0.37.17",
     "discord.js": "^14.12.1",
     "dotenv": "8.2.0",
