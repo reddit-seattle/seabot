@@ -73,8 +73,9 @@ export default new SlashCommand({
             },
             ...posts.map((post, i) => {
                 const { title, score, permalink, num_comments, over_18 } = post;
+                const truncatedTitle = title.length > 255 ? `${title.slice(0, 252)}...` : title;
                 return {
-                    name: `${title}`,
+                    name: `${truncatedTitle}`,
                     value: `[**Link${
                         over_18 ? " ⚠️NSFW⚠️" : ""
                     }**](https://reddit.com${permalink}) | ${score} karma | ${num_comments} comments`,
