@@ -132,12 +132,11 @@ export default new SlashCommand({
 
       logs.push(`Setting role icon: ${emoji}`);
       try {
-        const icon = await guild?.emojis.cache.find(
-          (guild_emoji: Emoji) => guild_emoji.toString() == emoji
-        );
+        const emoji_id = REGEX.EMOJI.exec(emoji)?.[1];
+        const icon = emoji_id && await guild?.emojis.fetch(emoji_id);
         if (!icon) {
           logs.push(
-            `Error finding icon ${emoji} on this server, please ask a mod to add it`
+            `Error finding emoji ${emoji} on this server, please add it or ask a mod`
           );
           await interaction.followUp({
             ephemeral: true,
