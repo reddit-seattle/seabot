@@ -21,8 +21,14 @@ COPY . .
 # Build the TypeScript code
 RUN npm rum container:$environment
 
-# Expose the necessary ports for the Discord bot and Express web server
-EXPOSE 3000
+# Put app in new image
+FROM node:18-slim as app
+
+WORKDIR /app
+COPY --from=base /app/dist /app/dist
+COPY --from=base /app/node_modules /app/node_modules
+
+# Expose the necessary ports
 EXPOSE 8080
 
 # Set the command to run the app
