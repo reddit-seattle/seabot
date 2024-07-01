@@ -41,6 +41,8 @@
     "seabot": "node dist/server.js",
     "pack:dev": "npm run clean && webpack --config-name dev && npm run install:dist",
     "pack": "npm run clean && webpack --config-name prod && npm run install:dist",
+    "container:production": "npm run clean && webpack --config-name prod",
+    "container:development": "npm run clean && webpack --config-name dev",
     "start": " npm run build && npm run seabot",
     "launch": "npm ci && npm start",
     "dev": "nodemon -e ts,js,json --delay 2 --watch src --watch package.json --watch package-lock.json --watch tsconfig.json --watch dist\\seabotConfig.json --exec \"tsc && node dist/seabot.js\""
