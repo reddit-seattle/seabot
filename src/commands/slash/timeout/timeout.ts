@@ -28,6 +28,12 @@ export default new SlashCommand({
           { name: "hours", value: HOURS },
           { name: "minutes", value: MINUTES }
         )
+    )
+    .addStringOption((opt) =>
+      opt
+        .setName("message")
+        .setDescription("say something to the channel on your way out")
+        .setRequired(false)
     ),
   execute: async (interaction: ChatInputCommandInteraction) => {
     const { options, channel } = interaction;
@@ -39,6 +45,7 @@ export default new SlashCommand({
     // get inputs
     const timeoutAmount = options.getInteger("amount", true);
     const timeoutUnit = options.getString("unit", true);
+    const message = options.getString("message", false);
 
     // do a lil math
     const timeoutInMinutes = timeoutAmount * (timeoutUnit == HOURS ? 60 : 1);
@@ -53,7 +60,7 @@ export default new SlashCommand({
       const timeoutMilliseconds = timeoutInMinutes * 60 * 1000;
 
       // timeout
-      await member.timeout(timeoutMilliseconds, "self-inflicted");
+      await member.timeout(timeoutMilliseconds, `self-inflicted: ${message || 'No Reason'}`);
 
       // tell the user
       await interaction.followUp(
@@ -61,7 +68,8 @@ export default new SlashCommand({
       );
 
       // let everyone else know
-      await channel?.send(`${member.displayName} has taken a timeout`);
+      const display = `${member.displayName} has taken a timeout${message ? `: ${message}` : '.'}`;
+      await channel?.send(display);
     }
   },
 });
