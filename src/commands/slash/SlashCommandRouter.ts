@@ -3,11 +3,13 @@ import {
   Interaction,
   RESTPostAPIApplicationCommandsJSONBody,
   Routes,
+  TextChannel,
 } from "discord.js";
-import { Strings } from "../../utils/constants";
+import { Environment, Strings } from "../../utils/constants";
 
 import CommandRouter from "../CommandRouter";
 import SlashCommand from "./SlashCommand";
+import { configuration } from "../../server";
 
 export default class SlashCommandRouter extends CommandRouter {
   public async initialize(commands: SlashCommand[]) {
@@ -20,10 +22,23 @@ export default class SlashCommandRouter extends CommandRouter {
       if (!interaction.isChatInputCommand()) return;
 
       const command = commandMap[interaction.commandName];
+      const { options, guild } = interaction;
       if (command) {
         try {
           command.execute?.(interaction);
         } catch (error) {
+          if(Environment.DEBUG && configuration?.channelIds?.["DEBUG"]) {
+            const debugChannel = await guild?.channels.fetch(
+              configuration?.channelIds?.["DEBUG"]
+            ) as TextChannel;
+            await debugChannel?.send(`
+              Error while handling command \`${command.name}\`.
+              Options:
+              ${JSON.stringify(options)}
+              Error:
+              ${error}
+              `);
+          }
           if (interaction.replied) {
             interaction.editReply(Strings.unhandledError);
           } else {
