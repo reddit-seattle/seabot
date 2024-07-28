@@ -67,11 +67,8 @@ function announcePresence() {
   console.log("connected to servers:");
   discordBot.client.guilds.cache.forEach(async (guild) => {
     console.log(guild.name);
-    //announce when seabot process starts
-    if (
-      !Environment.DEBUG &&
-      configuration?.channelIds?.["DEBUG"]
-    ) {
+    //announce when seabot process starts (debug channel must be set)
+    if (configuration?.channelIds?.["DEBUG"]) {
       const debugChannel = await guild.channels.fetch(
         configuration.channelIds?.["DEBUG"]
       );
