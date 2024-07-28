@@ -16,6 +16,8 @@ permissions:
 jobs:
     build-and-deploy:
         environment: ${{ inputs.environment || 'Development' }}
+        env:
+            environment: ${{ inputs.environment || 'Development' }}
         runs-on: ubuntu-latest
         steps:
             - name: "Checkout Source"
@@ -28,7 +30,7 @@ jobs:
                   subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
             - name: Login to ACR and deploy
               run: |
-                  base=$(echo "seabot/${{inputs.environment || 'Development'}}" | tr '[:upper:]' '[:lower:]')
-                  env=$(echo "${{inputs.environment}}" | tr '[:upper:]' '[:lower:]')
+                  base=$(echo "seabot/${{ env.environment }}" | tr '[:upper:]' '[:lower:]')
+                  env=$(echo "${{ env.environment }}" | tr '[:upper:]' '[:lower:]')
                   az acr login --name bpidocker
                   az acr build -t $base:latest -t $base:${{ github.sha }} -r bpidocker --build-arg environment=$env .
