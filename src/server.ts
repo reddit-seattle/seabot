@@ -67,11 +67,10 @@ function announcePresence() {
   console.log("connected to servers:");
   discordBot.client.guilds.cache.forEach(async (guild) => {
     console.log(guild.name);
-    //announce when seabot process starts (only on /r/seattle currently)
+    //announce when seabot process starts
     if (
       !Environment.DEBUG &&
-      configuration?.channelIds?.["DEBUG"] &&
-      guild.id === GuildIds.Seattle
+      configuration?.channelIds?.["DEBUG"]
     ) {
       const debugChannel = await guild.channels.fetch(
         configuration.channelIds?.["DEBUG"]
