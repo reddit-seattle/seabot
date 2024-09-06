@@ -25,9 +25,9 @@ const responseMap = new Map<string | RegExp, AutoResponse>([
   [/^SEA$/im, { message: "HAWKS!" }],
   [/(tbf|to be fair)/i, { message: Strings.letterkennyGif, chance: 0.33 }],
   [/(\s|^)eggs?/i, {reaction: "🥚", chance: 0.2}],
-  [/nytimes.com/i, { reaction: () => emojiFromName("poop"), trim: true }],
-  [/washingtonpost.com/i, { reaction: () => emojiFromName("poop"), trim: true }],
-  [/wsj.com/i, { reaction: () => emojiFromName("poop"), trim: true }]
+  [/nytimes.com/i, { reaction: "💩"}],
+  [/washingtonpost.com/i, { reaction: "💩" }],
+  [/wsj.com/i, { reaction: "💩" }]
 ]);
 
 function emojiFromName(emojiName: string): GuildEmoji {
