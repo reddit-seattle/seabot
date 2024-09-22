@@ -12,30 +12,16 @@ import {
   REST,
   ThreadChannel,
 } from "discord.js";
-import { EventHubProducerClient } from "@azure/event-hubs";
 
 import createCommandRouters from "../commands/createCommandRouters";
 import DiscordEventRouter from "./DiscordEventRouter";
 import ErrorLogger from "./ErrorLogger";
 import InMemoryDbConnector from "../db/InMemoryDbConnector";
 
-import { cosmosClient } from "../db/cosmosClient";
 import { Environment } from "../utils/constants";
 import { MessageTelemetryLogger } from "../utils/MessageTelemetryLogger";
 import { minutesToMilliseconds } from "../utils/Time/conversion";
 import { configuration } from "../server";
-
-let logger: MessageTelemetryLogger | null = null;
-let eventHubMessenger;
-
-if (cosmosClient) {
-  eventHubMessenger = new EventHubProducerClient(
-    Environment.ehConnectionString,
-    Environment.Constants.telemetryEventHub
-  );
-  logger = new MessageTelemetryLogger(eventHubMessenger);
-}
-
 export default class DiscordBot {
   private _client = new Client({
     intents: [
@@ -115,7 +101,8 @@ export default class DiscordBot {
     eventRouter.addEventListener(Events.ThreadCreate, this.logThreadCreation);
     eventRouter.addEventListener(Events.ThreadDelete, this.logThreadDeletion);
 
-    if (Environment.sendTelemetry && logger) {
+    if (Environment.sendTelemetry) {
+      const logger = new MessageTelemetryLogger(Environment.ehConnectionString, Environment.Constants.telemetryEventHub);
       eventRouter.addEventListener(
         Events.MessageCreate,
         logger.logMessageTelemetry
