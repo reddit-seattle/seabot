@@ -31,7 +31,7 @@ export class MessageTelemetryLogger {
         "timestamp": timestamp,
       }
     });
-    if (added && this?.batch?.count == this.messageQueueSize) {
+    if (added && this?.batch?.count >= this.messageQueueSize) {
       await this.client.sendBatch(this.batch);
       this.batch = await this.client.createBatch();
     }
