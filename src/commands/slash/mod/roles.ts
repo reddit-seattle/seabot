@@ -8,7 +8,8 @@ import { any } from "underscore";
 // roles that can be assigned
 const ASSIGNABLE_ROLES = [
     '884099771286036502',
-    '853016973804699689'
+    '853016973804699689',
+    '1333912863605002271'
 ];
 
 // users who can't be assigned roles
