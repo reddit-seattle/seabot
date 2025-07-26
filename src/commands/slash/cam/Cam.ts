@@ -45,7 +45,7 @@ async function getCurrentSeattleImage(webcams = SEATTLE_WEBCAMS): Promise<{ buff
             });
 
             if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
-                const buffer = await response.buffer();
+                const buffer = Buffer.from(await response.arrayBuffer());
                 if (buffer.length > 1000) {
                     return {
                         buffer,
