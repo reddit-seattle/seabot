@@ -24,7 +24,7 @@ const WEBCAM_CONFIG = {
         {
             id: "qa",
             url: "https://cdn.tegna-media.com/king/weather/queenanne.jpg",
-            description: " Queen Anne Hill",
+            description: "Queen Anne Hill",
             zip: "98109",
             enabled: true
         }
@@ -158,7 +158,7 @@ export default new SlashCommand({
                 return;
             }
 
-            const filename = 'cam.jpg'
+            const filename = 'cam.jpg';
 
             // Get weather/time context
             const weatherContext = await getSeattleWeatherContext(imageResult.zip);
