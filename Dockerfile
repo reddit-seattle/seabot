@@ -1,35 +1,47 @@
-# Use the official Node.js 14 image as the base image
-FROM node:18 as base
+# Multi-stage build for optimized production image
+FROM node:18-alpine AS build
 
-# Set the environment for dev or prod configs
-# TODO - figure out a better way to do this
-ARG environment
+ARG environment=prod
 
-
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the package.json and package-lock.json files to the working directory
+# Install dependencies first for better caching
 COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Install the app dependencies
-RUN npm ci
-
-# Copy the rest of the app source code to the working directory
+# Build the application
 COPY . .
+RUN npm run build
 
-# Build the TypeScript code
-RUN npm rum container:$environment
-
-# Put app in new image
-FROM node:18-slim as app
-
+# Production stage
+FROM node:18-alpine AS production
 WORKDIR /app
-COPY --from=base /app/dist /app/dist
-COPY --from=base /app/node_modules /app/node_modules
 
-# Expose the necessary ports
+# Install SQLite for better platform support
+RUN apk add --no-cache sqlite
+
+# Create data directory with proper permissions
+RUN mkdir -p /app/data
+
+# Copy built application and dependencies from build stage
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./
+
+# Set environment to production
+ENV NODE_ENV=production
+
+# Create a non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S seabot -u 1001 -G nodejs
+
+# Change ownership of app directory
+RUN chown -R seabot:nodejs /app
+USER seabot
+
+# Expose port
 EXPOSE 8080
 
-# Set the command to run the app
-CMD ["node", "dist/seabot.js"]
+
+# Start the application
+CMD ["node", "dist/server.js"]
