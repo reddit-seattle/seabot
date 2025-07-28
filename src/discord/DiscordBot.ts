@@ -101,6 +101,7 @@ export default class DiscordBot {
     eventRouter.addEventListener(Events.ThreadCreate, this.logThreadCreation);
     eventRouter.addEventListener(Events.ThreadDelete, this.logThreadDeletion);
 
+    // EventHub telemetry for analytics
     if (Environment.sendTelemetry) {
       const logger = new MessageTelemetryLogger(Environment.ehConnectionString, Environment.Constants.telemetryEventHub);
       eventRouter.addEventListener(

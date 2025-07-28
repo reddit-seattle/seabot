@@ -17,10 +17,8 @@ export default interface ISeabotConfig {
     categories: Array<AutoDeleteConfiguration>;
   };
 
-  telemetry?: {
-    channels?: Array<string>;
-    categories?: Array<string>;
-  };
+  // EventHub telemetry (for analytics, not database)
+  telemetryCategories?: Array<string>;
 
   channelIds?: { [key: string]: string };
 
