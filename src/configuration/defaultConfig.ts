@@ -6,10 +6,6 @@ const defaultConfig: ISeabotConfig = {
     triggerChannelId: "",
   },
   autoDeleteMessages: undefined,
-  telemetry: {
-    channels: undefined,
-    categories: undefined,
-  },
   channelIds: undefined,
   roleIds: {
     moderator: "",

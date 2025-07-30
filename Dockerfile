@@ -1,35 +1,41 @@
-# Use the official Node.js 14 image as the base image
-FROM node:18 as base
+FROM node:22-alpine AS build
 
-# Set the environment for dev or prod configs
-# TODO - figure out a better way to do this
-ARG environment
+ARG environment=development
 
-
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the package.json and package-lock.json files to the working directory
+# Deps
 COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Install the app dependencies
-RUN npm ci
-
-# Copy the rest of the app source code to the working directory
+# Build
 COPY . .
+RUN npm run container:$environment
 
-# Build the TypeScript code
-RUN npm rum container:$environment
-
-# Put app in new image
-FROM node:18-slim as app
-
+# Stage
+FROM node:22-alpine AS production
 WORKDIR /app
-COPY --from=base /app/dist /app/dist
-COPY --from=base /app/node_modules /app/node_modules
 
-# Expose the necessary ports
+# Create data dir
+RUN mkdir -p /app/data
+
+# copy build artifacts
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./
+
+# we're lawyers
+ENV NODE_ENV=production
+
+# try to be safe
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S seabot -u 1001 -G nodejs
+RUN chown -R seabot:nodejs /app
+USER seabot
+
+# Expose my port
 EXPOSE 8080
 
-# Set the command to run the app
-CMD ["node", "dist/seabot.js"]
+
+# lfg
+CMD ["node", "dist/server.js"]

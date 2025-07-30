@@ -5,37 +5,10 @@ dotenv.config();
 export module Database {
   export const DATABASE_ID = "seabot";
   export module Containers {
-    export const AWARDS = "Awards";
     export const INCIDENTS = "Incidents";
-    export const TELEMETRY = "MessageTelemetry";
   }
   export module Queries {
-    export const AWARDS_BY_USER = (userId: string): SqlQuerySpec => {
-      return {
-        query: "SELECT * FROM Awards a where a.awardedTo = @userId",
-        parameters: [
-          {
-            name: "@userId",
-            value: userId,
-          },
-        ],
-      };
-    };
-    export const TELEMETRY: SqlQuerySpec = {
-      query: "SELECT * FROM MessageTelemetry",
-    };
-    export const TELEMETRY_BY_CHANNEL = (channelId: string): SqlQuerySpec => {
-      return {
-        query:
-          "SELECT * FROM MessageTelemetry t where t.channelId = @channelId",
-        parameters: [
-          {
-            name: "@channelId",
-            value: channelId,
-          },
-        ],
-      };
-    };
+    // Add incident queries here when needed
   }
 }
 
@@ -64,10 +37,6 @@ export module REGEX {
   export const URL =
     /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/g;
   export const HEX = /^[0-9A-F]{6}$/i;
-}
-export module Hue {
-  export const HUE_GO_ID = "9";
-  export const HUE_GO_UNIQUE_ID = "00:17:88:01:09:80:e5:38-0b";
 }
 export module Config {
   export const prefix = "$";
@@ -135,19 +104,12 @@ export module Strings {
 
 export module Environment {
   export module Constants {
-    export const hueAccessToken = "hueAccessToken";
-    export const hueRefreshToken = "hueRefreshToken";
-    export const hueEnabled = "hueEnabled";
     export const telemetryEventHub = "messages";
   }
   export const DEBUG = process.env["seabotDEBUG"] == "true" || false;
   export const botToken = process.env["botToken"] || undefined;
   export const weatherAPIKey = process.env["weatherAPIKey"] || "";
   export const airQualityAPIKey = process.env["airQualityAPIKey"] || "";
-  export const hueClientId = process.env["hueClientId"] || undefined;
-  export const hueAppId = process.env["hueAppId"] || undefined;
-  export const hueClientSecret = process.env["hueClientSecret"] || undefined;
-  export const hueState = process.env["hueState"] || undefined;
   export const cosmosHost = process.env["cosmosHost"] || "";
   export const cosmosAuthKey = process.env["cosmosAuthKey"] || "";
   export const ehConnectionString = process.env["ehConnectionString"] || "";

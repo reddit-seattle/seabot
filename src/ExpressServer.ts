@@ -1,41 +1,42 @@
 import express from "express";
-
-import { Environment } from "./utils/constants";
-import { SetHueTokens } from "./utils/helpers";
+import fs from "fs";
+import path from "path";
+import { formatUptime } from "./utils/helpers";
 
 export default class ExpressServer {
   private _server;
+  private _startTime: Date;
 
   constructor() {
     this._server = express();
-
-    // A response on the root is required by Azure Web Apps at port 8080 to monitor container health.
+    this._startTime = new Date();
+    // TODO - make this a badass web page
     this._server.get("/", (request, response) => {
-      response.send("Discord bot active.");
-    });
-
-    // hue auth flow configuration
-    this._server.get("/seabot_hue", async (request, response) => {
+      const uptime = process.uptime();
+      const uptimeFormatted = formatUptime(uptime);
+      
+      // Try to get package.json
+      let packageInfo: any = {};
       try {
-        const { code, state } = request?.query;
-        if (!state || state != Environment.hueState) {
-          throw new Error("Invalid state value");
+        const packagePath = path.join(__dirname, "../package.json");
+        if (fs.existsSync(packagePath)) {
+          packageInfo = JSON.parse(fs.readFileSync(packagePath, "utf8"));
         }
-        const result = await SetHueTokens(code as string);
-        if (result?.success) {
-          response.writeHead(200, { "Content-Type": "text/plain" });
-          response.write(`Successfully set Hue access and refresh tokens!`);
-          response.end();
-        } else {
-          throw new Error(result.error);
-        }
-      } catch (e: any) {
-        response.writeHead(400, { "Content-Type": "text/plain" });
-        response.write(`
-                    Something (bad) happened trying to get auth code / set tokens:</br>
-                    ${JSON.stringify(e)}`);
-        response.end();
+      } catch (error) {
+        console.log("Error reading package.json:", error);
       }
+
+      const buildInfo = {
+        name: packageInfo.name || "seabot",
+        version: packageInfo.version || "unknown",
+        description: packageInfo.description || "a bot. in SEA.",
+        uptime: uptimeFormatted,
+        startedAt: this._startTime.toISOString(),
+        lastUpdated: new Date().toISOString(),
+        status: "vibin"
+      };
+
+      response.json(buildInfo);
     });
   }
 
