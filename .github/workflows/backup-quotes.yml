@@ -1,0 +1,75 @@
+name: Backup Quotes
+
+on:
+  schedule:
+    # midnight Pacific
+    - cron: '0 8 * * *'
+  workflow_dispatch: # triggered
+
+jobs:
+  backup-quotes:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    - name: Fetch quotes data
+      id: fetch-quotes
+      run: |
+        echo "Fetching quotes from ub3r-b0t..."
+        curl -f -o quotes.json "https://admin.ub3r-b0t.com/quotes?id=370945003566006272&key=${{ secrets.UB3R_B0T_QUOTE_KEY }}"
+        
+        # data exists
+        if [ ! -f quotes.json ]; then
+          echo "Error: Failed to download quotes.json"
+          exit 1
+        fi
+        
+        # data is json
+        if ! jq empty quotes.json 2>/dev/null; then
+          echo "Error: Downloaded file is not valid JSON"
+          exit 1
+        fi
+        
+        # data has girth
+        BYTE_COUNT=$(wc -c < quotes.json)
+        if [ "$BYTE_COUNT" -lt 10 ]; then
+          echo "Error: Downloaded file is too small ($BYTE_COUNT bytes) - likely empty or invalid"
+          exit 1
+        fi
+        
+        echo "$(wc -c < quotes.json) bytes of digital graffiti"
+
+    - name: Upload to Azure Storage
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.53.0
+        inlineScript: |
+          az storage blob upload \
+            --account-name ${{ secrets.QUOTES_STORAGE_ACCOUNT_NAME }} \
+            --container-name quotes \
+            --name quotes.json \
+            --file quotes.json \
+            --overwrite \
+            --content-type application/json \
+            --auth-mode login
+
+    - name: Verify upload
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.53.0
+        inlineScript: |
+          az storage blob show \
+            --account-name ${{ secrets.QUOTES_STORAGE_ACCOUNT_NAME }} \
+            --container-name quotes \
+            --name quotes.json \
+            --query "{name: name, lastModified: properties.lastModified, contentLength: properties.contentLength}" \
+            --output table \
+            --auth-mode login
