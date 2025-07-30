@@ -1,4 +1,4 @@
-FROM node:18-alpine AS build
+FROM node:22-alpine AS build
 
 ARG environment=prod
 
@@ -13,7 +13,7 @@ COPY . .
 RUN npm run build
 
 # Stage
-FROM node:18-alpine AS production
+FROM node:22-alpine AS production
 WORKDIR /app
 
 # Install SQLite
