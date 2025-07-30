@@ -38,4 +38,4 @@ EXPOSE 8080
 
 
 # lfg
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/seabot.js"]
