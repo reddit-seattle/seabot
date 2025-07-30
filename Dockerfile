@@ -10,7 +10,7 @@ RUN npm ci --omit=dev
 
 # Build
 COPY . .
-RUN npm run build
+RUN npm run container:production
 
 # Stage
 FROM node:22-alpine AS production
