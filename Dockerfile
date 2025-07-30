@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Deps
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # Build
 COPY . .
