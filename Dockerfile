@@ -1,6 +1,6 @@
 FROM node:22-alpine AS build
 
-ARG environment=prod
+ARG environment=development
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN npm ci --omit=dev
 
 # Build
 COPY . .
-RUN npm run container:production
+RUN npm run container:$environment
 
 # Stage
 FROM node:22-alpine AS production
