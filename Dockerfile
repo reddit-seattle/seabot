@@ -16,9 +16,6 @@ RUN npm run container:$environment
 FROM node:22-alpine AS production
 WORKDIR /app
 
-# Install SQLite
-RUN apk add --no-cache sqlite
-
 # Create data dir
 RUN mkdir -p /app/data
 
