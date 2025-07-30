@@ -20,7 +20,7 @@ export class MessageTelemetryLogger {
     }
 
     // Only log telemetry for configured categories
-    if (configuration.telemetryCategories && 
+    if (configuration && configuration.telemetryCategories && 
         !configuration.telemetryCategories.includes(channel.parentId || '')) {
       return;
     }
