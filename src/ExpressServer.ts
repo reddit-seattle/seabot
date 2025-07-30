@@ -10,6 +10,7 @@ export default class ExpressServer {
   constructor() {
     this._server = express();
     this._startTime = new Date();
+    // TODO - make this a badass web page
     this._server.get("/", (request, response) => {
       const uptime = process.uptime();
       const uptimeFormatted = formatUptime(uptime);
