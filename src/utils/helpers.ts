@@ -244,3 +244,37 @@ export const formatUptime = (seconds: number): string => {
     return `${secs}s`;
   }
 };
+
+import { ColorResolvable, Colors, resolveColor } from "discord.js";
+
+/**
+ * Validates and prepares a color string as a ColorResolvable type.
+ * Supports Discord color names, hex strings (with or without #), and other ColorResolvable formats.
+ * @param color - The color string to validate
+ * @returns ColorResolvable if valid, null if invalid
+ */
+export const validateColor = (color: string | null): ColorResolvable | null => {
+  if (!color) return null;
+
+  try {
+    // Clean the input
+    let cleanColor = color.trim();
+
+    // Check if it's a Discord color name (case insensitive)
+    const colorKey = cleanColor.charAt(0).toUpperCase() + cleanColor.slice(1).toLowerCase();
+    if (Colors[colorKey as keyof typeof Colors] !== undefined) {
+      return colorKey as keyof typeof Colors;
+    }
+
+    // If it looks like a hex number without #, add the #
+    if (/^[0-9A-Fa-f]{6}$/.test(cleanColor)) {
+      cleanColor = `#${cleanColor}`;
+    }
+
+    // Test if it's a valid ColorResolvable by trying to resolve it
+    resolveColor(cleanColor as ColorResolvable);
+    return cleanColor as ColorResolvable;
+  } catch (error) {
+    return null;
+  }
+};
