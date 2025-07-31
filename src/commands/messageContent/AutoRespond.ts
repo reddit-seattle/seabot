@@ -2,7 +2,6 @@ import { GuildEmoji, Message } from "discord.js";
 
 import ContentCommand from "./ContentCommand";
 
-import { discordBot } from "../../server";
 import { replaceMentions } from "../../utils/helpers";
 import { REGEX, Strings } from "../../utils/constants";
 

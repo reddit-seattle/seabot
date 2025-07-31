@@ -4,7 +4,7 @@ import { ChatInputCommandBuilder } from "@discordjs/builders";
 import ReactionCommands from "../../reaction";
 import SlashCommand from "../SlashCommand";
 
-import { configuration, discordBot } from "../../../server";
+import { configuration } from "../../../server";
 import { Strings } from "../../../utils/constants";
 
 export default new SlashCommand({
@@ -20,7 +20,7 @@ export default new SlashCommand({
           .setName("command")
           .setDescription("The command you would like help with")
     ]),
-  async execute(message: Message, args?: string[]) {
+  async execute(message: Message) {
     // filter admin commands to only mods
     let filteredCommands = ReactionCommands.filter(
       (command) =>

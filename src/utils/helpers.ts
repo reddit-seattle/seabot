@@ -52,22 +52,22 @@ export const replaceMentions: (message: Message | PartialMessage) => string = (
   const channelMatches = Array.from(content.matchAll(REGEX.CHANNEL));
   const emojiMatches = Array.from(content.matchAll(REGEX.EMOJI));
 
-  userMatches.forEach((match, ix) => {
+  userMatches.forEach((match) => {
     const id = match[1] as `${bigint}`;
     const username = message.client.users.cache.get(id)?.username ?? "user";
     content = content!.replace(match[0], username);
   });
-  roleMatches?.forEach((match, ix) => {
+  roleMatches?.forEach((match) => {
     const id = match[1] as `${bigint}`;
     const role = message.guild?.roles.cache.get(id)?.name ?? "role";
     content = content!.replace(match[0], role);
   });
-  channelMatches?.forEach((match, ix) => {
+  channelMatches?.forEach((match) => {
     const id = match[1] as `${bigint}`;
     const channel = message.guild?.channels.cache.get(id)?.name ?? "channel";
     content = content!.replace(match[0], channel);
   });
-  emojiMatches?.forEach((match, ix) => {
+  emojiMatches?.forEach((match) => {
     const id = match[1] as `${bigint}`;
     const emoji = message.guild?.emojis.cache.get(id)?.name ?? "emoji";
     content = content!.replace(match[0], emoji);
@@ -202,7 +202,7 @@ export const processModReportInteractions = async (
         components: [],
       });
     },
-    replyReport: async (i) => {
+    replyReport: async (_i) => {
       // const embed = i.message.embeds?.[0] as MessageEmbed;
       // const embedField = embed?.fields?.[0];
       // if(embedField.name == 'ReplyID') {

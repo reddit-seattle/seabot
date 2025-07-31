@@ -1,4 +1,4 @@
-import { SqlQuerySpec } from "@azure/cosmos";
+
 import dotenv from "dotenv";
 dotenv.config();
 

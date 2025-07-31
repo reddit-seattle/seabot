@@ -11,7 +11,7 @@ export default class ExpressServer {
     this._server = express();
     this._startTime = new Date();
     // TODO - make this a badass web page
-    this._server.get("/", (request, response) => {
+    this._server.get("/", (_request, response) => {
       const uptime = process.uptime();
       const uptimeFormatted = formatUptime(uptime);
       

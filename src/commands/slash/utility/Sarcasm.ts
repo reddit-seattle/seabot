@@ -3,7 +3,6 @@ import { GuildEmoji } from "discord.js";
 
 import SlashCommand from "../SlashCommand";
 
-import { discordBot } from "../../../server";
 import { toSarcasticCase } from "../../../utils/helpers";
 
 export default new SlashCommand({
@@ -13,7 +12,7 @@ export default new SlashCommand({
     .setName("sarcasm")
     .setDescription("Make text sArCaStIc")
     .addStringOptions([
-      (option) => 
+      (option) =>
         option
           .setRequired(true)
           .setName("text")

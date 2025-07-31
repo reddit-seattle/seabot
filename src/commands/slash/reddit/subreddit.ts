@@ -105,7 +105,7 @@ export default new SlashCommand({
                     name: "Top 3 posts",
                     value: "Sorted by /hot",
                 },
-                ...posts.map((post, i) => {
+                ...posts.map((post) => {
                     const { title, score, permalink, num_comments, over_18 } = post;
                     const truncatedTitle = (title && title.length > 255) ? `${title.slice(0, 252)}...` : (title || "Untitled");
                     return {

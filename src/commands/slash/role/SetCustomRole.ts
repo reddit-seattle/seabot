@@ -1,12 +1,10 @@
 import {
   ChatInputCommandInteraction,
   DiscordAPIError,
-  Emoji,
   GuildMember,
   MessageFlags,
   resolveColor,
   Role,
-  RoleColors,
   RoleColorsResolvable,
 } from "discord.js";
 import { ChatInputCommandBuilder } from "@discordjs/builders";
@@ -15,7 +13,6 @@ import SlashCommand from "../SlashCommand";
 
 import { configuration } from "../../../server";
 import { REGEX } from "../../../utils/constants";
-import { any } from "underscore";
 
 const iconBlockList = ["thinkban"];
 

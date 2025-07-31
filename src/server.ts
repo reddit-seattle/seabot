@@ -10,7 +10,7 @@ import ExpressServer from "./ExpressServer";
 import ISeabotConfig from "./configuration/ISeabotConfig";
 import TaskScheduler from "./schedules/TaskScheduler";
 
-import { Environment, GuildIds } from "./utils/constants";
+
 import { handleVoiceStatusUpdate } from "./functions/voiceChannelManagement";
 import { processModReportInteractions } from "./utils/helpers";
 

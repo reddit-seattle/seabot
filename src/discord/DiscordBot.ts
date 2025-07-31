@@ -113,7 +113,7 @@ export default class DiscordBot {
 
   private startCommandRouters(eventRouter: DiscordEventRouter) {
     console.log("Starting command router...");
-    const commandRouters = createCommandRouters(eventRouter, this);
+    createCommandRouters(eventRouter, this);
   }
 
   private async showRevolvingSimpsonsDoor(member: GuildMember) {

@@ -40,7 +40,7 @@ export default class SlashCommand extends Command {
       .setDescription(this.description);
   }
 
-  public canExecute(...args: any[]) {
+  public canExecute() {
     return true;
   }
 

@@ -7,9 +7,6 @@ import {
   VoiceState,
 } from "discord.js";
 import { configuration } from "../server";
-import { VoiceConstants } from "../utils/constants";
-
-const { Permissions } = VoiceConstants;
 
 export const handleVoiceStatusUpdate = async (
   oldState: VoiceState,

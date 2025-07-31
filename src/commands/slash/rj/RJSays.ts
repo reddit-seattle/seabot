@@ -4,8 +4,6 @@ import { GuildEmoji, CommandInteraction } from "discord.js";
 
 import SlashCommand from "../SlashCommand";
 
-import { discordBot } from "../../../server";
-
 const RJStrings: { [id: string]: string } = {
   sad: `<rj4>`,
   hurts: `<rj4>`,
