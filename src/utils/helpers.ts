@@ -1,24 +1,27 @@
 import {
+  LinkButtonBuilder,
+  PrimaryButtonBuilder,
+  SecondaryButtonBuilder
+} from "@discordjs/builders";
+import { APIInteractionDataResolvedChannel } from "discord-api-types/v10";
+import {
+  ActionRowBuilder,
   CacheType,
+  EmbedBuilder,
   GuildBasedChannel,
   Interaction,
   Message,
-  ButtonBuilder,
   MessageComponentInteraction,
-  EmbedBuilder,
   MessageReaction,
-  PartialUser,
-  User,
-  ActionRowBuilder,
   PartialMessage,
+  PartialUser,
+  User
 } from "discord.js";
 import { now } from "moment";
-import { APIInteractionDataResolvedChannel } from "discord-api-types/v10";
-import { ButtonStyle } from "discord-api-types/v10";
 
-import { Config, Environment, REGEX } from "./constants";
-import { configuration } from "../server";
 import { getUnixTime } from "date-fns";
+import { configuration } from "../server";
+import { Config, REGEX } from "./constants";
 
 /**
  * Splits message content into an array of arguments by spaces.
@@ -128,17 +131,15 @@ export const buildModActionRow = (
   guildId: string,
   options: ModActionOptions
 ) => {
-  const ignoreButton = new ButtonBuilder()
+  const ignoreButton = new SecondaryButtonBuilder()
     .setCustomId("ignoreReport")
-    .setEmoji("🔇")
-    .setLabel("Ignore")
-    .setStyle(ButtonStyle.Danger);
+    .setEmoji({ name: "🔇" })
+    .setLabel("Ignore");
 
-  const ackButton = new ButtonBuilder()
+  const ackButton = new PrimaryButtonBuilder()
     .setCustomId("ackReport")
-    .setEmoji("✅")
-    .setLabel("ACK")
-    .setStyle(ButtonStyle.Primary);
+    .setEmoji({ name: "✅" })
+    .setLabel("ACK");
 
   // const replyButton = new MessageButton()
   //     .setCustomId('replyReport')
@@ -146,18 +147,14 @@ export const buildModActionRow = (
   //     .setLabel('Reply')
   //     .setStyle(MessageButtonStyles.SECONDARY);
 
-  let viewButton: ButtonBuilder | undefined = undefined;
+  let viewButton: LinkButtonBuilder | undefined = undefined;
 
   if (options.messageLink || options?.channel?.id) {
-    viewButton = new ButtonBuilder()
-      .setEmoji("👀")
+    const url = options.messageLink || createChannelLink(guildId, options.channel!.id);
+    viewButton = new LinkButtonBuilder()
+      .setEmoji({ name: "👀" })
       .setLabel("View")
-      .setStyle(ButtonStyle.Link);
-    if (options.messageLink) {
-      viewButton?.setURL(options.messageLink);
-    } else if (options?.channel?.id) {
-      viewButton?.setURL(createChannelLink(guildId, options.channel.id));
-    }
+      .setURL(url);
   }
   const buttons = [
     ignoreButton,
@@ -165,7 +162,7 @@ export const buildModActionRow = (
     // ...(options.anon ? [] : [replyButton]), // reply button WIP
     ...(viewButton ? [viewButton] : []),
   ];
-  const modActionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+  const modActionRow = new ActionRowBuilder().addComponents(
     buttons
   );
   return modActionRow;
@@ -196,8 +193,8 @@ export const processModReportInteractions = async (
       });
     },
     ackReport: async (i) => {
-      const newEmbed = EmbedBuilder.from(i.message.embeds?.[0]).setColor(
-        "Green"
+      const newEmbed = new EmbedBuilder(i.message.embeds?.[0]?.data).setColor(
+        0x00ff00
       );
       await i.update({
         content: `${i.message.content}\nReport was ACK'd by: ${i.user.username}`,

@@ -1,8 +1,9 @@
 import {
   ChatInputCommandInteraction,
   GuildMember,
-  SlashCommandBuilder,
+  MessageFlags,
 } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 import SlashCommand from "../SlashCommand";
 
 const MAX_TIMEOUT_IN_MINUTES = 60 * 4; // 4 hours
@@ -13,34 +14,34 @@ const HOURS = "H";
 export default new SlashCommand({
   name: "time-me-out",
   description: "take a timeout",
-  builder: new SlashCommandBuilder()
+  builder: new ChatInputCommandBuilder()
     .setName("time-me-out")
     .setDescription("take a timeout")
-    .addIntegerOption((opt) =>
-      opt.setName("amount").setRequired(true).setDescription("how many")
-    )
-    .addStringOption((opt) =>
-      opt
-        .setName("unit")
-        .setRequired(true)
-        .setDescription("hours / minutes")
-        .setChoices(
-          { name: "hours", value: HOURS },
-          { name: "minutes", value: MINUTES }
-        )
-    )
-    .addStringOption((opt) =>
-      opt
-        .setName("message")
-        .setDescription("say something to the channel on your way out")
-        .setRequired(false)
-    ),
+    .addIntegerOptions([
+      (opt) => opt.setName("amount").setRequired(true).setDescription("how many")
+    ])
+    .addStringOptions([
+      (opt) =>
+        opt
+          .setName("unit")
+          .setRequired(true)
+          .setDescription("hours / minutes")
+          .setChoices(
+            { name: "hours", value: HOURS },
+            { name: "minutes", value: MINUTES }
+          ),
+      (opt) =>
+        opt
+          .setName("message")
+          .setDescription("say something to the channel on your way out")
+          .setRequired(false)
+    ]),
   execute: async (interaction: ChatInputCommandInteraction) => {
     const { options, channel } = interaction;
     const member = interaction.member as GuildMember;
 
     // ephemeral response (private)
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     // get inputs
     const timeoutAmount = options.getInteger("amount", true);
@@ -69,7 +70,9 @@ export default new SlashCommand({
 
       // let everyone else know
       const display = `${member.displayName} has taken a timeout${message ? `: ${message}` : '.'}`;
-      await channel?.send(display);
+      if (channel && "send" in channel) {
+        await channel.send(display);
+      }
     }
   },
 });

@@ -1,8 +1,9 @@
 import {
   ChatInputCommandInteraction,
-  SlashCommandBuilder,
   TextChannel,
+  MessageFlags,
 } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 import SlashCommand from "../SlashCommand";
 import { DiscordAPIError } from "discord.js";
 
@@ -15,68 +16,74 @@ export default new SlashCommand({
   name: "slowmode",
   description: "set slowmode for a channel",
   adminOnly: true,
-  builder: new SlashCommandBuilder()
+  builder: new ChatInputCommandBuilder()
     .setName("slowmode")
     .setDescription("manage slowmode for a channel")
     .setDefaultMemberPermissions(0) // needs to be enabled for a group
-    .addSubcommand((cmd) =>
-      cmd
-        .setName(slowmodeSubCommands.SET)
-        .setDescription("turn on slowmode for a channel")
-        .addChannelOption((opt) =>
-          opt
-            .setName("channel")
-            .setDescription("channel to slowmode")
-            .setRequired(true)
-        )
-        .addNumberOption((opt) =>
-          opt
-            .setName("time")
-            .setDescription("slowmode time in seconds")
-            .setRequired(true)
-        )
-        .addStringOption((opt) =>
-          opt
-            .setName("reason")
-            .setDescription("Optional audit log reason for slowmode")
-            .setRequired(false)
-        )
-        .addBooleanOption((opt) =>
-          opt
-            .setName("hidden")
-            .setDescription(
-              "Hide bot response with details (default is public)"
-            )
-            .setRequired(false)
-        )
-    )
-    .addSubcommand((cmd) =>
-      cmd
-        .setName(slowmodeSubCommands.CLEAR)
-        .setDescription(
-          "disable slowmode for a channel - equivalent to `set slowmode 0`"
-        )
-        .addChannelOption((opt) =>
-          opt
-            .setName("channel")
-            .setDescription("channel to slowmode")
-            .setRequired(true)
-        )
-        .addBooleanOption((opt) =>
-          opt
-            .setName("hidden")
-            .setDescription(
-              "Hide bot response with details (default is public)"
-            )
-            .setRequired(false)
-        )
-    ),
+    .addSubcommands([
+      (cmd) =>
+        cmd
+          .setName(slowmodeSubCommands.SET)
+          .setDescription("turn on slowmode for a channel")
+          .addChannelOptions([
+            (opt) =>
+              opt
+                .setName("channel")
+                .setDescription("channel to slowmode")
+                .setRequired(true)
+          ])
+          .addNumberOptions([
+            (opt) =>
+              opt
+                .setName("time")
+                .setDescription("slowmode time in seconds")
+                .setRequired(true)
+          ])
+          .addStringOptions([
+            (opt) =>
+              opt
+                .setName("reason")
+                .setDescription("Optional audit log reason for slowmode")
+                .setRequired(false)
+          ])
+          .addBooleanOptions([
+            (opt) =>
+              opt
+                .setName("hidden")
+                .setDescription(
+                  "Hide bot response with details (default is public)"
+                )
+                .setRequired(false)
+          ]),
+      (cmd) =>
+        cmd
+          .setName(slowmodeSubCommands.CLEAR)
+          .setDescription(
+            "disable slowmode for a channel - equivalent to `set slowmode 0`"
+          )
+          .addChannelOptions([
+            (opt) =>
+              opt
+                .setName("channel")
+                .setDescription("channel to slowmode")
+                .setRequired(true)
+          ])
+          .addBooleanOptions([
+            (opt) =>
+              opt
+                .setName("hidden")
+                .setDescription(
+                  "Hide bot response with details (default is public)"
+                )
+                .setRequired(false)
+          ])
+    ]),
   execute: async (interaction: ChatInputCommandInteraction) => {
     const { options } = interaction;
     const subcmd = options.getSubcommand();
     const channel = options.getChannel("channel", true);
     const hidden = options.getBoolean("hidden", false) ?? false;
-    await interaction.deferReply({ ephemeral: hidden });
+    await interaction.deferReply({ flags: hidden ? MessageFlags.Ephemeral : undefined });
     switch (subcmd) {
       case slowmodeSubCommands.SET:
         const time = options.getNumber("time", true);

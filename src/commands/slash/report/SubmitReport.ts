@@ -1,4 +1,5 @@
-import { SlashCommandBuilder, EmbedBuilder, TextChannel } from "discord.js";
+import { EmbedBuilder, TextChannel, MessageFlags } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 import { now } from "underscore";
 
 import SlashCommand from "../SlashCommand";
@@ -11,35 +12,35 @@ export default new SlashCommand({
   name: "report",
   description: "Submit a report to the mod team",
   help: "Submit a report to the mod team",
-  builder: new SlashCommandBuilder()
+  builder: new ChatInputCommandBuilder()
     .setName("report")
     .setDescription("Submit a report to the mod team")
     // anon is required, note is required
-    .addBooleanOption((o) =>
-      o.setName("anon").setDescription("Submit anonymously").setRequired(true)
-    )
-    .addStringOption((o) =>
-      o
-        .setName("note")
-        .setDescription("Please explain the issue")
-        .setRequired(true)
-    )
+    .addBooleanOptions([
+      (o) => o.setName("anon").setDescription("Submit anonymously").setRequired(true)
+    ])
+    .addStringOptions([
+      (o) =>
+        o
+          .setName("note")
+          .setDescription("Please explain the issue")
+          .setRequired(true),
+      (o) => o.setName("message").setDescription("Message link to content")
+    ])
     // user and channel are optional
-    .addUserOption((o) =>
-      o.setName("user").setDescription("The user you want to report")
-    )
-    .addChannelOption((o) =>
-      o
-        .setName("channel")
-        .setDescription("The channel where the issue occurred")
-    )
+    .addUserOptions([
+      (o) => o.setName("user").setDescription("The user you want to report")
+    ])
+    .addChannelOptions([
+      (o) =>
+        o
+          .setName("channel")
+          .setDescription("The channel where the issue occurred")
+    ])
     // evidence not required
-    .addAttachmentOption((o) =>
-      o.setName("evidence").setDescription("Attach evidence if necessary")
-    )
-    .addStringOption((o) =>
-      o.setName("message").setDescription("Message link to content")
-    ),
+    .addAttachmentOptions([
+      (o) => o.setName("evidence").setDescription("Attach evidence if necessary")
+    ]),
   execute: async (interaction) => {
     const { options } = interaction;
     // only get username if not anonymous.
@@ -56,13 +57,13 @@ export default new SlashCommand({
     // we need a user or a channel or message
     if (!(user || channel || messageLink)) {
       await interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content:
           "Please include either a user, a channel, or a message link with your report, to help mods track it down.",
       });
       return;
     }
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const modReports = (await interaction.guild?.channels.cache
       .get(configuration.channelIds?.["MOD_REPORTS"])
       ?.fetch()) as TextChannel;

@@ -1,4 +1,5 @@
-import { Message, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { Message, EmbedBuilder, GuildEmoji } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import ReactionCommands from "../../reaction";
 import SlashCommand from "../SlashCommand";
@@ -10,11 +11,15 @@ export default new SlashCommand({
   name: "reactions",
   help: "reactions",
   description: "Display reaction command help",
-  builder: new SlashCommandBuilder().addStringOption((option) =>
-    option
-      .setName("command")
-      .setDescription("The command you would like help with")
-  ),
+  builder: new ChatInputCommandBuilder()
+    .setName("reactions")
+    .setDescription("Display reaction command help")
+    .addStringOptions([
+      (option) =>
+        option
+          .setName("command")
+          .setDescription("The command you would like help with")
+    ]),
   async execute(message: Message, args?: string[]) {
     // filter admin commands to only mods
     let filteredCommands = ReactionCommands.filter(
@@ -31,8 +36,8 @@ export default new SlashCommand({
         return;
       }
 
-      const emoji = discordBot.client.emojis.cache.find(
-        (emoji) => emoji.name === command.name
+      const emoji = message.guild?.emojis.cache.find(
+        (emoji: GuildEmoji) => emoji.name === command.name
       );
       if (emoji == undefined) {
         console.warn(
@@ -65,6 +70,8 @@ export default new SlashCommand({
         },
       ],
     });
-    message.channel.send({ embeds: [embed] });
+    if (message.channel && "send" in message.channel) {
+      message.channel.send({ embeds: [embed] });
+    }
   },
 });

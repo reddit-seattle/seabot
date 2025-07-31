@@ -1,8 +1,9 @@
 import {
-  SlashCommandBuilder,
   ChatInputCommandInteraction,
   GuildMemberRoleManager,
+  MessageFlags,
 } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import { configuration } from "../../../server";
 import { Database } from "../../../utils/constants";
@@ -17,26 +18,25 @@ export default new DatabaseCommand<IncidentModel>(
     name: "incident",
     description: "How many days since our last incident?",
     help: "incident",
-    builder: new SlashCommandBuilder()
-      .addSubcommand((cmd) =>
-        cmd.setName("last").setDescription("days since last `incident`")
-      )
-      .addSubcommand((cmd) =>
-        cmd.setName("list").setDescription("list our incidents (please use sparingly)")
-      )
-      .addSubcommand((cmd) =>
-        cmd
-          .setName("new")
-          .setDescription("indicates that a new incident has occurred")
-          .addStringOption((option) =>
-            option
-              .setName("link")
-              .setDescription("message link to start of incident")
-          )
-          .addStringOption((option) =>
-            option.setName("note").setDescription("what went down")
-          )
-      ),
+    builder: new ChatInputCommandBuilder()
+      .setName("incident")
+      .setDescription("How many days since our last incident?")
+      .addSubcommands([
+        (cmd) => cmd.setName("last").setDescription("days since last `incident`"),
+        (cmd) => cmd.setName("list").setDescription("list our incidents (please use sparingly)"),
+        (cmd) =>
+          cmd
+            .setName("new")
+            .setDescription("indicates that a new incident has occurred")
+            .addStringOptions([
+              (option) =>
+                option
+                  .setName("link")
+                  .setDescription("message link to start of incident"),
+              (option) =>
+                option.setName("note").setDescription("what went down")
+            ])
+      ]),
     execute: handler,
   }
 );
@@ -54,14 +54,14 @@ async function handler(
   const cmd = interaction.options.getSubcommand(true);
   if (cmd === SubCommands.LAST) {
     //not a private response
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply();
     // find the last incident
     const incident = await this.connector.getLastItem();
     if (!incident) {
       // uh, we got a problem
       interaction.followUp({
         content: "No incidents yet. Hmm...",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -75,11 +75,10 @@ async function handler(
       } since the last incident.\n***${
         incident.note ?? "No note provided for this incident."
       }***${incident.link ? `\n${incident.link}` : ``}`,
-      ephemeral: false,
     });
   } else if (cmd === SubCommands.NEW) {
     // private response
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     // mod only
     const { member } = interaction;
@@ -117,14 +116,14 @@ async function handler(
     }
   } else if (cmd === SubCommands.LIST) {
      //not a private response
-     await interaction.deferReply({ ephemeral: false });
+     await interaction.deferReply();
 
      const incidents = (await this.connector.listAll() as IncidentModel[])?.reverse().slice(0, 10);
      if (!incidents?.length) {
        // uh, we got a problem
        interaction.followUp({
          content: "No incidents yet. Hmm...",
-         ephemeral: true,
+         flags: MessageFlags.Ephemeral,
        });
        return;
      }
@@ -136,7 +135,6 @@ async function handler(
         const incidentText = incident.link ? `[${note}](<${incident.link}>)` : note;
         return `- ${incidentText}: ${relativeDateString(incident.occurrence)}`;
        }).join("\n"),
-       ephemeral: false,
      });
   } else {
     // idk somehow you used the command without a subcommand

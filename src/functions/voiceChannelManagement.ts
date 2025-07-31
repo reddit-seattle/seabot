@@ -1,10 +1,13 @@
 import {
   CategoryChannel,
   ChannelType,
+  OverwriteType,
+  PermissionFlagsBits,
+  PermissionsBitField,
   VoiceState,
 } from "discord.js";
 import { configuration } from "../server";
-import { Environment, VoiceConstants } from "../utils/constants";
+import { VoiceConstants } from "../utils/constants";
 
 const { Permissions } = VoiceConstants;
 
@@ -22,11 +25,11 @@ export const handleVoiceStatusUpdate = async (
   if (
     //leaving voice (disconnect)
     (!newState.member?.voice?.channel || // or
-    //switching channel
-    newState?.channelId != oldState?.channelId) &&
+      //switching channel
+      newState?.channelId != oldState?.channelId) &&
     oldState?.channel?.id != config?.triggerChannelId &&
     oldState?.channel?.parent?.id == config?.groupId
-    ) {
+  ) {
     await deleteEmptyMemberVoiceChannel(oldState);
   }
 };
@@ -38,9 +41,8 @@ export const createVoiceChannelForMember = async (state: VoiceState) => {
   }
   const config = configuration.userVoiceChannels;
   const user = guild.members.cache.get(state?.member?.user?.id);
-  const user_channel_name = `${
-    user?.nickname ?? user?.user.username
-  }'s voice chat`;
+  const user_channel_name = `${user?.nickname ?? user?.user.username
+    }'s voice chat`;
   const category_channel = await guild.channels.cache.find(
     (channel) => channel.id === config?.groupId
   ) as CategoryChannel;
@@ -58,12 +60,13 @@ export const createVoiceChannelForMember = async (state: VoiceState) => {
         //note: MANAGE_CHANNELS as a permission overwrite on a single channel doesn't extend to the entire guild
         {
           id: user?.id!,
-          allow: [
-            Permissions.MOVE,
-            Permissions.MUTE,
-            Permissions.DEAFEN,
-            Permissions.MANAGE_CHANNELS,
-          ],
+          type: OverwriteType.Member,
+          allow: PermissionsBitField.resolve([
+            PermissionFlagsBits.MoveMembers,
+            PermissionFlagsBits.MuteMembers,
+            PermissionFlagsBits.DeafenMembers,
+            PermissionFlagsBits.ManageChannels,
+          ]),
         },
       ],
     });

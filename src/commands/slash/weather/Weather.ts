@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import SlashCommand from "../SlashCommand";
 import WeatherApi from "./WeatherApi";
@@ -7,15 +7,16 @@ export default new SlashCommand({
   description: "Get current weather",
   help: "weather [98102 | Seattle]",
   name: "weather",
-  builder: new SlashCommandBuilder()
+  builder: new ChatInputCommandBuilder()
     .setName("weather")
     .setDescription("Get current weather for a location")
-    .addStringOption((option) =>
-      option
-        .setName("location")
-        .setDescription("string location or zip code")
-        .setRequired(true)
-    ),
+    .addStringOptions([
+      (option) =>
+        option
+          .setName("location")
+          .setDescription("string location or zip code")
+          .setRequired(true)
+    ]),
   execute: async (interaction) => {
     await interaction.deferReply();
     const location = interaction.options.getString("location");

@@ -1,5 +1,6 @@
 import _ from "underscore";
-import { SlashCommandBuilder } from "@discordjs/builders";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
+import { GuildEmoji, CommandInteraction } from "discord.js";
 
 import SlashCommand from "../SlashCommand";
 
@@ -28,13 +29,14 @@ const RJStrings: { [id: string]: string } = {
   kraken: `<rj>\n<krakenjersey>`,
 };
 
-function textToEmojis(text: string) {
+function textToEmojis(text: string, interaction: CommandInteraction) {
   const emojiPattern = /(?<=<).*?(?=>)/g;
   let emojis = text.matchAll(emojiPattern);
 
   for (const emoji of emojis) {
-    let discordEmoji = discordBot.client.emojis.cache.find(
-      (x) => x.name === emoji[0]
+    // In Discord.js v15, access emojis through guild
+    let discordEmoji = interaction.guild?.emojis.cache.find(
+      (x: GuildEmoji) => x.name === emoji[0]
     );
     if (discordEmoji) {
       text = text.replace(
@@ -54,29 +56,31 @@ export default new SlashCommand({
   help: "rj list",
   description: "makes funny little RJ emotes",
   builder: () =>
-    new SlashCommandBuilder()
+    new ChatInputCommandBuilder()
       .setName("rj")
       .setDescription("makes funny little RJ emotes")
-      .addStringOption((option) => {
-        option.setName("emote").setDescription("which emote would you like");
-        const sortedChoices = Object.keys(RJStrings).sort();
-        option.addChoices(
-          ...sortedChoices.map((choice) => {
-            return { name: choice, value: RJStrings[choice] };
-          })
-        );
-        return option;
-      }),
+      .addStringOptions([
+        (option) => {
+          option.setName("emote").setDescription("which emote would you like");
+          const sortedChoices = Object.keys(RJStrings).sort();
+          option.addChoices(
+            ...sortedChoices.map((choice) => {
+              return { name: choice, value: RJStrings[choice] };
+            })
+          );
+          return option;
+        }
+      ]),
   execute: (interaction) => {
     const emote = interaction.options.getString("emote");
     if (!emote) {
       const options = _.unique(Object.values(RJStrings));
       const val = _.random(options.length - 1);
-      interaction.reply(textToEmojis(options[val]));
+      interaction.reply(textToEmojis(options[val], interaction));
       return;
     } else {
       interaction.reply(
-        emote ? textToEmojis(emote) : "RJ does not know that command"
+        emote ? textToEmojis(emote, interaction) : "RJ does not know that command"
       );
     }
   },

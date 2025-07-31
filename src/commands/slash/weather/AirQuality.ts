@@ -1,8 +1,6 @@
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 import {
-  SlashCommandBuilder,
-  EmbedBuilder,
-  InteractionResponse,
-  CommandInteraction,
+  EmbedBuilder
 } from "discord.js";
 
 import SlashCommand from "../SlashCommand";
@@ -12,16 +10,17 @@ export default new SlashCommand({
   description: "Get current air quality",
   help: "aqi 98102",
   name: "aqi",
-  builder: new SlashCommandBuilder()
+  builder: new ChatInputCommandBuilder()
     .setName("aqi")
     .setDescription("Get current air quality for a location")
-    .addNumberOption((option) =>
-      option
-        .setName("location")
-        .setDescription("location zip code")
-        .setRequired(true)
-        .setMaxValue(99999)
-    ),
+    .addNumberOptions([
+      (option) =>
+        option
+          .setName("location")
+          .setDescription("location zip code")
+          .setRequired(true)
+          .setMaxValue(99999)
+    ]),
   execute: async (interaction) => {
     const location = interaction.options.getNumber("location");
     const isZip = location?.toString().length == 5;

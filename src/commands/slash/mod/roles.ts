@@ -1,7 +1,7 @@
 import {
   ChatInputCommandInteraction,
-  SlashCommandBuilder,
 } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 import SlashCommand from "../SlashCommand";
 import { any } from "underscore";
 
@@ -22,22 +22,23 @@ export default new SlashCommand({
   name: "role",
   description: "manage roles",
   adminOnly: true,
-  builder: new SlashCommandBuilder()
+  builder: new ChatInputCommandBuilder()
     .setName("role")
     .setDescription("manage roles")
     // enable this only for mods
     .setDefaultMemberPermissions('0')
-    .addSubcommand((group) =>
-      group
-        .setName("assign")
-        .setDescription("assign a role to a user")
-        .addUserOption((opt) =>
-          opt.setName("user").setDescription("User to assign").setRequired(true)
-        )
-        .addRoleOption((opt) =>
-          opt.setName("role").setDescription("Role to assign").setRequired(true)
-        )
-    ),
+    .addSubcommands([
+      (group) =>
+        group
+          .setName("assign")
+          .setDescription("assign a role to a user")
+          .addUserOptions([
+            (opt) => opt.setName("user").setDescription("User to assign").setRequired(true)
+          ])
+          .addRoleOptions([
+            (opt) => opt.setName("role").setDescription("Role to assign").setRequired(true)
+          ])
+    ]),
   execute: async (interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply();
     const {options} = interaction;

@@ -1,16 +1,21 @@
 import {
+  ChatInputCommandInteraction,
   DiscordAPIError,
   Emoji,
   GuildMember,
+  MessageFlags,
   resolveColor,
   Role,
-  SlashCommandBuilder,
+  RoleColors,
+  RoleColorsResolvable,
 } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import SlashCommand from "../SlashCommand";
 
 import { configuration } from "../../../server";
 import { REGEX } from "../../../utils/constants";
+import { any } from "underscore";
 
 const iconBlockList = ["thinkban"];
 
@@ -19,32 +24,45 @@ export default new SlashCommand({
   help: "Set your custom role (Premium only)",
   name: "set-premium-role",
   adminOnly: true,
-  builder: new SlashCommandBuilder()
+  builder: new ChatInputCommandBuilder()
     .setName("set-premium-role")
     .setDescription("Set your custom role color and icon (Premium only)")
-    .addStringOption((option) => {
-      return option
-        .setName("color")
-        .setDescription("hex color")
-        .setRequired(false);
-    })
-    .addStringOption((option) => {
-      return option
-        .setName("emoji")
-        .setDescription("role icon")
-        .setRequired(false);
-    }),
-  execute: async (interaction) => {
+    .addStringOptions([
+      (option) => 
+        option
+          .setName("primary_color")
+          .setDescription("Primary hex color (e.g., #FF0000 or FF0000)")
+          .setRequired(false),
+      (option) => 
+        option
+          .setName("secondary_color")
+          .setDescription("Secondary hex color for gradient (optional)")
+          .setRequired(false),
+      (option) => 
+        option
+          .setName("tertiary_color")
+          .setDescription("Tertiary hex color for gradient (optional)")
+          .setRequired(false),
+      (option) => 
+        option
+          .setName("emoji")
+          .setDescription("Role icon emoji")
+          .setRequired(false)
+    ]),
+  execute: async (interaction: ChatInputCommandInteraction) => {
     const { options, member, user, guild } = interaction;
     const logs: string[] = [];
-    await interaction.deferReply({ ephemeral: true });
-    const color = options.getString("color");
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    
+    const primaryColor = options.getString("primary_color");
+    const secondaryColor = options.getString("secondary_color");
+    const tertiaryColor = options.getString("tertiary_color");
     const emoji = options.getString("emoji");
 
     // No change
-    if (!color && !emoji) {
+    if (!primaryColor && !secondaryColor && !tertiaryColor && !emoji) {
       await interaction.followUp({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: "Nothing to change",
       });
       return;
@@ -74,7 +92,7 @@ export default new SlashCommand({
           "Error creating role. Ask a mod to check permissions or existing roles."
         );
         await interaction.followUp({
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
           content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
         });
         return;
@@ -82,39 +100,80 @@ export default new SlashCommand({
       logs.push("Role created.");
     }
 
-    // set color
-    if (color) {
-      // validate hex
-      const hex = color?.replace(/^#/, "");
+    // Helper function to validate and clean hex color
+    const validateHexColor = (color: string | null): string | null => {
+      if (!color) return null;
+      const cleanHex = color.replace(/^#/, "");
+      return REGEX.HEX.test(cleanHex) ? cleanHex : null;
+    };
 
-      // ಠ_ಠ
-      if (color == "25c059") {
+    // set colors
+    if (primaryColor || secondaryColor || tertiaryColor) {
+      const primary = validateHexColor(primaryColor);
+      const secondary = validateHexColor(secondaryColor);
+      const tertiary = validateHexColor(tertiaryColor);
+
+      // ಠ_ಠ - block specific color
+      const blockedColor = "25c059";
+      if (primary === blockedColor || secondary === blockedColor || tertiary === blockedColor) {
         await interaction.followUp({
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
           content: `ಠ_ಠ Pick a different color.`,
         });
         return;
       }
 
-      if (!hex || !REGEX.HEX.test(hex)) {
-        logs.push(`Invalid hex color: ${color}`);
+      // Validate at least primary color is valid
+      if (!primary && primaryColor) {
+        logs.push(`Invalid primary hex color: ${primaryColor}`);
         await interaction.followUp({
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
           content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
         });
         return;
       }
 
-      // resolve color
-      logs.push(`Setting role color: ${color}`);
-      const aRgbHex = hex.match(/.{1,2}/g);
-      const aRgb = [
-        parseInt(aRgbHex?.[0]!, 16),
-        parseInt(aRgbHex?.[1]!, 16),
-        parseInt(aRgbHex?.[2]!, 16),
-      ];
-      const finalColor = resolveColor([aRgb[0], aRgb[1], aRgb[2]]);
-      await role.setColor(finalColor);
+      // Validate secondary color if provided
+      if (secondaryColor && !secondary) {
+        logs.push(`Invalid secondary hex color: ${secondaryColor}`);
+        await interaction.followUp({
+          flags: MessageFlags.Ephemeral,
+          content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
+        });
+        return;
+      }
+
+      // Validate tertiary color if provided
+      if (tertiaryColor && !tertiary) {
+        logs.push(`Invalid tertiary hex color: ${tertiaryColor}`);
+        await interaction.followUp({
+          flags: MessageFlags.Ephemeral,
+          content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
+        });
+        return;
+      }
+
+      // Build the colors object for role.setColors()
+      if (primary == null) {
+        return
+      }
+      const colorsObj: RoleColorsResolvable = { primaryColor: resolveColor(`#${primary}`) as any };
+      if (primary) colorsObj.primaryColor = resolveColor(`#${primary}`);
+      if (secondary) colorsObj.secondaryColor = resolveColor(`#${secondary}`);
+      if (tertiary) colorsObj.tertiaryColor = resolveColor(`#${tertiary}`);
+
+      logs.push(`Setting role colors: ${Object.entries(colorsObj).map(([k, v]) => `${k}: ${v}`).join(", ")}`);
+      
+      try {
+        await role.setColors(colorsObj);
+      } catch (error) {
+        logs.push(`Error setting colors: ${error}`);
+        await interaction.followUp({
+          flags: MessageFlags.Ephemeral,
+          content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
+        });
+        return;
+      }
     }
 
     // set role icon
@@ -123,7 +182,7 @@ export default new SlashCommand({
       for (const blockedIcon of iconBlockList) {
         if (emoji.toLowerCase() === blockedIcon.toLowerCase()) {
           await interaction.followUp({
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
             content: `ಠ_ಠ Pick a different emoji.`,
           });
           return;
@@ -139,7 +198,7 @@ export default new SlashCommand({
             `Error finding emoji ${emoji} on this server, please add it or ask a mod`
           );
           await interaction.followUp({
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
             content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
           });
           return;
@@ -149,7 +208,7 @@ export default new SlashCommand({
         if (ex instanceof DiscordAPIError) {
           logs.push(ex.message);
           await interaction.followUp({
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
             content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
           });
           return;
@@ -162,14 +221,14 @@ export default new SlashCommand({
     await (member as GuildMember)?.roles?.add(role);
     try {
       await interaction.followUp({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: `Action completed - logs:\n${logs.join("\n")}`,
       });
     } catch (ex: any) {
       if (ex instanceof DiscordAPIError) {
         logs.push(ex.message);
         await interaction.followUp({
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
           content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
         });
       }

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import SlashCommand from "../SlashCommand";
 
@@ -7,7 +7,9 @@ import { ServerInfo } from "../../../utils/constants";
 export default new SlashCommand({
   name: "valheim",
   description: "show valheim server info",
-  builder: new SlashCommandBuilder(),
+  builder: new ChatInputCommandBuilder()
+    .setName("valheim")
+    .setDescription("show valheim server info"),
   execute: (interaction) =>
     interaction.reply(
       `**Valheim Dedicated Server Information**:

@@ -1,8 +1,8 @@
 import {
   EmbedBuilder,
-  SlashCommandBuilder,
   GuildMemberRoleManager,
 } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import SlashCommand from "../SlashCommand";
 
@@ -14,25 +14,30 @@ export default new SlashCommand({
   help: "help",
   description: "Display SeaBot command help",
   builder: () =>
-    new SlashCommandBuilder().addStringOption((option) => {
-      option.setName("command");
-      option.setDescription("The command you would like help with");
-      const choices: any[] = [];
-      // Lazy loading to prevent Typescript from trying to initialize this before commands have been loaded.
-      import("../").then((commands: any) => {
-        commands.default.forEach((command: any) => {
-          choices.push({
-            name: command.name,
-            value: command.name,
+    new ChatInputCommandBuilder()
+      .setName("help")
+      .setDescription("Display SeaBot command help")
+      .addStringOptions([
+        (option) => {
+          option.setName("command");
+          option.setDescription("The command you would like help with");
+          const choices: any[] = [];
+          // Lazy loading to prevent Typescript from trying to initialize this before commands have been loaded.
+          import("../").then((commands: any) => {
+            commands.default.forEach((command: any) => {
+              choices.push({
+                name: command.name,
+                value: command.name,
+              });
+            });
+            choices.sort((a, b) =>
+              a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+            );
+            option.addChoices(...choices);
           });
-        });
-        choices.sort((a, b) =>
-          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-        );
-        option.addChoices(...choices);
-      });
-      return option;
-    }),
+          return option;
+        }
+      ]),
   execute: async (interaction) => {
     // filter admin commands to only mods
     const roles = interaction.member?.roles as GuildMemberRoleManager;

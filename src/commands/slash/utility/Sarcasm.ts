@@ -1,4 +1,5 @@
-import { SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
+import { GuildEmoji } from "discord.js";
 
 import SlashCommand from "../SlashCommand";
 
@@ -8,16 +9,20 @@ import { toSarcasticCase } from "../../../utils/helpers";
 export default new SlashCommand({
   name: "sarcasm",
   description: "Make text sArCaStIc",
-  builder: new SlashCommandBuilder().addStringOption((option) => {
-    return option
-      .setRequired(true)
-      .setName("text")
-      .setDescription(toSarcasticCase("The text to sarcasticize"));
-  }),
+  builder: new ChatInputCommandBuilder()
+    .setName("sarcasm")
+    .setDescription("Make text sArCaStIc")
+    .addStringOptions([
+      (option) => 
+        option
+          .setRequired(true)
+          .setName("text")
+          .setDescription(toSarcasticCase("The text to sarcasticize"))
+    ]),
   execute: (interaction) => {
     const string = interaction.options.getString("text") ?? null;
-    const emoji = discordBot.client.emojis.cache.find(
-      (x) => x.name === "stupidsponge"
+    const emoji = interaction.guild?.emojis.cache.find(
+      (x: GuildEmoji) => x.name === "stupidsponge"
     );
     const spongeText = emoji?.toString() ?? "";
     string &&
