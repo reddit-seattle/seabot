@@ -7,6 +7,7 @@ import {
   MessageFlags,
   resolveColor,
   Role,
+  RoleColorsResolvable,
 } from "discord.js";
 
 import SlashCommand from "../SlashCommand";
@@ -111,7 +112,7 @@ export default new SlashCommand({
       }
 
       // Validate at least primary color is valid
-      if (primaryColor && primary === null) {
+      if (!primaryColor || primary === null) {
         logs.push(`Invalid primary color: ${primaryColor}`);
         await interaction.followUp({
           flags: MessageFlags.Ephemeral,
@@ -130,31 +131,24 @@ export default new SlashCommand({
         return;
       }
 
+      // Set the role colors
+      const colorsObj: RoleColorsResolvable = { primaryColor: primary };
 
-      // Set the role colors (Discord now supports primary and secondary colors)
-      if (primary !== null || secondary !== null) {
-        const colorsObj: any = {};
+      if (secondary !== null) {
+        colorsObj.secondaryColor = secondary as ColorResolvable;
+      }
 
-        if (primary !== null) {
-          colorsObj.primaryColor = primary as ColorResolvable;
-        }
+      logs.push(`Setting role colors: ${Object.entries(colorsObj).map(([k, v]) => `${k}: ${v}`).join(", ")}`);
 
-        if (secondary !== null) {
-          colorsObj.secondaryColor = secondary as ColorResolvable;
-        }
-
-        logs.push(`Setting role colors: ${Object.entries(colorsObj).map(([k, v]) => `${k}: ${v}`).join(", ")}`);
-
-        try {
-          await role.setColors(colorsObj);
-        } catch (error) {
-          logs.push(`Error setting colors: ${error}`);
-          await interaction.followUp({
-            flags: MessageFlags.Ephemeral,
-            content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
-          });
-          return;
-        }
+      try {
+        await role.setColors(colorsObj);
+      } catch (error) {
+        logs.push(`Error setting colors: ${error}`);
+        await interaction.followUp({
+          flags: MessageFlags.Ephemeral,
+          content: `An error has occurred.\nLogs:\n${logs.join("\n")}`,
+        });
+        return;
       }
     }
 
