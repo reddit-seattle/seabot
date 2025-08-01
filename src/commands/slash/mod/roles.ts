@@ -10,7 +10,7 @@ const ASSIGNABLE_ROLES = [
     '853016973804699689', // IRL
     '1333912863605002271', // politics timeout
     '1388337523012534342', // resident
-    '1339007768203366492', // chris fight
+    '1339007768203366492', // thunderdome
 ];
 
 // users who can't be assigned roles
