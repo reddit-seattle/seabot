@@ -17,7 +17,6 @@ import {
   PartialUser,
   User
 } from "discord.js";
-import { now } from "moment";
 
 import { getUnixTime } from "date-fns";
 import { configuration } from "../server";
@@ -91,7 +90,7 @@ export const toSarcasticCase = (text: string) => {
 export const pullTimeStampsFromApolloString = (timestring: string) => {
   const startStr = timestring.match("<t:([0-9]*):F>")?.[1];
   const endStr = timestring.match("<t:([0-9]*):t>")?.[1];
-  const start = startStr ? parseInt(startStr) * 1000 : now();
+  const start = startStr ? parseInt(startStr) * 1000 : Date.now();
   //if no end - default to one hour
   const end = endStr ? parseInt(endStr) * 1000 : start + 60 * 60 * 1000;
   return { start, end };

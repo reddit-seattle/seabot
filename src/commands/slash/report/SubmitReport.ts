@@ -1,6 +1,5 @@
 import { EmbedBuilder, TextChannel, MessageFlags } from "discord.js";
 import { ChatInputCommandBuilder } from "@discordjs/builders";
-import { now } from "underscore";
 
 import SlashCommand from "../SlashCommand";
 
@@ -64,10 +63,18 @@ export default new SlashCommand({
       return;
     }
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const modReportsChannelId = configuration.channelIds?.["MOD_REPORTS"];
+    if (!modReportsChannelId) {
+      await interaction.reply({
+        flags: MessageFlags.Ephemeral,
+        content: "Mod reports channel is not configured. Please contact an administrator.",
+      });
+      return;
+    }
     const modReports = (await interaction.guild?.channels.cache
-      .get(configuration.channelIds?.["MOD_REPORTS"])
+      .get(modReportsChannelId)
       ?.fetch()) as TextChannel;
-    const timestamp = Math.floor(now() / 1000);
+    const timestamp = Math.floor(Date.now() / 1000);
     const reportEmbed = new EmbedBuilder({
       color: 0xff0000,
       title: "New User Report",
@@ -103,7 +110,7 @@ export default new SlashCommand({
         url: evidence?.url ?? "",
       },
     });
-    const modActionRow = buildModActionRow(interaction.guild?.id, {
+    const modActionRow = buildModActionRow(interaction.guild?.id ?? "", {
       anon,
       user: user ?? undefined,
       channel: channel ?? undefined,

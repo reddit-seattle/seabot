@@ -2,6 +2,7 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 import { formatUptime } from "./utils/helpers";
+import { Logger } from "./utils/logger";
 
 export default class ExpressServer {
   private _server;
@@ -23,7 +24,7 @@ export default class ExpressServer {
           packageInfo = JSON.parse(fs.readFileSync(packagePath, "utf8"));
         }
       } catch (error) {
-        console.log("Error reading package.json:", error);
+        Logger.warn("Error reading package.json:", error);
       }
 
       const buildInfo = {
@@ -41,7 +42,7 @@ export default class ExpressServer {
   }
 
   start() {
-    console.log("Starting express server...");
+    Logger.info("Starting express server...");
     this._server.listen(8080);
   }
 }

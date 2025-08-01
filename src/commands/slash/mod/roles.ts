@@ -3,7 +3,6 @@ import {
 } from "discord.js";
 import { ChatInputCommandBuilder } from "@discordjs/builders";
 import SlashCommand from "../SlashCommand";
-import { any } from "underscore";
 
 // TODO - config / consts
 const ASSIGNABLE_ROLES = [
@@ -50,7 +49,7 @@ export default new SlashCommand({
 
         const guildUser = interaction.guild?.members.cache.get(user.id);
         const userRoles = guildUser?.roles.cache.map(x => x.id) ?? [];
-        if (!any(userRoles, (role) => IMMUNE_ROLES.indexOf(role) >= 0)) {
+        if (!userRoles.some((role) => IMMUNE_ROLES.indexOf(role) >= 0)) {
             await guildUser?.roles.add(id);
             await interaction.followUp(`${user.displayName} has been given the \`${roleToAssign.name}\` role`)
             return;
