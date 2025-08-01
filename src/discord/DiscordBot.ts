@@ -17,6 +17,7 @@ import createCommandRouters from "../commands/createCommandRouters";
 import DiscordEventRouter from "./DiscordEventRouter";
 import ErrorLogger from "./ErrorLogger";
 import InMemoryDbConnector from "../db/InMemoryDbConnector";
+import { Logger } from "../utils/logger";
 
 import { Environment } from "../utils/constants";
 import { MessageTelemetryLogger } from "../utils/MessageTelemetryLogger";
@@ -65,20 +66,20 @@ export default class DiscordBot {
   }
 
   public async login(botToken: string) {
-    console.log("Logging in to Discord API...");
+    Logger.info("Logging in to Discord API...");
     await this._client.login(botToken);
     this._rest = new REST({ version: "10" }).setToken(botToken);
-    console.log("Login success.");
+    Logger.info("Login success.");
   }
 
   public async start(eventRouter: DiscordEventRouter) {
     if (process.env.DEBUG) {
-      this.client.on(Events.Debug, (message: string) => console.log(message));
-      this.client.on(Events.Warn, (message: string) => console.warn(message));
+      this.client.on(Events.Debug, (message: string) => Logger.debug(message));
+      this.client.on(Events.Warn, (message: string) => Logger.warn(message));
     }
 
     if (!Environment.botToken || Environment.botToken == "") {
-      console.error(`env var "botToken" missing`);
+      Logger.error(`env var "botToken" missing`);
       process.exit(1);
     }
 
@@ -112,8 +113,8 @@ export default class DiscordBot {
   }
 
   private startCommandRouters(eventRouter: DiscordEventRouter) {
-    console.log("Starting command router...");
-    const commandRouters = createCommandRouters(eventRouter, this);
+    Logger.info("Starting command router...");
+    createCommandRouters(eventRouter, this);
   }
 
   private async showRevolvingSimpsonsDoor(member: GuildMember) {

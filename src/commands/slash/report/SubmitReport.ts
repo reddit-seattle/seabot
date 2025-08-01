@@ -1,5 +1,5 @@
-import { SlashCommandBuilder, EmbedBuilder, TextChannel } from "discord.js";
-import { now } from "underscore";
+import { EmbedBuilder, TextChannel, MessageFlags } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import SlashCommand from "../SlashCommand";
 
@@ -11,35 +11,33 @@ export default new SlashCommand({
   name: "report",
   description: "Submit a report to the mod team",
   help: "Submit a report to the mod team",
-  builder: new SlashCommandBuilder()
-    .setName("report")
-    .setDescription("Submit a report to the mod team")
+  builder: new ChatInputCommandBuilder()
     // anon is required, note is required
-    .addBooleanOption((o) =>
-      o.setName("anon").setDescription("Submit anonymously").setRequired(true)
-    )
-    .addStringOption((o) =>
-      o
-        .setName("note")
-        .setDescription("Please explain the issue")
-        .setRequired(true)
-    )
+    .addBooleanOptions([
+      (o) => o.setName("anon").setDescription("Submit anonymously").setRequired(true)
+    ])
+    .addStringOptions([
+      (o) =>
+        o
+          .setName("note")
+          .setDescription("Please explain the issue")
+          .setRequired(true),
+      (o) => o.setName("message").setDescription("Message link to content")
+    ])
     // user and channel are optional
-    .addUserOption((o) =>
-      o.setName("user").setDescription("The user you want to report")
-    )
-    .addChannelOption((o) =>
-      o
-        .setName("channel")
-        .setDescription("The channel where the issue occurred")
-    )
+    .addUserOptions([
+      (o) => o.setName("user").setDescription("The user you want to report")
+    ])
+    .addChannelOptions([
+      (o) =>
+        o
+          .setName("channel")
+          .setDescription("The channel where the issue occurred")
+    ])
     // evidence not required
-    .addAttachmentOption((o) =>
-      o.setName("evidence").setDescription("Attach evidence if necessary")
-    )
-    .addStringOption((o) =>
-      o.setName("message").setDescription("Message link to content")
-    ),
+    .addAttachmentOptions([
+      (o) => o.setName("evidence").setDescription("Attach evidence if necessary")
+    ]),
   execute: async (interaction) => {
     const { options } = interaction;
     // only get username if not anonymous.
@@ -56,17 +54,25 @@ export default new SlashCommand({
     // we need a user or a channel or message
     if (!(user || channel || messageLink)) {
       await interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content:
           "Please include either a user, a channel, or a message link with your report, to help mods track it down.",
       });
       return;
     }
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const modReportsChannelId = configuration.channelIds?.["MOD_REPORTS"];
+    if (!modReportsChannelId) {
+      await interaction.editReply({
+        flags: MessageFlags.Ephemeral,
+        content: "Mod reports channel is not configured. Please contact an administrator.",
+      });
+      return;
+    }
     const modReports = (await interaction.guild?.channels.cache
-      .get(configuration.channelIds?.["MOD_REPORTS"])
+      .get(modReportsChannelId)
       ?.fetch()) as TextChannel;
-    const timestamp = Math.floor(now() / 1000);
+    const timestamp = Math.floor(Date.now() / 1000);
     const reportEmbed = new EmbedBuilder({
       color: 0xff0000,
       title: "New User Report",
@@ -96,13 +102,13 @@ export default new SlashCommand({
           value: note,
         },
       ],
-      image: {
-        height: evidence?.height ?? 0,
-        width: evidence?.width ?? 0,
-        url: evidence?.url ?? "",
-      },
     });
-    const modActionRow = buildModActionRow(interaction.guild?.id, {
+    
+    // Only add image if evidence exists and has a valid URL
+    if (evidence?.url) {
+      reportEmbed.setImage(evidence.url);
+    }
+    const modActionRow = buildModActionRow(interaction.guild?.id ?? "", {
       anon,
       user: user ?? undefined,
       channel: channel ?? undefined,

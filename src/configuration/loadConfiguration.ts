@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import * as Path from "path";
 import defaultConfig from "./defaultConfig";
 import ISeabotConfig from "./ISeabotConfig";
+import { Logger } from "../utils/logger";
 
 import { Duration } from "../utils/Time/Duration";
 
@@ -9,7 +10,7 @@ export default async function loadConfiguration(
   path: string
 ): Promise<ISeabotConfig> {
   path = Path.join(path, `seabotConfig.json`);
-  console.log(`Loading configuration file from "${path}"...`);
+  Logger.info(`Loading configuration file from "${path}"...`);
   let configuration = null;
 
   try {
@@ -17,8 +18,8 @@ export default async function loadConfiguration(
     configuration = JSON.parse(
       (await fs.readFile(path)).toString()
     ) as ISeabotConfig;
-    console.log("Loaded Configuration:");
-    console.dir(configuration);
+    Logger.info("Loaded Configuration:");
+    Logger.dir(configuration);
     if (configuration.autoDeleteMessages) {
       const { channels } = configuration.autoDeleteMessages;
       for(const channel of channels) {

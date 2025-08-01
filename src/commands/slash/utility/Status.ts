@@ -1,4 +1,5 @@
-import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { EmbedBuilder } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import SlashCommand from "../SlashCommand";
 
@@ -9,7 +10,7 @@ export default new SlashCommand({
   description: "show seabot info",
   help: "status",
   name: "status",
-  builder: new SlashCommandBuilder(),
+  builder: new ChatInputCommandBuilder(),
   execute: (interaction) => {
     const process_uptime = Math.floor(process.uptime());
     const { client } = interaction;

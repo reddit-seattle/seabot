@@ -2,8 +2,9 @@ import {
     APIEmbedField,
     ChatInputCommandInteraction,
     EmbedBuilder,
-    SlashCommandBuilder,
+    MessageFlags,
 } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import SlashCommand from "../SlashCommand";
 import { RedditResponse, SubredditAbout, SubredditHot } from "./models";
@@ -11,12 +12,12 @@ import { RedditResponse, SubredditAbout, SubredditHot } from "./models";
 export default new SlashCommand({
     description: "get subreddit stats",
     name: "subredditstats",
-    builder: new SlashCommandBuilder()
+    builder: new ChatInputCommandBuilder()
         .setName("subredditstats")
         .setDescription("get subreddit stats")
-        .addStringOption((o) =>
-            o.setDescription("subreddit to fetch stats for").setName("sub")
-        ),
+        .addStringOptions([
+            (o) => o.setDescription("subreddit to fetch stats for").setName("sub").setRequired(false)
+        ]),
     execute: async (interaction: ChatInputCommandInteraction) => {
         await interaction.deferReply();
         
@@ -57,7 +58,7 @@ export default new SlashCommand({
 
             // shame, shame
             if (over18) {
-                interaction.followUp({ ephemeral: true, content: "ಠ_ಠ" });
+                interaction.followUp({ flags: MessageFlags.Ephemeral, content: "ಠ_ಠ" });
                 return;
             }
 
@@ -104,7 +105,7 @@ export default new SlashCommand({
                     name: "Top 3 posts",
                     value: "Sorted by /hot",
                 },
-                ...posts.map((post, i) => {
+                ...posts.map((post) => {
                     const { title, score, permalink, num_comments, over_18 } = post;
                     const truncatedTitle = (title && title.length > 255) ? `${title.slice(0, 252)}...` : (title || "Untitled");
                     return {

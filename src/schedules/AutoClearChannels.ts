@@ -1,5 +1,6 @@
 import { TextChannel } from "discord.js";
 import { AutoDeleteConfiguration } from "../configuration/ISeabotConfig";
+import { Logger } from "../utils/logger";
 
 import IScheduledTask from "./IScheduledTask";
 
@@ -68,7 +69,7 @@ async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
       });
     }
   } catch (e) {
-    console.dir(e);
+    Logger.error("Error in deleteMessages:", e);
   }
 }
 

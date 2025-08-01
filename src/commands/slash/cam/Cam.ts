@@ -1,4 +1,5 @@
-import { AttachmentBuilder, SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { AttachmentBuilder, EmbedBuilder } from "discord.js";
+import { ChatInputCommandBuilder, ChatInputCommandSubcommandBuilder } from "@discordjs/builders";
 import fetch from "node-fetch";
 import _ from "underscore";
 
@@ -108,24 +109,26 @@ function getWeatherEmoji(description: string): string {
 }
 
 // Build the slash command dynamically from config
-function buildSlashCommand(): SlashCommandBuilder {
-    const builder = new SlashCommandBuilder();
+function buildSlashCommand(): ChatInputCommandBuilder {
+    const builder = new ChatInputCommandBuilder()
+        .setName("cam")
+        .setDescription("check out some webcams");
 
     // Add subcommands for each enabled webcam
-    SEATTLE_WEBCAMS.forEach(webcam => {
-        builder.addSubcommand(subcommand =>
+    const subcommands = [
+        ...SEATTLE_WEBCAMS.map(webcam => 
+            (subcommand: ChatInputCommandSubcommandBuilder) =>
+                subcommand
+                    .setName(webcam.id)
+                    .setDescription(webcam.description)
+        ),
+        (subcommand: ChatInputCommandSubcommandBuilder) =>
             subcommand
-                .setName(webcam.id)
-                .setDescription(webcam.description)
-        );
-    });
+                .setName("random")
+                .setDescription("Random webcam")
+    ];
 
-    // Always add a random option
-    builder.addSubcommand(subcommand =>
-        subcommand
-            .setName("random")
-            .setDescription("Random webcam")
-    );
+    builder.addSubcommands(subcommands);
 
     return builder;
 }
@@ -170,7 +173,7 @@ export default new SlashCommand({
                 .setTitle(imageResult.description)
                 .setDescription(`${weatherContext}`)
                 .setImage(`attachment://${filename}`)
-                .setColor('#0066cc')
+                .setColor(0x0066cc)
                 .setTimestamp();
 
             await interaction.editReply({
