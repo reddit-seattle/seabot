@@ -7,9 +7,7 @@ import { ServerInfo } from "../../../utils/constants";
 export default new SlashCommand({
   name: "valheim",
   description: "show valheim server info",
-  builder: new ChatInputCommandBuilder()
-    .setName("valheim")
-    .setDescription("show valheim server info"),
+  builder: new ChatInputCommandBuilder(),
   execute: (interaction) =>
     interaction.reply(
       `**Valheim Dedicated Server Information**:

@@ -8,8 +8,6 @@ export default new SlashCommand({
   help: "forecast [98102 | Seattle] {optional: `weekly`}",
   name: "forecast",
   builder: new ChatInputCommandBuilder()
-    .setName("forecast")
-    .setDescription("Get weather forecast in 3-hour intervals")
     .addStringOptions([
       (option) =>
         option

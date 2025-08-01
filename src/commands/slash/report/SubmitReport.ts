@@ -12,8 +12,6 @@ export default new SlashCommand({
   description: "Submit a report to the mod team",
   help: "Submit a report to the mod team",
   builder: new ChatInputCommandBuilder()
-    .setName("report")
-    .setDescription("Submit a report to the mod team")
     // anon is required, note is required
     .addBooleanOptions([
       (o) => o.setName("anon").setDescription("Submit anonymously").setRequired(true)

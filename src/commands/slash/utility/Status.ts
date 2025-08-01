@@ -10,9 +10,7 @@ export default new SlashCommand({
   description: "show seabot info",
   help: "status",
   name: "status",
-  builder: new ChatInputCommandBuilder()
-    .setName("status")
-    .setDescription("show seabot info"),
+  builder: new ChatInputCommandBuilder(),
   execute: (interaction) => {
     const process_uptime = Math.floor(process.uptime());
     const { client } = interaction;

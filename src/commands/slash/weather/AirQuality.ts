@@ -11,8 +11,6 @@ export default new SlashCommand({
   help: "aqi 98102",
   name: "aqi",
   builder: new ChatInputCommandBuilder()
-    .setName("aqi")
-    .setDescription("Get current air quality for a location")
     .addNumberOptions([
       (option) =>
         option

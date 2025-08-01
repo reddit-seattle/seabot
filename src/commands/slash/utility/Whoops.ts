@@ -9,8 +9,6 @@ export default new SlashCommand({
   description: "whoops",
   help: "whoops my butt :butt: -> whoops my butt fell out :butt:",
   builder: new ChatInputCommandBuilder()
-    .setName("whoops")
-    .setDescription("whoops")
     .addStringOptions([
       (option) => 
         option

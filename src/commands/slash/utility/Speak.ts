@@ -8,8 +8,6 @@ export default new SlashCommand({
   name: "speak",
   description: "Gives SeaBot a voice!",
   builder: new ChatInputCommandBuilder()
-    .setName("speak")
-    .setDescription("Gives SeaBot a voice!")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addStringOptions([
       (opt) => opt.setName("text").setDescription("what to say").setRequired(true)

@@ -15,8 +15,6 @@ export default new SlashCommand({
   description: "Display SeaBot command help",
   builder: () =>
     new ChatInputCommandBuilder()
-      .setName("help")
-      .setDescription("Display SeaBot command help")
       .addStringOptions([
         (option) => {
           option.setName("command");

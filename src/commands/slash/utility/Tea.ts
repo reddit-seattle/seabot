@@ -8,8 +8,6 @@ export default new SlashCommand({
   name: "tea",
   help: "tea",
   description: "ask for tea",
-  builder: new ChatInputCommandBuilder()
-    .setName("tea")
-    .setDescription("ask for tea"),
+  builder: new ChatInputCommandBuilder(),
   execute: (interaction) => interaction.reply(Strings.teapot),
 });

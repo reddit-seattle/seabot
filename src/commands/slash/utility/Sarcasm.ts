@@ -9,8 +9,6 @@ export default new SlashCommand({
   name: "sarcasm",
   description: "Make text sArCaStIc",
   builder: new ChatInputCommandBuilder()
-    .setName("sarcasm")
-    .setDescription("Make text sArCaStIc")
     .addStringOptions([
       (option) =>
         option
