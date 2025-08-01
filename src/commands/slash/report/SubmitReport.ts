@@ -63,7 +63,7 @@ export default new SlashCommand({
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const modReportsChannelId = configuration.channelIds?.["MOD_REPORTS"];
     if (!modReportsChannelId) {
-      await interaction.reply({
+      await interaction.editReply({
         flags: MessageFlags.Ephemeral,
         content: "Mod reports channel is not configured. Please contact an administrator.",
       });
@@ -102,12 +102,12 @@ export default new SlashCommand({
           value: note,
         },
       ],
-      image: {
-        height: evidence?.height ?? 0,
-        width: evidence?.width ?? 0,
-        url: evidence?.url ?? "",
-      },
     });
+    
+    // Only add image if evidence exists and has a valid URL
+    if (evidence?.url) {
+      reportEmbed.setImage(evidence.url);
+    }
     const modActionRow = buildModActionRow(interaction.guild?.id ?? "", {
       anon,
       user: user ?? undefined,

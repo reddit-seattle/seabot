@@ -132,13 +132,11 @@ export const buildModActionRow = (
 ) => {
   const ignoreButton = new SecondaryButtonBuilder()
     .setCustomId("ignoreReport")
-    .setEmoji({ name: "🔇" })
-    .setLabel("Ignore");
+    .setLabel("🔇Ignore");
 
   const ackButton = new PrimaryButtonBuilder()
     .setCustomId("ackReport")
-    .setEmoji({ name: "✅" })
-    .setLabel("ACK");
+    .setLabel("✅ACK");
 
   // const replyButton = new MessageButton()
   //     .setCustomId('replyReport')
@@ -151,8 +149,7 @@ export const buildModActionRow = (
   if (options.messageLink || options?.channel?.id) {
     const url = options.messageLink || createChannelLink(guildId, options.channel!.id);
     viewButton = new LinkButtonBuilder()
-      .setEmoji({ name: "👀" })
-      .setLabel("View")
+      .setLabel("👀View")
       .setURL(url);
   }
   const buttons = [
@@ -161,9 +158,7 @@ export const buildModActionRow = (
     // ...(options.anon ? [] : [replyButton]), // reply button WIP
     ...(viewButton ? [viewButton] : []),
   ];
-  const modActionRow = new ActionRowBuilder().addComponents(
-    buttons
-  );
+  const modActionRow = new ActionRowBuilder().addComponents(buttons);
   return modActionRow;
 };
 
