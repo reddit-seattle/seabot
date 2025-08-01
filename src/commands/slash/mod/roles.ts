@@ -11,7 +11,6 @@ const ASSIGNABLE_ROLES = [
     '1333912863605002271', // politics timeout
     '1388337523012534342', // resident
     '1339007768203366492', // chris fight
-    '1388337523012534342', // wnp
 ];
 
 // users who can't be assigned roles
