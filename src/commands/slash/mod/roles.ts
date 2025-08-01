@@ -76,6 +76,7 @@ export default new SlashCommand({
           // remove role
           await guildUser?.roles.remove(id);
           await interaction.editReply(`${user.displayName} has been removed from the \`${roleToAssign.name}\` role`)
+          return;
         }
       }
       // user has a blocking role
