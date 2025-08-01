@@ -1,5 +1,5 @@
 import { EmbedBuilder } from "discord.js";
-import moment from "moment";
+import { format, fromUnixTime, addHours } from "date-fns";
 import fetch from "node-fetch";
 import { each } from "underscore";
 import { URLSearchParams } from "url";
@@ -110,7 +110,8 @@ export default class WeatherApi {
     const richEmbed = new EmbedBuilder().setTitle(title);
     let { list } = response;
     each(list.slice(0, 5), (record) => {
-      const time = moment.unix(record.dt).utcOffset(-8).format("HH:mm");
+      // Convert Unix timestamp to Date, subtract 8 hours for PST, format as HH:mm
+      const time = format(addHours(fromUnixTime(record.dt), -8), "HH:mm");
       const weather = `${record.main.temp}° F - ${record.weather[0].description}, ${record.main.humidity}% humidity`;
       richEmbed.addFields({
         name: time,
@@ -128,15 +129,15 @@ export default class WeatherApi {
     const richEmbed = new EmbedBuilder().setTitle(title);
     let { list } = response;
     each(list.slice(0, 7), (record) => {
-      const date = moment
-        .unix(record.dt)
-        .utcOffset(-8)
-        .format("dddd MMMM Do, YYYY");
+      const date = format(
+        addHours(fromUnixTime(record.dt), -8),
+        "EEEE MMMM do, yyyy"
+      );
       const weather = `
                 Low ${record.temp.min}° - High ${record.temp.max}°
                 ${record.weather[0].description}
-                Sunrise: ${moment.unix(record.sunrise).format("HH:mm")}
-                Sunset: ${moment.unix(record.sunset).format("HH:mm")}
+                Sunrise: ${format(fromUnixTime(record.sunrise), "HH:mm")}
+                Sunset: ${format(fromUnixTime(record.sunset), "HH:mm")}
             `;
       richEmbed.addFields([
         {

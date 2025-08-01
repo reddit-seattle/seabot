@@ -1,4 +1,5 @@
 import IDatabase from "../db/IDatabase";
+import { Logger } from "../utils/logger";
 
 export default class ErrorLogger {
   private _connector: IDatabase<Error>;
@@ -13,6 +14,7 @@ export default class ErrorLogger {
   }
 
   public async logError(error: Error): Promise<void> {
+    Logger.error("Logging error to database", error.message);
     await this._connector.addItem(error);
     this._sessionErrors.push(error);
   }

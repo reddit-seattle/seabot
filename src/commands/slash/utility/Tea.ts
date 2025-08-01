@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import SlashCommand from "../SlashCommand";
 
@@ -8,6 +8,6 @@ export default new SlashCommand({
   name: "tea",
   help: "tea",
   description: "ask for tea",
-  builder: new SlashCommandBuilder(),
+  builder: new ChatInputCommandBuilder(),
   execute: (interaction) => interaction.reply(Strings.teapot),
 });

@@ -1,24 +1,26 @@
 import {
+  LinkButtonBuilder,
+  PrimaryButtonBuilder,
+  SecondaryButtonBuilder
+} from "@discordjs/builders";
+import { APIInteractionDataResolvedChannel } from "discord-api-types/v10";
+import {
+  ActionRowBuilder,
   CacheType,
+  EmbedBuilder,
   GuildBasedChannel,
   Interaction,
   Message,
-  ButtonBuilder,
   MessageComponentInteraction,
-  EmbedBuilder,
   MessageReaction,
-  PartialUser,
-  User,
-  ActionRowBuilder,
   PartialMessage,
+  PartialUser,
+  User
 } from "discord.js";
-import { now } from "moment";
-import { APIInteractionDataResolvedChannel } from "discord-api-types/v10";
-import { ButtonStyle } from "discord-api-types/v10";
 
-import { Config, Environment, REGEX } from "./constants";
-import { configuration } from "../server";
 import { getUnixTime } from "date-fns";
+import { configuration } from "../server";
+import { Config, REGEX } from "./constants";
 
 /**
  * Splits message content into an array of arguments by spaces.
@@ -49,22 +51,22 @@ export const replaceMentions: (message: Message | PartialMessage) => string = (
   const channelMatches = Array.from(content.matchAll(REGEX.CHANNEL));
   const emojiMatches = Array.from(content.matchAll(REGEX.EMOJI));
 
-  userMatches.forEach((match, ix) => {
+  userMatches.forEach((match) => {
     const id = match[1] as `${bigint}`;
     const username = message.client.users.cache.get(id)?.username ?? "user";
     content = content!.replace(match[0], username);
   });
-  roleMatches?.forEach((match, ix) => {
+  roleMatches?.forEach((match) => {
     const id = match[1] as `${bigint}`;
     const role = message.guild?.roles.cache.get(id)?.name ?? "role";
     content = content!.replace(match[0], role);
   });
-  channelMatches?.forEach((match, ix) => {
+  channelMatches?.forEach((match) => {
     const id = match[1] as `${bigint}`;
     const channel = message.guild?.channels.cache.get(id)?.name ?? "channel";
     content = content!.replace(match[0], channel);
   });
-  emojiMatches?.forEach((match, ix) => {
+  emojiMatches?.forEach((match) => {
     const id = match[1] as `${bigint}`;
     const emoji = message.guild?.emojis.cache.get(id)?.name ?? "emoji";
     content = content!.replace(match[0], emoji);
@@ -88,7 +90,7 @@ export const toSarcasticCase = (text: string) => {
 export const pullTimeStampsFromApolloString = (timestring: string) => {
   const startStr = timestring.match("<t:([0-9]*):F>")?.[1];
   const endStr = timestring.match("<t:([0-9]*):t>")?.[1];
-  const start = startStr ? parseInt(startStr) * 1000 : now();
+  const start = startStr ? parseInt(startStr) * 1000 : Date.now();
   //if no end - default to one hour
   const end = endStr ? parseInt(endStr) * 1000 : start + 60 * 60 * 1000;
   return { start, end };
@@ -128,17 +130,13 @@ export const buildModActionRow = (
   guildId: string,
   options: ModActionOptions
 ) => {
-  const ignoreButton = new ButtonBuilder()
+  const ignoreButton = new SecondaryButtonBuilder()
     .setCustomId("ignoreReport")
-    .setEmoji("🔇")
-    .setLabel("Ignore")
-    .setStyle(ButtonStyle.Danger);
+    .setLabel("🔇Ignore");
 
-  const ackButton = new ButtonBuilder()
+  const ackButton = new PrimaryButtonBuilder()
     .setCustomId("ackReport")
-    .setEmoji("✅")
-    .setLabel("ACK")
-    .setStyle(ButtonStyle.Primary);
+    .setLabel("✅ACK");
 
   // const replyButton = new MessageButton()
   //     .setCustomId('replyReport')
@@ -146,18 +144,13 @@ export const buildModActionRow = (
   //     .setLabel('Reply')
   //     .setStyle(MessageButtonStyles.SECONDARY);
 
-  let viewButton: ButtonBuilder | undefined = undefined;
+  let viewButton: LinkButtonBuilder | undefined = undefined;
 
   if (options.messageLink || options?.channel?.id) {
-    viewButton = new ButtonBuilder()
-      .setEmoji("👀")
-      .setLabel("View")
-      .setStyle(ButtonStyle.Link);
-    if (options.messageLink) {
-      viewButton?.setURL(options.messageLink);
-    } else if (options?.channel?.id) {
-      viewButton?.setURL(createChannelLink(guildId, options.channel.id));
-    }
+    const url = options.messageLink || createChannelLink(guildId, options.channel!.id);
+    viewButton = new LinkButtonBuilder()
+      .setLabel("👀View")
+      .setURL(url);
   }
   const buttons = [
     ignoreButton,
@@ -165,9 +158,7 @@ export const buildModActionRow = (
     // ...(options.anon ? [] : [replyButton]), // reply button WIP
     ...(viewButton ? [viewButton] : []),
   ];
-  const modActionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    buttons
-  );
+  const modActionRow = new ActionRowBuilder().addComponents(buttons);
   return modActionRow;
 };
 
@@ -196,8 +187,8 @@ export const processModReportInteractions = async (
       });
     },
     ackReport: async (i) => {
-      const newEmbed = EmbedBuilder.from(i.message.embeds?.[0]).setColor(
-        "Green"
+      const newEmbed = new EmbedBuilder(i.message.embeds?.[0]?.data).setColor(
+        0x00ff00
       );
       await i.update({
         content: `${i.message.content}\nReport was ACK'd by: ${i.user.username}`,
@@ -205,7 +196,7 @@ export const processModReportInteractions = async (
         components: [],
       });
     },
-    replyReport: async (i) => {
+    replyReport: async (_i) => {
       // const embed = i.message.embeds?.[0] as MessageEmbed;
       // const embedField = embed?.fields?.[0];
       // if(embedField.name == 'ReplyID') {
@@ -245,5 +236,39 @@ export const formatUptime = (seconds: number): string => {
     return `${minutes}m ${secs}s`;
   } else {
     return `${secs}s`;
+  }
+};
+
+import { ColorResolvable, Colors, resolveColor } from "discord.js";
+
+/**
+ * Validates and prepares a color string as a ColorResolvable type.
+ * Supports Discord color names, hex strings (with or without #), and other ColorResolvable formats.
+ * @param color - The color string to validate
+ * @returns ColorResolvable if valid, null if invalid
+ */
+export const validateColor = (color: string | null): ColorResolvable | null => {
+  if (!color) return null;
+
+  try {
+    // Clean the input
+    let cleanColor = color.trim();
+
+    // Check if it's a Discord color name (case insensitive)
+    const colorKey = cleanColor.charAt(0).toUpperCase() + cleanColor.slice(1).toLowerCase();
+    if (Colors[colorKey as keyof typeof Colors] !== undefined) {
+      return colorKey as keyof typeof Colors;
+    }
+
+    // If it looks like a hex number without #, add the #
+    if (/^[0-9A-Fa-f]{6}$/.test(cleanColor)) {
+      cleanColor = `#${cleanColor}`;
+    }
+
+    // Test if it's a valid ColorResolvable by trying to resolve it
+    resolveColor(cleanColor as ColorResolvable);
+    return cleanColor as ColorResolvable;
+  } catch (error) {
+    return null;
   }
 };

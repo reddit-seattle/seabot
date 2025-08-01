@@ -9,8 +9,8 @@ import DiscordEventRouter from "./discord/DiscordEventRouter";
 import ExpressServer from "./ExpressServer";
 import ISeabotConfig from "./configuration/ISeabotConfig";
 import TaskScheduler from "./schedules/TaskScheduler";
+import { Logger } from "./utils/logger";
 
-import { Environment, GuildIds } from "./utils/constants";
 import { handleVoiceStatusUpdate } from "./functions/voiceChannelManagement";
 import { processModReportInteractions } from "./utils/helpers";
 
@@ -31,7 +31,7 @@ async function startServer() {
 }
 
 async function startDiscordBot() {
-  console.log("Starting bot...");
+  Logger.info("Starting bot...");
   try {
     const eventRouter = new DiscordEventRouter(discordBot.client);
     eventRouter.addEventListener(
@@ -47,8 +47,7 @@ async function startDiscordBot() {
 
     await discordBot.start(eventRouter);
   } catch (error) {
-    console.error("Fatal error while starting bot:");
-    console.error(error);
+    Logger.error("Fatal error while starting bot:", error);
     exit(1);
   }
 }
@@ -57,16 +56,15 @@ function startExpressServer() {
   try {
     expressServer.start();
   } catch (error) {
-    console.error("Fatal error while starting Express server:");
-    console.error(error);
+    Logger.error("Fatal error while starting Express server:", error);
     exit(1);
   }
 }
 
 function announcePresence() {
-  console.log("connected to servers:");
+  Logger.info("connected to servers:");
   discordBot.client.guilds.cache.forEach(async (guild) => {
-    console.log(guild.name);
+    Logger.info(guild.name);
     //announce when seabot process starts (debug channel must be set)
     if (configuration?.channelIds?.["DEBUG"]) {
       const debugChannel = await guild.channels.fetch(
@@ -83,6 +81,6 @@ function announcePresence() {
 }
 
 function startTaskScheduler() {
-  console.log("Starting task scheduler...");
+  Logger.info("Starting task scheduler...");
   new TaskScheduler(scheduledTasks);
 }

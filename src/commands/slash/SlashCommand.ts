@@ -1,18 +1,11 @@
-import {
-  SlashCommandBuilder,
-  SlashCommandSubcommandsOnlyBuilder,
-} from "discord.js";
+import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import { Command, CommandConfiguration } from "../Command";
 
 export type SlashCommandHandler = (...args: any[]) => any;
-export type BuiltSlashCommand =
-  | SlashCommandBuilder
-  | SlashCommandSubcommandsOnlyBuilder
-  | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
 
 export interface SlashCommandConfiguration extends CommandConfiguration {
-  builder: BuiltSlashCommand | (() => BuiltSlashCommand);
+  builder: ChatInputCommandBuilder | (() => ChatInputCommandBuilder);
   execute: SlashCommandHandler;
 }
 
@@ -20,7 +13,7 @@ export default class SlashCommand extends Command {
   private _configuration: SlashCommandConfiguration;
 
   public get builder() {
-    return this._configuration.builder as BuiltSlashCommand;
+    return this._configuration.builder as ChatInputCommandBuilder;
   }
 
   constructor(configuration: SlashCommandConfiguration) {
@@ -47,7 +40,7 @@ export default class SlashCommand extends Command {
       .setDescription(this.description);
   }
 
-  public canExecute(...args: any[]) {
+  public canExecute() {
     return true;
   }
 

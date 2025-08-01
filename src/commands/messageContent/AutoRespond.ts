@@ -2,13 +2,12 @@ import { GuildEmoji, Message } from "discord.js";
 
 import ContentCommand from "./ContentCommand";
 
-import { discordBot } from "../../server";
 import { replaceMentions } from "../../utils/helpers";
 import { REGEX, Strings } from "../../utils/constants";
 
 type AutoResponse = {
   message?: (() => string) | string;
-  reaction?: (() => GuildEmoji) | string;
+  reaction?: ((message: Message) => GuildEmoji | null) | string;
   trim?: boolean;
   enableLinks?: boolean;
   chance?: number;
@@ -16,27 +15,23 @@ type AutoResponse = {
 
 const responseMap = new Map<string | RegExp, AutoResponse>([
   [/hodor/i, { reaction: "🚪" }],
-  [/bisbopt/i, { reaction: () => emojiFromName("bisbopt") }],
+  [/bisbopt/i, { reaction: (message) => emojiFromName("bisbopt", message) }],
   [/duck/i, { reaction: "🦆" }],
-  [/69/i, { reaction: () => emojiFromName("nice"), trim: true }],
-  [/420/i, { reaction: () => emojiFromName("weed"), trim: true }],
-  [/puya[1ilӏ]{1,2}up/i, { reaction: () => emojiFromName("downvote") }],
-  [/bruh/i, { reaction: () => emojiFromName("bruh") }],
+  [/69/i, { reaction: (message) => emojiFromName("nice", message), trim: true }],
+  [/420/i, { reaction: (message) => emojiFromName("weed", message), trim: true }],
+  [/puya[1ilӏ]{1,2}up/i, { reaction: (message) => emojiFromName("downvote", message) }],
+  [/bruh/i, { reaction: (message) => emojiFromName("bruh", message) }],
   [/^SEA$/im, { message: "HAWKS!" }],
   [/(tbf|to be fair)/i, { message: Strings.letterkennyGif, chance: 0.33 }],
   [/(\s|^)eggs?/i, {reaction: "🥚", chance: 0.2}],
   [/pike[']?s[']? place/i, { message: 'uh, pike* place tyvm', chance: 1 }],
 ]);
 
-function emojiFromName(emojiName: string): GuildEmoji {
-  const emoji = discordBot.client.emojis.cache.find(
-    (x) => x.name === emojiName
+function emojiFromName(emojiName: string, message: Message): GuildEmoji | null {
+  const emoji = message.guild?.emojis.cache.find(
+    (x: GuildEmoji) => x.name === emojiName
   );
-  if (!emoji) {
-    throw new Error(`Could not find emoji with name "${emojiName}"`);
-  }
-
-  return emoji;
+  return emoji || null;
 }
 
 const trigger = new RegExp(
@@ -66,17 +61,23 @@ export default new ContentCommand({
       if (response.message) {
         const reply =
           typeof response.message === "function"
-            ? (response.message as Function).call(response)
+            ? response.message()
             : response.message;
         message.reply(reply);
       }
 
       if (response.reaction) {
-        const emoji =
-          typeof response.reaction === "function"
-            ? (response.reaction as Function).call(response).toString()
-            : response.reaction;
-        message.react(emoji);
+        try {
+          const emoji =
+            typeof response.reaction === "function"
+              ? response.reaction(message)?.toString()
+              : response.reaction;
+          if (emoji) {
+            message.react(emoji);
+          }
+        } catch (error) {
+          console.error(`Failed to react with emoji: ${error}`);
+        }
       }
     }
 
