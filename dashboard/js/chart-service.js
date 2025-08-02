@@ -24,11 +24,19 @@ class ChartService {
         const spec = {
             "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
             "data": {"values": timeSeriesData},
+            "transform": isChannelData ? [
+                {
+                    "impute": "count",
+                    "key": "time",
+                    "groupby": ["channel_name"],
+                    "value": 0
+                }
+            ] : [],
             "mark": {
                 "type": "line",
                 "strokeWidth": 2,
-                "point": {"filled": true, "size": 60},
-                "interpolate": "cardinal"
+                "point": {"filled": true, "size": 30},
+                "interpolate": "linear"
             },
             "encoding": {
                 "x": {
@@ -41,7 +49,7 @@ class ChartService {
                     "field": "count",
                     "type": "quantitative",
                     "title": "Messages",
-                    "scale": {"nice": true}
+                    "scale": {"nice": true, "zero": true}
                 },
                 "color": isChannelData ? {
                     "field": "channel_name",
@@ -64,7 +72,7 @@ class ChartService {
                     {"field": "count", "type": "quantitative", "title": "Messages"}
                 ]
             },
-            "width": "container",
+            "width": 800,
             "height": 300,
             "config": {
                 "axis": {"grid": true, "gridOpacity": 0.3},
@@ -117,9 +125,9 @@ class ChartService {
             .range([0, height])
             .padding(0.1);
         
-        const colorScale = d3.scaleSequential()
-            .domain([0, d3.max(channelData, d => d.count) || 1])
-            .interpolator(d3.interpolateViridis);
+        const colorScale = d3.scaleOrdinal()
+            .domain(channelData.map(d => d.channel_id))
+            .range(d3.schemeCategory10);
         
         this._updateBars(g, channelData, x, y, colorScale);
         this._updateLabels(g, channelData, y);
@@ -140,8 +148,7 @@ class ChartService {
             "encoding": {
                 "theta": {
                     "field": "count", 
-                    "type": "quantitative",
-                    "scale": {"type": "sqrt"}
+                    "type": "quantitative"
                 },
                 "color": {
                     "field": "full_command",
@@ -220,7 +227,7 @@ class ChartService {
             .attr('y', d => y(d.channel_id))
             .attr('height', y.bandwidth())
             .attr('width', 0)
-            .attr('fill', d => colorScale(d.count))
+            .attr('fill', d => colorScale(d.channel_id))
             .attr('rx', 3)
             .transition()
             .duration(CONFIG.ANIMATION_DURATION)
@@ -229,7 +236,7 @@ class ChartService {
         bars.transition()
             .duration(CONFIG.ANIMATION_DURATION)
             .attr('width', d => x(d.count))
-            .attr('fill', d => colorScale(d.count));
+            .attr('fill', d => colorScale(d.channel_id));
         
         bars.exit()
             .transition()
