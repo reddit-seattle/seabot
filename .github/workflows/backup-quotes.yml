@@ -26,7 +26,8 @@ jobs:
         UB3R_B0T_QUOTE_KEY: ${{ secrets.UB3R_B0T_QUOTE_KEY }}
       run: |
         echo "Fetching quotes from ub3r-b0t..."
-        curl --location --request GET 'https://admin.ub3r-b0t.com/api/quotes/370945003566006272?=' --header 'X-Key: $UB3R_B0T_QUOTE_KEY' -f -o quotes.json
+        echo "Testing with hardcoded key for debugging..."
+        curl --location --request GET 'https://admin.ub3r-b0t.com/api/quotes/370945003566006272?=' --header "X-Key: ${UB3R_B0T_QUOTE_KEY}" -f -o quotes.json
 
         # data exists
         if [ ! -f quotes.json ]; then
