@@ -3,18 +3,7 @@ name: Backup Quotes
 on:
   schedule:
     # midnight Pacific
-     - name: Verify upload
-      uses: azure/CLI@v1
-      with:
-        azcliversion: 2.63.0
-        inlineScript: |
-          az storage blob show \
-            --account-name quotestore \
-            --container-name quotes \
-            --name quotes.json \
-            --query "{name: name, lastModified: properties.lastModified, contentLength: properties.contentLength}" \
-            --output table \
-            --auth-mode login0 8 * * *'
+    - cron: '0 8 * * *'
   workflow_dispatch: # triggered
 
 jobs:
