@@ -12,7 +12,6 @@ class ChartService {
             isChannelData = false;
         }
         
-        console.log('Using timeSeriesData:', timeSeriesData, 'isChannelData:', isChannelData);
         
         // If still no data, show empty state
         if (timeSeriesData.length === 0) {
