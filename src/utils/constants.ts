@@ -114,6 +114,7 @@ export module Environment {
   export const cosmosAuthKey = process.env["cosmosAuthKey"] || "";
   export const ehConnectionString = process.env["ehConnectionString"] || "";
   export const sendTelemetry = process.env["sendTelemetry"] || false;
+  export const telemetryDbPath = process.env["TELEMETRY_DB_PATH"] || "/mnt/telemetry/telemetry.db";
 }
 export module VoiceConstants {
   export const VOICE_TYPE = 2;

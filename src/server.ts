@@ -17,7 +17,7 @@ import { processModReportInteractions } from "./utils/helpers";
 const expressServer = new ExpressServer();
 let configuration: ISeabotConfig;
 
-export { configuration, discordBot };
+export { configuration, discordBot, expressServer };
 
 startServer();
 let discordBot: DiscordBot;
@@ -44,6 +44,13 @@ async function startDiscordBot() {
     );
     eventRouter.addEventListener(Events.ClientReady, announcePresence);
     eventRouter.addEventListener(Events.ClientReady, startTaskScheduler);
+    
+    // Simple telemetry - track messages (production only)
+    eventRouter.addEventListener(Events.MessageCreate, (message: any) => {
+      if (!message.author.bot) {
+        expressServer.getTelemetry()?.logMessage(message);
+      }
+    });
 
     await discordBot.start(eventRouter);
   } catch (error) {

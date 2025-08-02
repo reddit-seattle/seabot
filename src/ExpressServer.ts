@@ -3,14 +3,25 @@ import fs from "fs";
 import path from "path";
 import { formatUptime } from "./utils/helpers";
 import { Logger } from "./utils/logger";
+import { SimpleTelemetry } from "./db/SimpleTelemetry";
+import { Environment } from "./utils/constants";
 
 export default class ExpressServer {
   private _server;
   private _startTime: Date;
+  private _telemetry: SimpleTelemetry | null;
 
   constructor() {
     this._server = express();
     this._startTime = new Date();
+    
+    // Only enable telemetry in production
+    if (process.env.NODE_ENV === 'production') {
+      // Use Azure Files mount for persistence
+      this._telemetry = new SimpleTelemetry(Environment.telemetryDbPath);
+    } else {
+      this._telemetry = null; // No telemetry in dev/local
+    }
     // TODO - make this a badass web page
     this._server.get("/", (_request, response) => {
       const uptime = process.uptime();
@@ -39,10 +50,29 @@ export default class ExpressServer {
 
       response.json(buildInfo);
     });
+
+    // Simple metrics endpoint for Grafana
+    this._server.get("/metrics", (_request, response) => {
+      try {
+        if (!this._telemetry) {
+          response.json({ error: "Telemetry not enabled (dev/local mode)" });
+          return;
+        }
+        const metrics = this._telemetry.getMetrics();
+        response.json(metrics);
+      } catch (error) {
+        Logger.error("Error getting metrics:", error);
+        response.status(500).json({ error: "Failed to get metrics" });
+      }
+    });
   }
 
   start() {
     Logger.info("Starting express server...");
     this._server.listen(8080);
+  }
+
+  getTelemetry() {
+    return this._telemetry;
   }
 }

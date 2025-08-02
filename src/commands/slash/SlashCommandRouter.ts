@@ -9,7 +9,7 @@ import { Environment, Strings } from "../../utils/constants";
 
 import CommandRouter from "../CommandRouter";
 import SlashCommand from "./SlashCommand";
-import { configuration } from "../../server";
+import { configuration, expressServer } from "../../server";
 
 export default class SlashCommandRouter extends CommandRouter {
   public async initialize(commands: SlashCommand[]) {
@@ -23,10 +23,40 @@ export default class SlashCommandRouter extends CommandRouter {
 
       const command = commandMap[interaction.commandName];
       const { options, guild } = interaction;
+      
+      // Extract subcommand if present
+      let subcommand: string | null = null;
+      try {
+        subcommand = interaction.options.getSubcommand();
+      } catch {
+        // No subcommand, that's fine
+      }
+      
       if (command) {
         try {
           command.execute?.(interaction);
+          // Log successful command (production only)
+          const telemetry = expressServer.getTelemetry();
+          if (telemetry) {
+            telemetry.logCommand(
+              interaction.channelId,
+              interaction.commandName,
+              true,
+              subcommand || undefined
+            );
+          }
         } catch (error) {
+          // Log failed command (production only)
+          const telemetry = expressServer.getTelemetry();
+          if (telemetry) {
+            telemetry.logCommand(
+              interaction.channelId,
+              interaction.commandName,
+              false,
+              subcommand || undefined
+            );
+          }
+          
           if(Environment.DEBUG && configuration?.channelIds?.["DEBUG"]) {
             const debugChannel = await guild?.channels.fetch(
               configuration?.channelIds?.["DEBUG"]
