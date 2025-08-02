@@ -31,6 +31,44 @@ body {
 }
 
 /* Responsive layout for different screen sizes */
+@media (max-width: 767px) {
+    .content-area {
+        margin: 5px;
+        padding: 8px;
+        gap: 10px;
+    }
+    
+    /* Ensure charts fit on mobile */
+    .panel {
+        overflow-x: auto;
+    }
+    
+    #timelineChart, #channelChart, #commandChart, #heatmap {
+        min-width: 0;
+        width: 100%;
+    }
+    
+    /* Mobile-friendly text */
+    .panel h3 {
+        font-size: 14px;
+    }
+    
+    /* Adjust stats grid for mobile */
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px;
+    }
+    
+    .stat-item {
+        padding: 8px;
+        font-size: 11px;
+    }
+    
+    .stat-value {
+        font-size: 16px !important;
+    }
+}
+
 @media (min-width: 768px) {
     .content-area {
         display: grid;

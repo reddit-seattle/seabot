@@ -53,6 +53,7 @@ class Dashboard {
             // Create all charts with animations for updates
             StatsService.createStats(currentData, isLiveUpdate);
             ChartService.createTimelineChart(currentData, isLiveUpdate);
+            ChartService.createDistributionChart(currentData, isLiveUpdate);
             ChartService.createChannelChart(currentData, isLiveUpdate);
             ChartService.createCommandChart(currentData, isLiveUpdate);
             ChartService.createHeatmap(currentData, isLiveUpdate);

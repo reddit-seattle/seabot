@@ -83,19 +83,19 @@ export class SimpleTelemetry {
   getMetrics() {
     // Daily message counts by week
     const messageStats = this.db.prepare(`
-      SELECT DATE(timestamp) as date, COUNT(*) as count
+      SELECT DATE(timestamp, 'localtime') as date, COUNT(*) as count
       FROM messages 
-      WHERE timestamp > datetime('now', '-7 days')
-      GROUP BY DATE(timestamp)
+      WHERE timestamp > datetime('now', '-7 days', 'localtime')
+      GROUP BY DATE(timestamp, 'localtime')
       ORDER BY date
     `).all();
 
     // Hourly message counts by day
     const hourlyMessages = this.db.prepare(`
-      SELECT strftime('%H', timestamp) as hour, COUNT(*) as count
+      SELECT strftime('%H', timestamp, 'localtime') as hour, COUNT(*) as count
       FROM messages 
-      WHERE timestamp > datetime('now', '-1 day')
-      GROUP BY strftime('%H', timestamp)
+      WHERE timestamp > datetime('now', '-1 day', 'localtime')
+      GROUP BY strftime('%H', timestamp, 'localtime')
       ORDER BY hour
     `).all();
 
@@ -103,32 +103,36 @@ export class SimpleTelemetry {
     const channelActivity = this.db.prepare(`
       SELECT channel_id, COUNT(*) as count
       FROM messages 
-      WHERE timestamp > datetime('now', '-7 days')
+      WHERE timestamp > datetime('now', '-7 days', 'localtime')
       GROUP BY channel_id
       ORDER BY count DESC
       LIMIT 10
     `).all();
 
-    // Messages per hour over last 7 days (time series)
+    // Messages per 15 minutes over last 7 days (time series)
     const timeSeriesHourly = this.db.prepare(`
       SELECT 
-        datetime(strftime('%Y-%m-%d %H:00:00', timestamp)) as time,
+        strftime('%Y-%m-%d %H:', timestamp, 'localtime') || 
+        printf('%02d', (CAST(strftime('%M', timestamp, 'localtime') AS INTEGER) / 15) * 15) || 
+        ':00' as time,
         COUNT(*) as count
       FROM messages 
-      WHERE timestamp > datetime('now', '-7 days')
-      GROUP BY strftime('%Y-%m-%d %H', timestamp)
+      WHERE timestamp > datetime('now', '-7 days', 'localtime')
+      GROUP BY strftime('%Y-%m-%d %H', timestamp, 'localtime'), (CAST(strftime('%M', timestamp, 'localtime') AS INTEGER) / 15)
       ORDER BY time
     `).all();
 
-    // Messages per hour by channel (for colored line chart)
+    // Messages per 15 minutes by channel (for colored line chart)
     const timeSeriesByChannel = this.db.prepare(`
       SELECT 
-        datetime(strftime('%Y-%m-%d %H:00:00', timestamp)) as time,
+        strftime('%Y-%m-%d %H:', timestamp, 'localtime') || 
+        printf('%02d', (CAST(strftime('%M', timestamp, 'localtime') AS INTEGER) / 15) * 15) || 
+        ':00' as time,
         channel_id,
         COUNT(*) as count
       FROM messages 
-      WHERE timestamp > datetime('now', '-7 days')
-      GROUP BY strftime('%Y-%m-%d %H', timestamp), channel_id
+      WHERE timestamp > datetime('now', '-7 days', 'localtime')
+      GROUP BY strftime('%Y-%m-%d %H', timestamp, 'localtime'), (CAST(strftime('%M', timestamp, 'localtime') AS INTEGER) / 15), channel_id
       ORDER BY time, channel_id
     `).all();
 
@@ -141,7 +145,7 @@ export class SimpleTelemetry {
         CASE WHEN subcommand IS NOT NULL THEN command_name || '/' || subcommand 
              ELSE command_name END as full_command
       FROM commands 
-      WHERE timestamp > datetime('now', '-7 days')
+      WHERE timestamp > datetime('now', '-7 days', 'localtime')
       GROUP BY command_name, subcommand
       ORDER BY count DESC
     `).all();
@@ -149,13 +153,13 @@ export class SimpleTelemetry {
     // Command success rate
     const commandSuccess = this.db.prepare(`
       SELECT 
-        DATE(timestamp) as date,
+        DATE(timestamp, 'localtime') as date,
         SUM(CASE WHEN success = 1 THEN 1 ELSE 0 END) as successful,
         SUM(CASE WHEN success = 0 THEN 1 ELSE 0 END) as failed,
         COUNT(*) as total
       FROM commands 
-      WHERE timestamp > datetime('now', '-7 days')
-      GROUP BY DATE(timestamp)
+      WHERE timestamp > datetime('now', '-7 days', 'localtime')
+      GROUP BY DATE(timestamp, 'localtime')
       ORDER BY date
     `).all();
 
@@ -163,7 +167,7 @@ export class SimpleTelemetry {
     const categoryStats = this.db.prepare(`
       SELECT category_id, COUNT(*) as count
       FROM messages 
-      WHERE timestamp > datetime('now', '-7 days')
+      WHERE timestamp > datetime('now', '-7 days', 'localtime')
         AND category_id IS NOT NULL
       GROUP BY category_id
       ORDER BY count DESC
