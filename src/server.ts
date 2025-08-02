@@ -1,20 +1,20 @@
-import { ActivityType, Events, TextChannel } from "discord.js";
+import { TextChannel, ActivityType, Events } from "discord.js";
 import { exit } from "process";
 
-import loadConfiguration from "./configuration/loadConfiguration";
 import scheduledTasks from "./schedules/";
+import loadConfiguration from "./configuration/loadConfiguration";
 
-import ISeabotConfig from "./configuration/ISeabotConfig";
 import DiscordBot from "./discord/DiscordBot";
 import DiscordEventRouter from "./discord/DiscordEventRouter";
 import ExpressServer from "./ExpressServer";
+import ISeabotConfig from "./configuration/ISeabotConfig";
 import TaskScheduler from "./schedules/TaskScheduler";
 import { Logger } from "./utils/logger";
 
 import { handleVoiceStatusUpdate } from "./functions/voiceChannelManagement";
 import { processModReportInteractions } from "./utils/helpers";
 
-const expressServer = new ExpressServer();
+let expressServer: ExpressServer;
 let configuration: ISeabotConfig;
 let discordBot: DiscordBot;
 
@@ -25,9 +25,13 @@ startServer();
 async function startServer() {
   configuration = await loadConfiguration(__dirname);
 
+  expressServer = new ExpressServer(configuration);
   startExpressServer();
   discordBot = new DiscordBot();
   await startDiscordBot();
+  
+  // Update express server with Discord bot reference
+  expressServer.setDiscordBot(discordBot);
 }
 
 async function startDiscordBot() {
@@ -44,13 +48,6 @@ async function startDiscordBot() {
     );
     eventRouter.addEventListener(Events.ClientReady, announcePresence);
     eventRouter.addEventListener(Events.ClientReady, startTaskScheduler);
-
-    // Simple telemetry - track messages (production only)
-    eventRouter.addEventListener(Events.MessageCreate, (message: any) => {
-      if (!message.author.bot) {
-        expressServer.getTelemetry()?.logMessage(message);
-      }
-    });
 
     await discordBot.start(eventRouter);
   } catch (error) {

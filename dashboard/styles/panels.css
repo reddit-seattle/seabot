@@ -1,0 +1,95 @@
+/* Classic Reddit Panel Layout - circa 2013 */
+
+.panel {
+    background: #ffffff;
+    border: 1px solid #c7c7c7;
+    margin: 10px 0;
+    transition: none;
+    transform: none;
+    box-shadow: none;
+    border-radius: 0;
+    backdrop-filter: none;
+}
+
+.panel h3 {
+    background: #f7f7f8;
+    border-bottom: 1px solid #c7c7c7;
+    padding: 4px 8px;
+    margin: 0;
+    font-size: 12px;
+    font-weight: bold;
+    color: #222;
+}
+
+.panel-content {
+    padding: 10px;
+}
+
+.panel:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Chart containers - simple and clean */
+#timelineChart, 
+#channelChart, 
+#commandChart, 
+#heatmapChart {
+    min-height: 200px;
+    padding: 10px;
+    background: #ffffff;
+}
+
+/* No fancy animations or hover effects */
+.panel {
+    transition: none;
+    transform: none;
+    box-shadow: none;
+    border-radius: 0;
+    backdrop-filter: none;
+}
+
+.panel:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Classic table-like layout for charts */
+.chart-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+
+.chart-table th {
+    background: #f7f7f8;
+    border: 1px solid #c7c7c7;
+    padding: 3px 6px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.chart-table td {
+    border: 1px solid #c7c7c7;
+    padding: 3px 6px;
+    vertical-align: top;
+}
+
+/* Simple loading state */
+.chart-loading {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+}
+
+/* No animations */
+.chart-container {
+    transition: none;
+}
+
+.chart-updating {
+    opacity: 1;
+    transform: none;
+}
