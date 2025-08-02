@@ -18,20 +18,21 @@ export default class ExpressServer {
   constructor(config?: ISeabotConfig) {
     this._server = express();
     this._startTime = new Date();
-    
+
     // Initialize telemetry
     try {
-      this._telemetry = new SimpleTelemetry('./telemetry.db', config);
+      const dbPath = process.env.NODE_ENV === 'production' ? './data/telemetry.db' : './telemetry.db';
+      this._telemetry = new SimpleTelemetry(dbPath, config);
       Logger.info("Telemetry initialized");
     } catch (error) {
       Logger.error("Failed to initialize telemetry:", error);
     }
-    
+
     // TODO - make this a badass web page
     this._server.get("/", (_request, response) => {
       const uptime = process.uptime();
       const uptimeFormatted = formatUptime(uptime);
-      
+
       // Try to get package.json
       let packageInfo: any = {};
       try {
@@ -55,47 +56,47 @@ export default class ExpressServer {
 
       response.json(buildInfo);
     });
-    
+
     // Metrics endpoint - caching
     this._server.get("/metrics", async (_request, response) => {
       try {
         if (!this._telemetry) {
-          return response.status(503).json({"sorry mario": "your telemetry is in another castle"});
+          return response.status(503).json({ "sorry mario": "your telemetry is in another castle" });
         }
         const now = Date.now();
-        
+
         // Check cache first
         if (this._metricsCache && (now - this._metricsCache.timestamp < this.CACHE_DURATION)) {
           Logger.debug("Serving cached metrics");
           return response.json(this._metricsCache.data);
         }
-        
+
         // Get fresh metrics
         const metrics = this._telemetry.getMetrics();
-        
+
         // Enrich with channel names if Discord bot is available
         if (this._discordBot) {
           await this._enrichWithChannelNames(metrics);
         }
-        
+
         // Cache the result
         this._metricsCache = {
           data: metrics,
           timestamp: now
         };
-        
+
         Logger.debug("Serving fresh metrics");
         response.json(metrics);
-        
+
       } catch (error) {
         Logger.error("Error fetching metrics:", error);
-        response.status(500).json({ 
+        response.status(500).json({
           error: "Failed to fetch metrics",
           details: error instanceof Error ? error.message : "Unknown error"
         });
       }
     });
-    
+
     // Serve static dashboard
     this._server.use('/dashboard', express.static(path.join(__dirname, '../dashboard')));
   }
@@ -127,7 +128,7 @@ export default class ExpressServer {
       // Enrich time series by channel data
       if (metrics.timeSeriesByChannel) {
         const channelNamesCache = new Map<string, string>();
-        
+
         for (const timeData of metrics.timeSeriesByChannel) {
           if (!channelNamesCache.has(timeData.channel_id)) {
             const channel = await this._discordBot.client.channels.fetch(timeData.channel_id).catch(() => null);
@@ -135,7 +136,7 @@ export default class ExpressServer {
               channelNamesCache.set(timeData.channel_id, channel.name);
             }
           }
-          
+
           const channelName = channelNamesCache.get(timeData.channel_id);
           if (channelName) {
             timeData.channel_name = channelName;
