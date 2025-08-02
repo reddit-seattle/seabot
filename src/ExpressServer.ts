@@ -55,7 +55,7 @@ export default class ExpressServer {
     this._server.get("/metrics", (_request, response) => {
       try {
         if (!this._telemetry) {
-          response.json({ error: "Telemetry not enabled (dev/local mode)" });
+          response.json({ "sorry mario": "your telemetry is in another castle" });
           return;
         }
         const metrics = this._telemetry.getMetrics();
