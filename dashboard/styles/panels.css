@@ -32,19 +32,31 @@
 
 /* Chart containers - simple and clean */
 #timelineChart, 
+#distributionChart,
 #channelChart, 
 #commandChart, 
 #heatmapChart {
-    min-height: 200px;
-    padding: 10px;
+    min-height: 280px;
+    padding: 15px;
     background: #ffffff;
     width: 100%;
     overflow: visible;
 }
 
-/* Make timeline chart wider specifically */
-#timelineChart {
-    min-width: 800px;
+/* Vega-Lite charts responsive sizing */
+#timelineChart .vega-embed,
+#distributionChart .vega-embed {
+    width: 100% !important;
+    height: auto !important;
+}
+
+#timelineChart canvas,
+#timelineChart svg,
+#distributionChart canvas,
+#distributionChart svg {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
 }
 
 /* No fancy animations or hover effects */

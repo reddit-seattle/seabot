@@ -70,7 +70,7 @@ class ChartService {
                     {"field": "count", "type": "quantitative", "title": "Messages"}
                 ]
             },
-            "width": 800,
+            "width": "container",
             "height": 300,
             "config": {
                 "axis": {"grid": true, "gridOpacity": 0.3},
@@ -129,6 +129,98 @@ class ChartService {
         
         this._updateBars(g, channelData, x, y, colorScale);
         this._updateLabels(g, channelData, y);
+    }
+
+    static createDistributionChart(data, isUpdate = false) {
+        const timeSeriesData = data.timeSeriesByChannel || [];
+        
+        if (timeSeriesData.length === 0) {
+            document.getElementById('distributionChart').innerHTML = '<p style="text-align: center; color: #666; padding: 50px;">No channel distribution data available</p>';
+            return;
+        }
+
+        // Get top 10 channels by total message count
+        const channelTotals = {};
+        timeSeriesData.forEach(d => {
+            channelTotals[d.channel_id] = (channelTotals[d.channel_id] || 0) + d.count;
+        });
+        const topChannels = Object.entries(channelTotals)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 10)
+            .map(([channelId]) => channelId);
+        
+        // Filter data to only include top channels
+        const filteredData = timeSeriesData.filter(d => topChannels.includes(d.channel_id));
+
+        // Ensure we have display names for channels
+        const enrichedData = filteredData.map(d => ({
+            ...d,
+            channel_display: d.channel_name ? `#${d.channel_name}` : `#${d.channel_id.slice(-8)}`
+        }));
+
+        const spec = {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "data": {"values": enrichedData},
+            "transform": [
+                {
+                    "impute": "count",
+                    "key": "time",
+                    "groupby": ["channel_id"],
+                    "value": 0
+                }
+            ],
+            "mark": {
+                "type": "area",
+                "interpolate": "monotone"
+            },
+            "encoding": {
+                "x": {
+                    "field": "time",
+                    "type": "temporal",
+                    "title": "Time",
+                    "axis": {
+                        "tickCount": 24,
+                        "labelExpr": "hours(datum.value) == 0 || hours(datum.value) == 12 ? timeFormat(datum.value, '%m/%d %H:%M') : timeFormat(datum.value, '%H:%M')",
+                        "labelAngle": -45
+                    }
+                },
+                "y": {
+                    "field": "count",
+                    "type": "quantitative",
+                    "title": "Messages",
+                    "scale": {"nice": true, "zero": true}
+                },
+                "color": {
+                    "field": "channel_display",
+                    "type": "nominal",
+                    "title": "Channel",
+                    "scale": {"scheme": "category20"},
+                    "legend": {
+                        "title": "Channel",
+                        "orient": "right"
+                    }
+                },
+                "tooltip": [
+                    {"field": "time", "type": "temporal", "format": "%Y-%m-%d %H:%M"},
+                    {"field": "count", "type": "quantitative", "title": "Messages"},
+                    {"field": "channel_display", "type": "nominal", "title": "Channel"}
+                ]
+            },
+            "width": "container",
+            "height": 300,
+            "config": {
+                "axis": {"grid": true, "gridOpacity": 0.3},
+                "view": {"stroke": null}
+            }
+        };
+
+        const embedOptions = { actions: false, renderer: 'svg' };
+        
+        if (isUpdate) {
+            this._animateChartUpdate('#distributionChart', spec, embedOptions);
+        } else {
+            vegaEmbed('#distributionChart', spec, embedOptions);
+        }
     }
 
     static createCommandChart(data, isUpdate = false) {
