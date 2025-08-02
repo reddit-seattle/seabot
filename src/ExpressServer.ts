@@ -6,6 +6,7 @@ import { Logger } from "./utils/logger";
 import { SimpleTelemetry } from "./db/SimpleTelemetry";
 import DiscordBot from "./discord/DiscordBot";
 import ISeabotConfig from "./configuration/ISeabotConfig";
+import { Environment } from "./utils/constants";
 
 export default class ExpressServer {
   private _server;
@@ -21,9 +22,30 @@ export default class ExpressServer {
 
     // Initialize telemetry
     try {
-      const dbPath = process.env.NODE_ENV === 'production' ? './data/telemetry.db' : './telemetry.db';
+      const dbPath = process.env.NODE_ENV === 'production' ? Environment.telemetryDbPath : './telemetry.db';
+      Logger.info(`Attempting to initialize telemetry with database path: ${dbPath}`);
+      
+      // Check if the directory exists
+      const dbDir = path.dirname(dbPath);
+      Logger.info(`Database directory: ${dbDir}`);
+      Logger.info(`Database directory exists: ${fs.existsSync(dbDir)}`);
+      
+      if (process.env.NODE_ENV === 'production') {
+        // In production, log more details about the mount directory
+        Logger.info(`Current working directory: ${process.cwd()}`);
+        Logger.info(`__dirname: ${__dirname}`);
+        
+        // Check the mount point specifically
+        if (fs.existsSync('/mnt/telemetry')) {
+          const mountContents = fs.readdirSync('/mnt/telemetry');
+          Logger.info(`Contents of /mnt/telemetry directory: ${JSON.stringify(mountContents)}`);
+        } else {
+          Logger.warn(`/mnt/telemetry mount point does not exist`);
+        }
+      }
+      
       this._telemetry = new SimpleTelemetry(dbPath, config);
-      Logger.info("Telemetry initialized");
+      Logger.info("Telemetry initialized successfully");
     } catch (error) {
       Logger.error("Failed to initialize telemetry:", error);
     }
