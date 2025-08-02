@@ -70,7 +70,7 @@ class ChartService {
                     {"field": "count", "type": "quantitative", "title": "Messages"}
                 ]
             },
-            "width": 800,
+            "width": "container",
             "height": 300,
             "config": {
                 "axis": {"grid": true, "gridOpacity": 0.3},
@@ -206,7 +206,7 @@ class ChartService {
                     {"field": "channel_display", "type": "nominal", "title": "Channel"}
                 ]
             },
-            "width": 800,
+            "width": "container",
             "height": 300,
             "config": {
                 "axis": {"grid": true, "gridOpacity": 0.3},
