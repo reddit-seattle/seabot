@@ -1,0 +1,92 @@
+/* Classic Reddit Header Styles - r/seattle circa 2013 */
+
+/* Header layout updates */
+.header {
+    background: #cee3f8;
+    border-bottom: 1px solid #5f99cf;
+    padding: 5px 10px;
+}
+
+.header-top {
+    margin-bottom: 5px;
+}
+
+.header-nav {
+    background: #f7f7f8;
+    border-bottom: 1px solid #c7c7c7;
+    padding: 0;
+    margin: 0 -10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+/* Header stats - inline with nav */
+.header-stats {
+    padding: 4px 15px;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+}
+
+.stats-inline {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.stat-inline {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stat-inline .stat-label {
+    color: #666;
+}
+
+.stat-inline .stat-value {
+    color: #ff4500;
+    font-weight: bold;
+}
+
+/* Seattle-specific header details */
+.header h1:after {
+    content: " • seabot analytics";
+    color: #666;
+    font-size: 11px;
+    font-weight: normal;
+    margin-left: 5px;
+}
+
+/* Classic reddit user info style */
+.header .user-info {
+    position: absolute;
+    top: 5px;
+    right: 100px;
+    font-size: 10px;
+    color: #369;
+}
+
+/* Override fancy button styles */
+.time-controls .btn,
+.action-controls .btn {
+    transition: none;
+    transform: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.time-controls .btn:hover,
+.action-controls .btn:hover {
+    transform: none;
+    box-shadow: none;
+}

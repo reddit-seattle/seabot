@@ -1,0 +1,232 @@
+/* SEABot Dashboard - Classic Reddit Style (circa 2013) */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+body {
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 12px;
+    background: #ffffff;
+    color: #222222;
+    line-height: 1.4;
+}
+
+.dashboard {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+}
+
+.content-area {
+    background-color: #f7f7f8;
+    border: 1px solid #5f99cf;
+    margin: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Responsive layout for different screen sizes */
+@media (min-width: 768px) {
+    .content-area {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    /* Full width panels for line charts and heatmap */
+    .panel.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    /* Stats panel takes both columns but has max width */
+    .panel.stats-panel {
+        grid-column: 1 / -1;
+        max-width: 800px;
+        justify-self: center;
+    }
+    
+    /* Constrained width for bar charts */
+    .panel.constrained {
+        max-width: 500px;
+        justify-self: center;
+    }
+}
+
+/* Classic Reddit Header */
+.header {
+    background: #cee3f8;
+    border-bottom: 1px solid #5f99cf;
+    padding: 5px 10px;
+    position: relative;
+}
+
+.header h1 {
+    font-size: 18px;
+    font-weight: normal;
+    color: #222;
+    margin: 0;
+    display: inline;
+}
+
+.header h1:before {
+    content: "r/";
+    color: #369;
+    font-weight: bold;
+}
+
+.header p {
+    font-size: 11px;
+    color: #666;
+    margin: 2px 0 0 0;
+    font-style: italic;
+}
+
+/* Classic tabmenu style controls */
+.time-controls, .action-controls {
+    float: left;
+    margin: 0;
+}
+
+.time-controls {
+    border-right: 1px solid #c7c7c7;
+}
+
+.btn {
+    display: block;
+    float: left;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: #369;
+    text-decoration: none;
+    border-right: 1px solid #c7c7c7;
+    background: #f7f7f8;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    font-family: Verdana, Arial, sans-serif;
+}
+
+.btn:hover {
+    background: #ffffff;
+}
+
+.btn.active {
+    background: #ffffff;
+    font-weight: bold;
+}
+
+.btn:hover {
+    background: #ffffff;
+}
+
+.btn.active {
+    background: #ffffff;
+    color: #000;
+    font-weight: bold;
+}
+
+.live-btn {
+    color: #228b22 !important;
+}
+
+.refresh-btn {
+    color: #369 !important;
+}
+
+/* Main content area */
+.content-area {
+    background: #ffffff;
+    padding: 10px;
+}
+
+/* Loading and Error States */
+.loading {
+    text-align: center;
+    color: #666;
+    font-size: 12px;
+    margin: 50px 0;
+    background: #f7f7f8;
+    padding: 20px;
+    border: 1px solid #c7c7c7;
+}
+
+.error {
+    color: #cc0000;
+    text-align: center;
+    padding: 10px;
+    background: #ffeeee;
+    border: 1px solid #cc0000;
+    margin: 10px 0;
+    font-size: 12px;
+}
+
+/* Classic grid layout */
+.grid {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+.panel {
+    background: #ffffff;
+    border: 1px solid #c7c7c7;
+    margin: 0 0 10px 0;
+    padding: 0;
+}
+
+.panel h3 {
+    background: #f7f7f8;
+    border-bottom: 1px solid #c7c7c7;
+    padding: 5px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #222;
+    margin: 0;
+}
+
+.panel-content {
+    padding: 10px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+/* Live Update Indicator - classic reddit style */
+.live-indicator {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: #228b22;
+    color: white;
+    padding: 2px 6px;
+    font-size: 10px;
+    border: 1px solid #006400;
+}
+
+/* Classic clearfix */
+.controls:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* No fancy responsive - this is 2013! */
+@media (max-width: 768px) {
+    .time-controls, .action-controls {
+        float: none;
+        width: 100%;
+    }
+    
+    .btn {
+        float: none;
+        display: block;
+        border-right: none;
+        border-bottom: 1px solid #c7c7c7;
+    }
+}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>seabot analytics : telemetry</title>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="styles/panels.css">
+    <link rel="stylesheet" href="styles/stats.css">
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <div class="header-top">
+                <h1>seabot</h1>
+                <p>bot analytics and stuff</p>
+            </div>
+            
+            <div class="header-nav">
+                <div class="nav-left">
+                    <div class="time-controls">
+                        <button class="btn active" onclick="setTimeRange('24h')">24h</button>
+                        <button class="btn" onclick="setTimeRange('7d')">7d</button>
+                    </div>
+                    <div class="action-controls">
+                        <button class="btn live-btn" onclick="toggleLiveUpdates()">live</button>
+                        <button class="btn refresh-btn" onclick="refreshData()">refresh</button>
+                    </div>
+                </div>
+                
+                <!-- Stats inline with nav -->
+                <div id="headerStats" class="header-stats" style="display: none;">
+                    <div class="stats-inline" id="statsInline">
+                        <!-- Stats will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <div id="loading" class="loading">loading...</div>
+            <div id="error" class="error" style="display: none;"></div>
+            
+            <!-- Message Timeline - Full width -->
+            <div class="panel full-width">
+                <h3>message activity</h3>
+                <div class="panel-content">
+                    <div id="timelineChart"></div>
+                </div>
+            </div>
+            
+            <!-- Channel Activity - Constrained width -->
+            <div class="panel constrained">
+                <h3>channel activity</h3>
+                <div class="panel-content">
+                    <div id="channelChart"></div>
+                </div>
+            </div>
+            
+            <!-- Command Usage - Constrained width -->
+            <div class="panel constrained">
+                <h3>command usage</h3>
+                <div class="panel-content">
+                    <div id="commandChart"></div>
+                </div>
+            </div>
+            
+            <!-- Hourly Heatmap - Full width -->
+            <div class="panel full-width">
+                <h3>hourly activity</h3>
+                <div class="panel-content">
+                    <div id="heatmapChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script src="js/config.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/chart-service.js"></script>
+    <script src="js/stats-service.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
