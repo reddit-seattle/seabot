@@ -24,7 +24,9 @@ jobs:
       id: fetch-quotes
       run: |
         echo "Fetching quotes from ub3r-b0t..."
-        curl -f -o quotes.json "https://admin.ub3r-b0t.com/quotes?id=370945003566006272&key=${{ secrets.UB3R_B0T_QUOTE_KEY }}"
+        curl --location --request GET 'https://admin.ub3r-b0t.com/api/quotes/370945003566006272?=' \
+          --header 'X-Key: ${{ secrets.UB3R_B0T_QUOTE_KEY }}' \
+          -f -o quotes.json
         
         # data exists
         if [ ! -f quotes.json ]; then
