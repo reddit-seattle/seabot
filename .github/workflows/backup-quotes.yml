@@ -22,12 +22,12 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Fetch quotes data
       id: fetch-quotes
+      env:
+        UB3R_B0T_QUOTE_KEY: ${{ secrets.UB3R_B0T_QUOTE_KEY }}
       run: |
         echo "Fetching quotes from ub3r-b0t..."
-        curl --location --request GET 'https://admin.ub3r-b0t.com/api/quotes/370945003566006272?=' \
-          --header 'X-Key: ${{ secrets.UB3R_B0T_QUOTE_KEY }}' \
-          -f -o quotes.json
-        
+        curl --location --request GET 'https://admin.ub3r-b0t.com/api/quotes/370945003566006272?=' --header 'X-Key: $UB3R_B0T_QUOTE_KEY' -f -o quotes.json
+
         # data exists
         if [ ! -f quotes.json ]; then
           echo "Error: Failed to download quotes.json"
