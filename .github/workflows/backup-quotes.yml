@@ -51,9 +51,8 @@ jobs:
         echo "$(wc -c < quotes.json) bytes of digital graffiti"
 
     - name: Upload to Azure Storage
-      uses: azure/CLI@v1
+      uses: azure/CLI@v2
       with:
-        azcliversion: 2.63.0
         inlineScript: |
           az storage blob upload \
             --account-name quotestore \
@@ -65,9 +64,8 @@ jobs:
             --auth-mode login
 
     - name: Verify upload
-      uses: azure/CLI@v1
+      uses: azure/CLI@v2
       with:
-        azcliversion: 2.63.0
         inlineScript: |
           az storage blob show \
             --account-name quotestore \
