@@ -152,9 +152,15 @@ class ChartService {
         // Filter data to only include top channels
         const filteredData = timeSeriesData.filter(d => topChannels.includes(d.channel_id));
 
+        // Ensure we have display names for channels
+        const enrichedData = filteredData.map(d => ({
+            ...d,
+            channel_display: d.channel_name ? `#${d.channel_name}` : `#${d.channel_id.slice(-8)}`
+        }));
+
         const spec = {
             "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-            "data": {"values": filteredData},
+            "data": {"values": enrichedData},
             "transform": [
                 {
                     "impute": "count",
@@ -185,20 +191,19 @@ class ChartService {
                     "scale": {"nice": true, "zero": true}
                 },
                 "color": {
-                    "field": "channel_name",
+                    "field": "channel_display",
                     "type": "nominal",
                     "title": "Channel",
                     "scale": {"scheme": "category20"},
                     "legend": {
                         "title": "Channel",
-                        "orient": "right",
-                        "labelExpr": "datum.label ? '#' + datum.label : '#unknown'"
+                        "orient": "right"
                     }
                 },
                 "tooltip": [
                     {"field": "time", "type": "temporal", "format": "%Y-%m-%d %H:%M"},
                     {"field": "count", "type": "quantitative", "title": "Messages"},
-                    {"field": "channel_name", "type": "nominal", "title": "Channel"}
+                    {"field": "channel_display", "type": "nominal", "title": "Channel"}
                 ]
             },
             "width": 800,
