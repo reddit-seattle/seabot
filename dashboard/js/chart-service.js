@@ -1,7 +1,6 @@
 // Chart creation utilities
 class ChartService {
     static createTimelineChart(data, isUpdate = false) {
-        console.log('Timeline chart data:', data);
         
         // Use channel-specific data if available, otherwise fall back to aggregated
         let timeSeriesData = data.timeSeriesByChannel || [];
