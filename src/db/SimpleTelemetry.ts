@@ -1,11 +1,14 @@
 import Database from 'better-sqlite3';
-import { GuildBasedChannel, Message } from 'discord.js';
+import { Message } from 'discord.js';
+import ISeabotConfig from '../configuration/ISeabotConfig';
 
 export class SimpleTelemetry {
   private db: Database.Database;
+  private config: ISeabotConfig | null = null;
 
-  constructor(dbPath: string = './telemetry.db') {
+  constructor(dbPath: string = './telemetry.db', config?: ISeabotConfig) {
     this.db = new Database(dbPath);
+    this.config = config || null;
     this.init();
   }
 
@@ -42,6 +45,13 @@ export class SimpleTelemetry {
         : 'parentId' in message.channel 
           ? message.channel.parentId 
           : null;
+
+      // Check if we should emit this message
+      if (this.config?.telemetryCategories && this.config.telemetryCategories.length > 0) {
+        if (!categoryId || !this.config.telemetryCategories.includes(categoryId)) {
+          return; // Skip emitting this message
+        }
+      }
 
       this.db.prepare(`
         INSERT INTO messages (channel_id, category_id, message_length)
@@ -89,6 +99,39 @@ export class SimpleTelemetry {
       ORDER BY hour
     `).all();
 
+    // Channel activity (top 10 most active channels)
+    const channelActivity = this.db.prepare(`
+      SELECT channel_id, COUNT(*) as count
+      FROM messages 
+      WHERE timestamp > datetime('now', '-7 days')
+      GROUP BY channel_id
+      ORDER BY count DESC
+      LIMIT 10
+    `).all();
+
+    // Messages per hour over last 7 days (time series)
+    const timeSeriesHourly = this.db.prepare(`
+      SELECT 
+        datetime(strftime('%Y-%m-%d %H:00:00', timestamp)) as time,
+        COUNT(*) as count
+      FROM messages 
+      WHERE timestamp > datetime('now', '-7 days')
+      GROUP BY strftime('%Y-%m-%d %H', timestamp)
+      ORDER BY time
+    `).all();
+
+    // Messages per hour by channel (for colored line chart)
+    const timeSeriesByChannel = this.db.prepare(`
+      SELECT 
+        datetime(strftime('%Y-%m-%d %H:00:00', timestamp)) as time,
+        channel_id,
+        COUNT(*) as count
+      FROM messages 
+      WHERE timestamp > datetime('now', '-7 days')
+      GROUP BY strftime('%Y-%m-%d %H', timestamp), channel_id
+      ORDER BY time, channel_id
+    `).all();
+
     // Weekly command usage
     const commandStats = this.db.prepare(`
       SELECT 
@@ -127,8 +170,11 @@ export class SimpleTelemetry {
     `).all();
 
     return { 
-      messageStats, 
+      messageStats,
       hourlyMessages,
+      channelActivity,
+      timeSeriesHourly,
+      timeSeriesByChannel,
       commandStats, 
       commandSuccess,
       categoryStats 

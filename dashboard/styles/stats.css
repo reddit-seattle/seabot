@@ -1,0 +1,93 @@
+/* Classic Reddit Sidebar Stats - circa 2013 */
+
+.stats-grid {
+    display: block;
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+}
+
+.stat-card {
+    background: #ffffff;
+    border: 1px solid #c7c7c7;
+    border-bottom: none;
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    transition: none;
+    position: relative;
+    overflow: visible;
+    gap: 8px; /* Add space between label and value */
+}
+
+.stat-card:last-child {
+    border-bottom: 1px solid #c7c7c7;
+}
+
+.stat-card::before {
+    display: none;
+}
+
+.stat-card:hover {
+    transform: none;
+    box-shadow: none;
+    background: #f7f7f8;
+}
+
+.stat-card:hover::before {
+    display: none;
+}
+
+.stat-number {
+    font-size: 14px;
+    font-weight: bold;
+    color: #369;
+    text-shadow: none;
+    transition: none;
+    margin: 0;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: #666;
+    font-weight: normal;
+}
+
+/* No fancy gradients or special variants */
+.stat-card.messages,
+.stat-card.commands,
+.stat-card.channels,
+.stat-card.average {
+    background: #ffffff;
+}
+
+/* Remove animated counters */
+.stat-number.counting {
+    animation: none;
+}
+
+@keyframes pulse {
+    /* Remove animation */
+}
+
+/* Classic Reddit-style numbers */
+.stat-number {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 16px;
+    color: #ff4500; /* Reddit orange */
+}
+
+/* Separator lines like classic Reddit */
+.stat-card + .stat-card {
+    border-top: none;
+}
+
+.stat-card:nth-child(odd) {
+    background: #fafafa;
+}
+
+.stat-card:nth-child(odd):hover {
+    background: #f0f0f0;
+}
