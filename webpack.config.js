@@ -68,7 +68,7 @@ const prodWebpackConfig = {
             patterns: [
                 ...package_patterns,
                 "src/seabotConfig.json",
-                { from: "dashboard", to: "dashboard" }
+                { from: "dashboard", to: "dashboard" },
             ],
         }),
     ],
@@ -84,7 +84,7 @@ const devWebpackConfig = {
             patterns: [
                 ...package_patterns,
                 { from: "src/devConfig.json", to: "seabotConfig.json" },
-                { from: "dashboard", to: "dashboard" }
+                { from: "dashboard", to: "dashboard" },
             ],
         }),
     ],

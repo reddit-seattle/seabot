@@ -98,7 +98,7 @@ export default class ExpressServer {
     });
 
     // Serve static dashboard
-    this._server.use('/dashboard', express.static(path.join(__dirname, '../dashboard')));
+    this._server.use('/dashboard', express.static(path.join(__dirname, 'dashboard')));
   }
 
   getTelemetry(): SimpleTelemetry | null {
