@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { Message } from 'discord.js';
+import { GuildBasedChannel, Message } from 'discord.js';
 
 export class SimpleTelemetry {
   private db: Database.Database;
@@ -36,12 +36,19 @@ export class SimpleTelemetry {
   // Log a message
   logMessage(message: Message) {
     try {
+      // Get category_id safely - only certain guild channels have parentId
+      const categoryId = message.channel.isDMBased() 
+        ? null 
+        : 'parentId' in message.channel 
+          ? message.channel.parentId 
+          : null;
+
       this.db.prepare(`
         INSERT INTO messages (channel_id, category_id, message_length)
         VALUES (?, ?, ?)
       `).run(
         message.channelId,
-        message.channel.isDMBased() ? null : (message.channel as any).parentId,
+        categoryId,
         message.content.length
       );
     } catch (e) {

@@ -35,7 +35,7 @@ export default class SlashCommandRouter extends CommandRouter {
       if (command) {
         try {
           command.execute?.(interaction);
-          // Log successful command (production only)
+          // yay
           const telemetry = expressServer.getTelemetry();
           if (telemetry) {
             telemetry.logCommand(
@@ -46,7 +46,7 @@ export default class SlashCommandRouter extends CommandRouter {
             );
           }
         } catch (error) {
-          // Log failed command (production only)
+          // boo
           const telemetry = expressServer.getTelemetry();
           if (telemetry) {
             telemetry.logCommand(
@@ -60,14 +60,16 @@ export default class SlashCommandRouter extends CommandRouter {
           if(Environment.DEBUG && configuration?.channelIds?.["DEBUG"]) {
             const debugChannel = await guild?.channels.fetch(
               configuration?.channelIds?.["DEBUG"]
-            ) as TextChannel;
-            await debugChannel?.send(`
-              Error while handling command \`${command.name}\`.
-              Options:
-              ${JSON.stringify(options)}
-              Error:
-              ${error}
+            );
+            if (debugChannel?.isTextBased()) {
+              await debugChannel.send(`
+                Error while handling command \`${command.name}\`.
+                Options:
+                ${JSON.stringify(options)}
+                Error:
+                ${error}
               `);
+            }
           }
           if (interaction.replied) {
             interaction.editReply(Strings.unhandledError);
@@ -96,7 +98,7 @@ export default class SlashCommandRouter extends CommandRouter {
 
       await this.discordBot.rest.put(
         Routes.applicationGuildCommands(
-          this.discordBot.client.user!.id,
+          this.discordBot.client.user?.id || "",
           guild.id
         ),
         {
