@@ -9,7 +9,7 @@ import { Environment, Strings } from "../../utils/constants";
 
 import CommandRouter from "../CommandRouter";
 import SlashCommand from "./SlashCommand";
-import { configuration } from "../../server";
+import { configuration, expressServer } from "../../server";
 
 export default class SlashCommandRouter extends CommandRouter {
   public async initialize(commands: SlashCommand[]) {
@@ -23,21 +23,53 @@ export default class SlashCommandRouter extends CommandRouter {
 
       const command = commandMap[interaction.commandName];
       const { options, guild } = interaction;
+      
+      // Extract subcommand if present
+      let subcommand: string | null = null;
+      try {
+        subcommand = interaction.options.getSubcommand();
+      } catch {
+        // No subcommand, that's fine
+      }
+      
       if (command) {
         try {
           command.execute?.(interaction);
+          // yay
+          const telemetry = expressServer.getTelemetry();
+          if (telemetry) {
+            telemetry.logCommand(
+              interaction.channelId,
+              interaction.commandName,
+              true,
+              subcommand || undefined
+            );
+          }
         } catch (error) {
+          // boo
+          const telemetry = expressServer.getTelemetry();
+          if (telemetry) {
+            telemetry.logCommand(
+              interaction.channelId,
+              interaction.commandName,
+              false,
+              subcommand || undefined
+            );
+          }
+          
           if(Environment.DEBUG && configuration?.channelIds?.["DEBUG"]) {
             const debugChannel = await guild?.channels.fetch(
               configuration?.channelIds?.["DEBUG"]
-            ) as TextChannel;
-            await debugChannel?.send(`
-              Error while handling command \`${command.name}\`.
-              Options:
-              ${JSON.stringify(options)}
-              Error:
-              ${error}
+            );
+            if (debugChannel?.isTextBased()) {
+              await debugChannel.send(`
+                Error while handling command \`${command.name}\`.
+                Options:
+                ${JSON.stringify(options)}
+                Error:
+                ${error}
               `);
+            }
           }
           if (interaction.replied) {
             interaction.editReply(Strings.unhandledError);
@@ -66,7 +98,7 @@ export default class SlashCommandRouter extends CommandRouter {
 
       await this.discordBot.rest.put(
         Routes.applicationGuildCommands(
-          this.discordBot.client.user!.id,
+          this.discordBot.client.user?.id || "",
           guild.id
         ),
         {
