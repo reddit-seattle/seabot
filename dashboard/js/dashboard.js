@@ -53,7 +53,7 @@ class Dashboard {
             // Create all charts with animations for updates
             StatsService.createStats(currentData, isLiveUpdate);
             ChartService.createTimelineChart(currentData, isLiveUpdate);
-            ChartService.createDistributionChart(currentData, isLiveUpdate);
+            ChartService.createTimelineStackedChart(currentData, isLiveUpdate);
             ChartService.createChannelChart(currentData, isLiveUpdate);
             ChartService.createCommandChart(currentData, isLiveUpdate);
             ChartService.createHeatmap(currentData, isLiveUpdate);
@@ -69,9 +69,13 @@ class Dashboard {
             
         } catch (error) {
             console.error('Dashboard update failed:', error);
-            if (!isLiveUpdate) {
+            
+            // Don't show generic error for rate limiting - DataService handles this
+            if (!isLiveUpdate && error.message !== 'Rate limited') {
                 this.hideLoading();
                 this.showError(error.message);
+            } else if (!isLiveUpdate) {
+                this.hideLoading();
             }
         }
     }

@@ -1,5 +1,74 @@
 // Chart creation utilities
 class ChartService {
+    // Common chart constants
+    static CHART_CONSTANTS = {
+        COLORS: {
+            scheme: "category20",
+            currentTimeIndicator: "#ff4500",
+            heatmapRange: {
+                start: "#c6dbf0", // periwinkle blue
+                end: "#ff4500"    // orangered
+            },
+            tooltipBg: "rgba(0,0,0,0.8)",
+            borderWhite: "#fff",
+            borderDark: "#333",
+            textDark: "#333",
+            textMuted: "#666",
+            textLight: "#999",
+            futureCell: "#e6e6e6"
+        },
+        FONTS: {
+            axisLabelSize: 14,
+            axisTitleSize: 14,
+            legendLabelSize: 15,
+            legendTitleSize: 13,
+            heatmapLabelSize: 12,
+            heatmapSubtitleSize: 11,
+            timeIndicatorSize: 10,
+            channelLabelSize: 13
+        },
+        SPACING: {
+            titlePadding: 15,
+            labelPadding: 8,
+            legendPadding: 10,
+            legendSymbolSize: 100
+        },
+        DIMENSIONS: {
+            chartHeight: 320,
+            commandChartSize: 220,
+            channelChartWidth: 450,
+            channelChartHeight: 280,
+            heatmapCellHeight: 80,
+            heatmapSvgHeight: 165
+        }
+    };
+
+    // Common chart configurations
+    static getBaseConfig() {
+        const { FONTS, SPACING } = this.CHART_CONSTANTS;
+        return {
+            "axis": {
+                "grid": true, 
+                "gridOpacity": 0.3,
+                "labelFontSize": FONTS.axisLabelSize,
+                "titleFontSize": FONTS.axisTitleSize,
+                "titlePadding": SPACING.titlePadding,
+                "labelPadding": SPACING.labelPadding
+            },
+            "legend": {
+                "labelFontSize": FONTS.legendLabelSize,
+                "titleFontSize": FONTS.legendTitleSize,
+                "symbolSize": SPACING.legendSymbolSize,
+                "padding": SPACING.legendPadding
+            },
+            "view": {"stroke": null}
+        };
+    }
+
+    static getColorScale() {
+        return {"scheme": this.CHART_CONSTANTS.COLORS.scheme};
+    }
+
     static createTimelineChart(data, isUpdate = false) {
         
         // Use channel-specific data if available, otherwise fall back to aggregated
@@ -18,15 +87,36 @@ class ChartService {
             document.getElementById('timelineChart').innerHTML = '<p style="text-align: center; color: #666; padding: 50px;">No message data available</p>';
             return;
         }
-        
+
+        // For channel data, filter to top 10 channels and enrich with display names
+        let processedData = timeSeriesData;
+        if (isChannelData) {
+            // Get top 10 channels by total message count
+            const channelTotals = {};
+            timeSeriesData.forEach(d => {
+                channelTotals[d.channel_id] = (channelTotals[d.channel_id] || 0) + d.count;
+            });
+            const topChannels = Object.entries(channelTotals)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10)
+                .map(([channelId]) => channelId);
+            
+            // Filter and enrich data
+            const filteredData = timeSeriesData.filter(d => topChannels.includes(d.channel_id));
+            processedData = filteredData.map(d => ({
+                ...d,
+                channel_display: d.channel_name ? `#${d.channel_name}` : `#${d.channel_id.slice(-8)}`
+            }));
+        }
+
         const spec = {
             "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-            "data": {"values": timeSeriesData},
+            "data": {"values": processedData},
             "transform": isChannelData ? [
                 {
                     "impute": "count",
                     "key": "time",
-                    "groupby": ["channel_name"],
+                    "groupby": ["channel_display"],
                     "value": 0
                 }
             ] : [],
@@ -50,32 +140,27 @@ class ChartService {
                     "scale": {"nice": true, "zero": true}
                 },
                 "color": isChannelData ? {
-                    "field": "channel_name",
+                    "field": "channel_display",
                     "type": "nominal",
                     "title": "Channel",
-                    "scale": {
-                        "scheme": "category20"
-                    },
+                    "scale": this.getColorScale(),
                     "legend": {
-                        "title": "Channels",
-                        "labelExpr": "datum.label ? '#' + datum.label : '#unknown'"
+                        "title": "Channel",
+                        "labelFontSize": this.CHART_CONSTANTS.FONTS.legendLabelSize,
                     }
                 } : {"value": CONFIG.CHART_COLORS.primary},
                 "tooltip": isChannelData ? [
                     {"field": "time", "type": "temporal", "format": "%Y-%m-%d %H:%M"},
                     {"field": "count", "type": "quantitative", "title": "Messages"},
-                    {"field": "channel_name", "type": "nominal", "title": "Channel"}
+                    {"field": "channel_display", "type": "nominal", "title": "Channel"}
                 ] : [
                     {"field": "time", "type": "temporal", "format": "%Y-%m-%d %H:%M"},
                     {"field": "count", "type": "quantitative", "title": "Messages"}
                 ]
             },
             "width": "container",
-            "height": 300,
-            "config": {
-                "axis": {"grid": true, "gridOpacity": 0.3},
-                "view": {"stroke": null}
-            }
+            "height": this.CHART_CONSTANTS.DIMENSIONS.chartHeight,
+            "config": this.getBaseConfig()
         };
         
         const embedOptions = { actions: false, renderer: 'svg' };
@@ -95,16 +180,17 @@ class ChartService {
             container.html('');
         }
         
-        const margin = {top: 20, right: 30, bottom: 40, left: 150};
-        const width = 400 - margin.left - margin.right;
-        const height = 250 - margin.top - margin.bottom;
+        const { DIMENSIONS } = this.CHART_CONSTANTS;
+        const margin = {top: 25, right: 40, bottom: 50, left: 180};
+        const width = DIMENSIONS.channelChartWidth - margin.left - margin.right;
+        const height = DIMENSIONS.channelChartHeight - margin.top - margin.bottom;
         
         // Create or update SVG
         let svg = container.select('svg');
         if (svg.empty()) {
             svg = container.append('svg')
-                .attr('width', 400)
-                .attr('height', 250);
+                .attr('width', DIMENSIONS.channelChartWidth)
+                .attr('height', DIMENSIONS.channelChartHeight);
                 
             svg.append('g')
                 .attr('class', 'chart-group')
@@ -131,11 +217,11 @@ class ChartService {
         this._updateLabels(g, channelData, y);
     }
 
-    static createDistributionChart(data, isUpdate = false) {
+    static createTimelineStackedChart(data, isUpdate = false) {
         const timeSeriesData = data.timeSeriesByChannel || [];
         
         if (timeSeriesData.length === 0) {
-            document.getElementById('distributionChart').innerHTML = '<p style="text-align: center; color: #666; padding: 50px;">No channel distribution data available</p>';
+            document.getElementById('timelineStackedChart').innerHTML = '<p style="text-align: center; color: #666; padding: 50px;">No channel data available</p>';
             return;
         }
 
@@ -167,6 +253,10 @@ class ChartService {
                     "key": "time",
                     "groupby": ["channel_id"],
                     "value": 0
+                },
+                {
+                    "joinaggregate": [{"op": "sum", "field": "count", "as": "total_count"}],
+                    "groupby": ["channel_display"]
                 }
             ],
             "mark": {
@@ -194,10 +284,12 @@ class ChartService {
                     "field": "channel_display",
                     "type": "nominal",
                     "title": "Channel",
-                    "scale": {"scheme": "category20"},
+                    "scale": this.getColorScale(),
+                    "sort": {"field": "total_count", "order": "descending"},
                     "legend": {
                         "title": "Channel",
-                        "orient": "right"
+                        "orient": "right",
+                        "labelFontSize": this.CHART_CONSTANTS.FONTS.legendLabelSize,
                     }
                 },
                 "tooltip": [
@@ -207,24 +299,22 @@ class ChartService {
                 ]
             },
             "width": "container",
-            "height": 300,
-            "config": {
-                "axis": {"grid": true, "gridOpacity": 0.3},
-                "view": {"stroke": null}
-            }
+            "height": this.CHART_CONSTANTS.DIMENSIONS.chartHeight,
+            "config": this.getBaseConfig()
         };
 
         const embedOptions = { actions: false, renderer: 'svg' };
         
         if (isUpdate) {
-            this._animateChartUpdate('#distributionChart', spec, embedOptions);
+            this._animateChartUpdate('#timelineStackedChart', spec, embedOptions);
         } else {
-            vegaEmbed('#distributionChart', spec, embedOptions);
+            vegaEmbed('#timelineStackedChart', spec, embedOptions);
         }
     }
 
     static createCommandChart(data, isUpdate = false) {
         const commandData = (data.commandStats || []).slice(0, 8);
+        const { DIMENSIONS, COLORS, FONTS, SPACING } = this.CHART_CONSTANTS;
         
         const spec = {
             "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
@@ -232,7 +322,7 @@ class ChartService {
             "mark": {
                 "type": "arc", 
                 "outerRadius": 100,
-                "stroke": "#fff",
+                "stroke": COLORS.borderWhite,
                 "strokeWidth": 2
             },
             "encoding": {
@@ -243,16 +333,23 @@ class ChartService {
                 "color": {
                     "field": "full_command",
                     "type": "nominal",
-                    "scale": {"scheme": "category20"},
-                    "legend": {"title": "Commands", "orient": "right"}
+                    "scale": this.getColorScale(),
+                    "legend": {
+                        "title": "Commands", 
+                        "orient": "left",
+                        "labelFontSize": FONTS.legendLabelSize,
+                        "titleFontSize": FONTS.legendTitleSize,
+                        "symbolSize": SPACING.legendSymbolSize,
+                        "padding": SPACING.legendPadding
+                    }
                 },
                 "tooltip": [
                     {"field": "full_command", "title": "Command"},
                     {"field": "count", "title": "Uses"}
                 ]
             },
-            "width": 200,
-            "height": 200
+            "width": DIMENSIONS.commandChartSize,
+            "height": DIMENSIONS.commandChartSize
         };
         
         if (isUpdate) {
@@ -270,12 +367,20 @@ class ChartService {
         }
         
         const hourlyData = data.hourlyMessages || [];
+        const currentHour = new Date().getHours();
+        
+        // Create hours array with current time context
         const hours = Array.from({length: 24}, (_, i) => {
             const hour = i.toString().padStart(2, '0');
             const found = hourlyData.find(h => h.hour === hour);
+            const isCurrent = i === currentHour;
+            const isFuture = i > currentHour;
+            
             return {
                 hour: hour,
-                count: found ? found.count : 0
+                count: found ? found.count : 0,
+                isCurrent,
+                isFuture
             };
         });
         
@@ -285,7 +390,7 @@ class ChartService {
     // Private helper methods
     static _animateChartUpdate(selector, spec, options) {
         const container = document.querySelector(selector);
-        container.style.transition = `opacity ${CONFIG.ANIMATION_DURATION}ms ease`;
+        container.style.transition = 'opacity 800ms ease';
         container.style.opacity = '0.7';
         
         setTimeout(() => {
@@ -336,17 +441,19 @@ class ChartService {
     }
 
     static _updateLabels(g, data, y) {
+        const { FONTS, COLORS } = this.CHART_CONSTANTS;
         const labels = g.selectAll('.label').data(data, d => d.channel_id);
             
         labels.enter()
             .append('text')
             .attr('class', 'label')
-            .attr('x', -5)
+            .attr('x', -170)
             .attr('y', d => y(d.channel_id) + y.bandwidth()/2)
             .attr('dy', '0.35em')
-            .attr('text-anchor', 'end')
-            .attr('font-size', '11px')
-            .attr('fill', '#333')
+            .attr('text-anchor', 'start')
+            .attr('font-size', `${FONTS.channelLabelSize}px`)
+            .attr('font-weight', '500')
+            .attr('fill', COLORS.textDark)
             .text(d => d.channel_name ? `#${d.channel_name}` : `Channel ${d.channel_id.slice(-6)}`);
             
         labels.text(d => d.channel_name ? `#${d.channel_name}` : `Channel ${d.channel_id.slice(-6)}`);
@@ -354,25 +461,26 @@ class ChartService {
     }
 
     static _renderHeatmapCells(container, hours, isUpdate) {
+        const { COLORS, DIMENSIONS } = this.CHART_CONSTANTS;
         const maxCount = d3.max(hours, d => d.count) || 1;
         
-        // Reddit-style color scale: periwinkle blue (#c6dbf0) to orangered (#ff4500)
+        // Reddit-style color scale: periwinkle blue to orangered
         const colorScale = d3.scaleSequential()
             .domain([0, maxCount])
-            .interpolator(d3.interpolateRgb("#c6dbf0", "#ff4500"))
+            .interpolator(d3.interpolateRgb(COLORS.heatmapRange.start, COLORS.heatmapRange.end))
             .clamp(true);
         
         // Get container width for responsive sizing
         const containerWidth = container.node().getBoundingClientRect().width;
         const cellWidth = Math.max(15, Math.floor((containerWidth - 100) / 24)); // Responsive cell width
-        const cellHeight = 80;
+        const cellHeight = DIMENSIONS.heatmapCellHeight;
         const svgWidth = containerWidth;
         
         let svg = container.select('svg');
         if (svg.empty()) {
             svg = container.append('svg')
                 .attr('width', svgWidth)
-                .attr('height', 120);
+                .attr('height', DIMENSIONS.heatmapSvgHeight);
         } else {
             svg.attr('width', svgWidth);
         }
@@ -383,24 +491,30 @@ class ChartService {
         cells.enter()
             .append('rect')
             .attr('x', (d, i) => i * (cellWidth + 2))
-            .attr('y', 10)
+            .attr('y', 25)
             .attr('width', cellWidth)
             .attr('height', cellHeight)
-            .attr('fill', '#c6dbf0')  // Start with periwinkle blue
-            .attr('stroke', '#fff')
-            .attr('stroke-width', 1)
+            .attr('fill', COLORS.heatmapRange.start)  // Start with periwinkle blue
+            .attr('stroke', d => d.isCurrent ? COLORS.currentTimeIndicator : COLORS.borderWhite)
+            .attr('stroke-width', d => d.isCurrent ? 3 : 1)
             .attr('rx', 3)
-            .attr('opacity', 0)
+            .attr('opacity', d => d.isFuture ? 0.3 : 0)
             .transition()
             .duration(CONFIG.ANIMATION_DURATION)
             .delay((d, i) => i * 50)
-            .attr('opacity', 1)
-            .attr('fill', d => colorScale(d.count));
+            .attr('opacity', d => d.isFuture ? 0.3 : 1)
+            .attr('fill', d => d.isFuture ? COLORS.futureCell : colorScale(d.count));
         
         // Update existing cells
         cells.transition()
             .duration(CONFIG.ANIMATION_DURATION)
-            .attr('fill', d => colorScale(d.count));
+            .attr('fill', d => d.isFuture ? COLORS.futureCell : colorScale(d.count))
+            .attr('stroke', d => d.isCurrent ? COLORS.currentTimeIndicator : COLORS.borderWhite)
+            .attr('stroke-width', d => d.isCurrent ? 3 : 1)
+            .attr('opacity', d => d.isFuture ? 0.3 : 1);
+        
+        // Add current time indicator
+        this._addCurrentTimeIndicator(svg, hours, cellWidth, cellHeight);
         
         // Add interactivity
         this._addHeatmapInteractions(cells, container);
@@ -408,12 +522,13 @@ class ChartService {
     }
 
     static _addHeatmapInteractions(cells, container) {
+        const { COLORS } = this.CHART_CONSTANTS;
         cells.on('mouseover', function(event, d) {
             d3.select(this)
                 .transition()
                 .duration(200)
                 .attr('stroke-width', 3)
-                .attr('stroke', '#333');
+                .attr('stroke', COLORS.borderDark);
                 
             // Show tooltip
             let tooltip = container.select('.tooltip');
@@ -421,7 +536,7 @@ class ChartService {
                 tooltip = container.append('div')
                     .attr('class', 'tooltip')
                     .style('position', 'absolute')
-                    .style('background', 'rgba(0,0,0,0.8)')
+                    .style('background', COLORS.tooltipBg)
                     .style('color', 'white')
                     .style('padding', '8px')
                     .style('border-radius', '4px')
@@ -434,30 +549,62 @@ class ChartService {
                 .style('opacity', 1)
                 .style('left', (event.offsetX + 10) + 'px')
                 .style('top', (event.offsetY - 30) + 'px')
-                .text(`${d.hour}:00 - ${d.count} messages`);
+                .html(`
+                    <strong>${d.hour}:00</strong><br/>
+                    ${d.count} messages<br/>
+                    <small>${d.isCurrent ? '(current hour)' : d.isFuture ? '(future)' : '(past 24h)'}</small>
+                `);
         })
         .on('mouseout', function() {
             d3.select(this)
                 .transition()
                 .duration(200)
                 .attr('stroke-width', 1)
-                .attr('stroke', '#fff');
+                .attr('stroke', COLORS.borderWhite);
                 
             container.select('.tooltip').style('opacity', 0);
         });
     }
 
+    static _addCurrentTimeIndicator(svg, hours, cellWidth, cellHeight) {
+        const { COLORS, FONTS } = this.CHART_CONSTANTS;
+        const currentHour = new Date().getHours();
+        const currentHourData = hours.find(h => parseInt(h.hour) === currentHour);
+        
+        if (currentHourData) {
+            const x = currentHour * (cellWidth + 2) + cellWidth/2;
+            
+            // Add "NOW" label above current hour
+            svg.selectAll('.current-time-label').remove();
+            svg.append('text')
+                .attr('class', 'current-time-label')
+                .attr('x', x)
+                .attr('y', 18)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', `${FONTS.timeIndicatorSize}px`)
+                .attr('font-weight', 'bold')
+                .attr('fill', COLORS.currentTimeIndicator)
+                .text('NOW');
+        }
+    }
+
     static _addHeatmapLabels(svg, hours, cellWidth, cellHeight) {
-        const labels = svg.selectAll('text')
+        const { FONTS, COLORS } = this.CHART_CONSTANTS;
+        const labels = svg.selectAll('.hour-label')
             .data(hours.filter((d, i) => i % 3 === 0), d => d.hour);
             
         labels.enter()
             .append('text')
+            .attr('class', 'hour-label')
             .attr('x', (d, i) => (hours.indexOf(d)) * (cellWidth + 2) + cellWidth/2)
-            .attr('y', cellHeight + 35)
+            .attr('y', cellHeight + 55)
             .attr('text-anchor', 'middle')
-            .attr('font-size', '10px')
-            .attr('fill', '#666')
-            .text(d => d.hour);
+            .attr('font-size', `${FONTS.heatmapLabelSize}px`)
+            .attr('font-weight', '500')
+            .attr('fill', d => d.isCurrent ? COLORS.currentTimeIndicator : COLORS.textMuted)
+            .text(d => {
+                const hour = parseInt(d.hour);
+                return hour === 0 ? '12AM' : hour === 12 ? '12PM' : hour > 12 ? `${hour-12}PM` : `${hour}AM`;
+            });
     }
 }
