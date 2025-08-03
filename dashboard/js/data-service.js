@@ -13,7 +13,7 @@ class DataService {
         }
         
         try {
-            const response = await fetch('/metrics');
+            const response = await fetch(`/metrics?range=${currentTimeRange}`);
             
             if (response.status === 429) {
                 // Handle rate limiting with countdown

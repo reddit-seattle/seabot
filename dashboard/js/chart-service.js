@@ -124,7 +124,7 @@ class ChartService {
                 "type": "line",
                 "strokeWidth": 2,
                 "point": {"filled": true, "size": 30},
-                "interpolate": "linear"
+                "interpolate": "cardinal"
             },
             "encoding": {
                 "x": {
@@ -261,7 +261,7 @@ class ChartService {
             ],
             "mark": {
                 "type": "area",
-                "interpolate": "monotone"
+                "interpolate": "cardinal"
             },
             "encoding": {
                 "x": {
@@ -442,6 +442,14 @@ class ChartService {
 
     static _updateLabels(g, data, y) {
         const { FONTS, COLORS } = this.CHART_CONSTANTS;
+        
+        // Helper function to truncate channel names
+        const truncateChannelName = (channelName, maxLength = 15) => {
+            if (!channelName) return 'Unknown';
+            const name = channelName.startsWith('#') ? channelName.slice(1) : channelName;
+            return name.length > maxLength ? `#${name.slice(0, maxLength)}...` : `#${name}`;
+        };
+        
         const labels = g.selectAll('.label').data(data, d => d.channel_id);
             
         labels.enter()
@@ -454,9 +462,9 @@ class ChartService {
             .attr('font-size', `${FONTS.channelLabelSize}px`)
             .attr('font-weight', '500')
             .attr('fill', COLORS.textDark)
-            .text(d => d.channel_name ? `#${d.channel_name}` : `Channel ${d.channel_id.slice(-6)}`);
+            .text(d => d.channel_name ? truncateChannelName(d.channel_name) : `Channel ${d.channel_id.slice(-6)}`);
             
-        labels.text(d => d.channel_name ? `#${d.channel_name}` : `Channel ${d.channel_id.slice(-6)}`);
+        labels.text(d => d.channel_name ? truncateChannelName(d.channel_name) : `Channel ${d.channel_id.slice(-6)}`);
         labels.exit().remove();
     }
 

@@ -14,7 +14,7 @@ export default class ExpressServer {
   private _startTime: Date;
   private _telemetry: SimpleTelemetry | null = null;
   private _discordBot: DiscordBot | null = null;
-  private _metricsCache: { data: any; timestamp: number } | null = null;
+  private _metricsCache: { data: any; timestamp: number; cacheKey?: string } | null = null;
   private readonly CACHE_DURATION = 8000; // 8 seconds cache for live updates
 
   constructor(config?: ISeabotConfig) {
@@ -90,31 +90,36 @@ export default class ExpressServer {
     });
 
     // Metrics endpoint - cached
-    this._server.get("/metrics", metricsRateLimit, async (_request, response) => {
+    this._server.get("/metrics", metricsRateLimit, async (request, response) => {
       try {
         if (!this._telemetry) {
           return response.status(503).json({ "sorry mario": "your telemetry is in another castle" });
         }
+        
+        // Get time range from query parameter (default to 24h)
+        const timeRange = (request.query.range as string) || '24h';
         const now = Date.now();
+        const cacheKey = `metrics_${timeRange}`;
 
-        // Check cache first
-        if (this._metricsCache && (now - this._metricsCache.timestamp < this.CACHE_DURATION)) {
-          Logger.debug("Serving cached metrics");
+        // Check cache first (include time range in cache key)
+        if (this._metricsCache && this._metricsCache.cacheKey === cacheKey && (now - this._metricsCache.timestamp < this.CACHE_DURATION)) {
+          Logger.debug(`Serving cached metrics for ${timeRange}`);
           return response.json(this._metricsCache.data);
         }
 
-        // Get fresh metrics
-        const metrics = this._telemetry.getMetrics();
+        // Get fresh metrics with time range
+        const metrics = this._telemetry.getMetrics(timeRange);
 
         // Enrich with channel names if Discord bot is available
         if (this._discordBot) {
           await this._enrichWithChannelNames(metrics);
         }
 
-        // Cache the result
+        // Cache the result with time range key
         this._metricsCache = {
           data: metrics,
-          timestamp: now
+          timestamp: now,
+          cacheKey: cacheKey
         };
 
         Logger.debug("Serving fresh metrics");
