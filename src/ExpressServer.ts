@@ -1,4 +1,5 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 import fs from "fs";
 import path from "path";
 import { formatUptime } from "./utils/helpers";
@@ -79,8 +80,17 @@ export default class ExpressServer {
       response.json(buildInfo);
     });
 
-    // Metrics endpoint - caching
-    this._server.get("/metrics", async (_request, response) => {
+    // Rate limiting for metrics endpoint
+    const metricsRateLimit = rateLimit({
+      windowMs: 15 * 1000, // 15 seconds
+      max: 1, // 1 request per window per IP
+      message: { error: "Too many requests, please wait 15 seconds before trying again" },
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
+
+    // Metrics endpoint - caching and rate limited
+    this._server.get("/metrics", metricsRateLimit, async (_request, response) => {
       try {
         if (!this._telemetry) {
           return response.status(503).json({ "sorry mario": "your telemetry is in another castle" });

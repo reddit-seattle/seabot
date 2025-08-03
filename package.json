@@ -15,6 +15,7 @@
     "discord.js": "^15.0.0-dev.1753876893-c3dc58169",
     "dotenv": "8.2.0",
     "express": "^4.21.2",
+    "express-rate-limit": "^8.0.1",
     "node-cron": "^3.0.0",
     "node-fetch": "^2.6.7",
     "underscore": "^1.12.1"
