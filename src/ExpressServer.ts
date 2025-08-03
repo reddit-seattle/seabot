@@ -82,14 +82,14 @@ export default class ExpressServer {
 
     // Rate limiting for metrics endpoint
     const metricsRateLimit = rateLimit({
-      windowMs: 15 * 1000, // 15 seconds
-      max: 1, // 1 request per window per IP
-      message: { error: "Too many requests, please wait 15 seconds before trying again" },
+      windowMs: 30 * 1000, // 30 seconds window
+      max: 10, // 10 requests per window per IP
+      message: { error: "Too many requests, please slow down" },
       standardHeaders: true,
       legacyHeaders: false,
     });
 
-    // Metrics endpoint - caching and rate limited
+    // Metrics endpoint - cached
     this._server.get("/metrics", metricsRateLimit, async (_request, response) => {
       try {
         if (!this._telemetry) {

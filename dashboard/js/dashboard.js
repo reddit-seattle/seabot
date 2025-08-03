@@ -69,9 +69,13 @@ class Dashboard {
             
         } catch (error) {
             console.error('Dashboard update failed:', error);
-            if (!isLiveUpdate) {
+            
+            // Don't show generic error for rate limiting - DataService handles this
+            if (!isLiveUpdate && error.message !== 'Rate limited') {
                 this.hideLoading();
                 this.showError(error.message);
+            } else if (!isLiveUpdate) {
+                this.hideLoading();
             }
         }
     }
