@@ -217,7 +217,7 @@ class ChartService {
         this._updateLabels(g, channelData, y);
     }
 
-    static createtimelineStackedChart(data, isUpdate = false) {
+    static createTimelineStackedChart(data, isUpdate = false) {
         const timeSeriesData = data.timeSeriesByChannel || [];
         
         if (timeSeriesData.length === 0) {
