@@ -95,10 +95,10 @@ export class SimpleTelemetry {
     const hourlyMessages = this.db.prepare(`
       SELECT strftime('%H', timestamp) as hour, COUNT(*) as count
       FROM messages 
-      WHERE timestamp > datetime('now', '-1 day')
+      WHERE timestamp > datetime('now', ?)
       GROUP BY strftime('%H', timestamp)
       ORDER BY hour
-    `).all();
+    `).all(timeFilter);
 
     // Channel activity (top 10 most active channels)
     const channelActivity = this.db.prepare(`

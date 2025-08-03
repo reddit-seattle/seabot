@@ -368,17 +368,21 @@ class ChartService {
         }
         
         const hourlyData = data.hourlyMessages || [];
-        const currentHour = new Date().getHours();
+        const now = new Date();
+        const currentLocalHour = now.getHours();
+        const currentUtcHour = now.getUTCHours();
         
-        // Create hours array with current time context
-        const hours = Array.from({length: 24}, (_, i) => {
-            const hour = i.toString().padStart(2, '0');
-            const found = hourlyData.find(h => h.hour === hour);
-            const isCurrent = i === currentHour;
-            const isFuture = i > currentHour;
+        // display hours in local time (0-23), lookup is in UTC
+        const hours = Array.from({length: 24}, (_, localHour) => {
+            // Convert local hour to UTC hour
+            const utcHour = ((localHour + (now.getTimezoneOffset() / 60)) % 24 + 24) % 24;
+            const utcHourStr = utcHour.toString().padStart(2, '0');
+            const found = hourlyData.find(h => h.hour === utcHourStr);
+            const isCurrent = localHour === currentLocalHour;
+            const isFuture = localHour > currentLocalHour;
             
             return {
-                hour: hour,
+                hour: localHour.toString().padStart(2, '0'),
                 count: found ? found.count : 0,
                 isCurrent,
                 isFuture
