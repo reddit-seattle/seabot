@@ -144,6 +144,7 @@ class ChartService {
                     "type": "nominal",
                     "title": "Channel",
                     "scale": this.getColorScale(),
+                    "sort": {"field": "count", "op": "sum", "order": "descending"},
                     "legend": {
                         "title": "Channel",
                         "labelFontSize": this.CHART_CONSTANTS.FONTS.legendLabelSize,
@@ -581,7 +582,7 @@ class ChartService {
         
         if (currentHourData) {
             const x = currentHour * (cellWidth + 2) + cellWidth/2;
-            
+
             // Add "NOW" label above current hour
             svg.selectAll('.current-time-label').remove();
             svg.append('text')
