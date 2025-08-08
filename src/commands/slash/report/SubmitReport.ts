@@ -1,4 +1,4 @@
-import { EmbedBuilder, TextChannel, MessageFlags } from "discord.js";
+import { EmbedBuilder, TextChannel, MessageFlags, ChatInputCommandInteraction } from "discord.js";
 import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import SlashCommand from "../SlashCommand";
@@ -9,12 +9,13 @@ import { configuration } from "../../../server";
 
 export default new SlashCommand({
   name: "report",
-  description: "Submit a report to the mod team",
+  description: "Report something to the mods. Please include as much detail as you wish to share.",
   help: "Submit a report to the mod team",
+  telemetry: false,
   builder: new ChatInputCommandBuilder()
     // anon is required, note is required
     .addBooleanOptions([
-      (o) => o.setName("anon").setDescription("Submit anonymously").setRequired(true)
+      (o) => o.setName("anon").setDescription("Anonymous report").setRequired(true)
     ])
     .addStringOptions([
       (o) =>
@@ -22,23 +23,25 @@ export default new SlashCommand({
           .setName("note")
           .setDescription("Please explain the issue")
           .setRequired(true),
-      (o) => o.setName("message").setDescription("Message link to content")
+      (o) => o.setName("message").setDescription("Right-click, copy link")
     ])
     // user and channel are optional
     .addUserOptions([
-      (o) => o.setName("user").setDescription("The user you want to report")
+      (o) => o.setName("user").setDescription("Specify a user")
     ])
     .addChannelOptions([
       (o) =>
         o
           .setName("channel")
-          .setDescription("The channel where the issue occurred")
+          .setDescription("Link a channel")
     ])
     // evidence not required
     .addAttachmentOptions([
-      (o) => o.setName("evidence").setDescription("Attach evidence if necessary")
+      (o) => o.setName("attach").setDescription("Screenshots etc.")
     ]),
-  execute: async (interaction) => {
+  execute: async (interaction: ChatInputCommandInteraction) => {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
     const { options } = interaction;
     // only get username if not anonymous.
     const anon = options.getBoolean("anon", true);
@@ -47,26 +50,13 @@ export default new SlashCommand({
     const user = options.getUser("user", false);
     const channel = options.getChannel("channel", false);
     const note = options.getString("note", true);
-    const evidence = options.getAttachment("evidence");
-    const message = options.getString("message");
+    const attachment = options.getAttachment("attach");
+    const message = options.getString("message", false);
     const messageLink = message?.match(REGEX.URL)?.[0] ?? null;
 
-    // we need a user or a channel or message
-    if (!(user || channel || messageLink)) {
-      await interaction.reply({
-        flags: MessageFlags.Ephemeral,
-        content:
-          "Please include either a user, a channel, or a message link with your report, to help mods track it down.",
-      });
-      return;
-    }
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const modReportsChannelId = configuration.channelIds?.["MOD_REPORTS"];
     if (!modReportsChannelId) {
-      await interaction.editReply({
-        flags: MessageFlags.Ephemeral,
-        content: "Mod reports channel is not configured. Please contact an administrator.",
-      });
+      await interaction.editReply("Mod reports channel is not configured. Please contact an administrator.");
       return;
     }
     const modReports = (await interaction.guild?.channels.cache
@@ -75,16 +65,10 @@ export default new SlashCommand({
     const timestamp = Math.floor(Date.now() / 1000);
     const reportEmbed = new EmbedBuilder({
       color: 0xff0000,
-      title: "New User Report",
-      description: `${
-        anon ? "An anonymous user" : username
-      } has submitted a report\n<t:${timestamp}:F>\n<t:${timestamp}:R>`,
+      title: "New Report",
+      description: `${anon ? "An anonymous user" : username
+        } has submitted a report\n<t:${timestamp}:F>\n<t:${timestamp}:R>`,
       fields: [
-        // ...(
-        //     anon ? [] : [{
-        //         name: 'ReplyID',
-        //         value: interaction.user.id
-        //     }]),
         {
           name: "Reported by",
           value: anon ? `Anonymous` : `<@${interaction.user.id}>`,
@@ -103,15 +87,15 @@ export default new SlashCommand({
         },
       ],
     });
-    
-    // Only add image if evidence exists and has a valid URL
-    if (evidence?.url) {
-      reportEmbed.setImage(evidence.url);
+
+    // Only add image if attachment exists and has a valid URL
+    if (attachment?.url) {
+      reportEmbed.setImage(attachment.url);
     }
     const modActionRow = buildModActionRow(interaction.guild?.id ?? "", {
       anon,
       user: user ?? undefined,
-      channel: channel ?? undefined,
+      channel: channel instanceof TextChannel ? channel : undefined,
       messageLink: messageLink ?? undefined,
     });
 
@@ -119,10 +103,13 @@ export default new SlashCommand({
       embeds: [reportEmbed],
       components: [modActionRow],
     });
+    const reply = anon
+      ? "Thank you for submitting an anonymous report."
+      : (
+        `Thank you for submitting a report, <@${interaction.user.id}>. ` +
+        "Mods may reach out to you privately for more context or details."
+      );
 
-    await interaction.followUp({
-      ephemeral: true,
-      content: `Thank you for submitting a report.\nIf your report was not anonymous, a moderator may reach out if they require any further information.`,
-    });
+    await interaction.editReply(reply);
   },
 });

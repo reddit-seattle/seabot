@@ -136,20 +136,14 @@ export const buildModActionRow = (
 
   const ackButton = new PrimaryButtonBuilder()
     .setCustomId("ackReport")
-    .setLabel("✅ACK");
-
-  // const replyButton = new MessageButton()
-  //     .setCustomId('replyReport')
-  //     .setEmoji('✉️')
-  //     .setLabel('Reply')
-  //     .setStyle(MessageButtonStyles.SECONDARY);
+    .setLabel("✅Acknowledge");
 
   let viewButton: LinkButtonBuilder | undefined = undefined;
 
   if (options.messageLink || options?.channel?.id) {
     const url = options.messageLink || createChannelLink(guildId, options.channel!.id);
     viewButton = new LinkButtonBuilder()
-      .setLabel("👀View")
+      .setLabel("🔗Link")
       .setURL(url);
   }
   const buttons = [
@@ -179,38 +173,27 @@ export const processModReportInteractions = async (
     [id: string]: (i: MessageComponentInteraction<CacheType>) => void;
   } = {
     ignoreReport: async (i) => {
-      const reporter = i.message.embeds?.[0].author?.name;
-      await i.update({
-        content: `Report by ${reporter ?? "anonymous"} ignored`,
-        embeds: [],
-        components: [],
-      });
-    },
-    ackReport: async (i) => {
-      const newEmbed = new EmbedBuilder(i.message.embeds?.[0]?.data).setColor(
-        0x00ff00
+      const embed = i.message.embeds?.[0];
+      const reporter = embed?.author?.name;
+      const newEmbed = new EmbedBuilder(embed?.data).setColor(
+        0xbbbbbb
       );
       await i.update({
-        content: `${i.message.content}\nReport was ACK'd by: ${i.user.username}`,
+        content: `Report ignored by <@${i.user.id}>`,
         embeds: [newEmbed],
         components: [],
       });
     },
-    replyReport: async (_i) => {
-      // const embed = i.message.embeds?.[0] as MessageEmbed;
-      // const embedField = embed?.fields?.[0];
-      // if(embedField.name == 'ReplyID') {
-      //     const user = embed?.fields?.[1].value;
-      //     const modal = new ModalBuilder()
-      //         .setCustomId(`reportResponse_${embedField.value}`)
-      //         .setTitle(`Reply to ${user}`);
-      //     const messageInput = new TextInputBuilder()
-      //         .setCustomId(`reportResponse_message_${embedField.value}`)
-      //         .setLabel('Message')
-      //         .setStyle(TextInputStyle.Paragraph)
-      //     const inputRow = new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput);
-      //     modal.addComponents(inputRow);
-      // }
+    ackReport: async (i) => {
+      const embed = i.message.embeds?.[0];
+      const newEmbed = new EmbedBuilder(embed?.data).setColor(
+        0x00ff00
+      );
+      await i.update({
+        content: `Report acknowledged by <@${i.user.id}>`,
+        embeds: [newEmbed],
+        components: [],
+      });
     },
   };
 

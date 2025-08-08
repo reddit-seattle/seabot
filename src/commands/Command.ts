@@ -3,6 +3,7 @@ export interface CommandConfiguration {
   description: string;
   help?: string;
   adminOnly?: boolean;
+  telemetry?: boolean;
 }
 
 export abstract class Command {
@@ -16,6 +17,9 @@ export abstract class Command {
   }
   public get adminOnly() {
     return this.configuration.adminOnly;
+  }
+  public get telemetry() {
+    return this.configuration.telemetry ?? !this.configuration.adminOnly;
   }
   public get description() {
     return this.configuration.description;

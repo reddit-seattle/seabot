@@ -182,7 +182,7 @@ class ChartService {
         }
         
         const { DIMENSIONS } = this.CHART_CONSTANTS;
-        const margin = {top: 25, right: 40, bottom: 50, left: 180};
+        const margin = {top: 25, right: 80, bottom: 50, left: 180};
         const width = DIMENSIONS.channelChartWidth - margin.left - margin.right;
         const height = DIMENSIONS.channelChartHeight - margin.top - margin.bottom;
         
@@ -216,6 +216,7 @@ class ChartService {
         
         this._updateBars(g, channelData, x, y, colorScale);
         this._updateLabels(g, channelData, y);
+        this._updateMessageCounts(g, channelData, x, y);
     }
 
     static createTimelineStackedChart(data, isUpdate = false) {
@@ -471,6 +472,39 @@ class ChartService {
             
         labels.text(d => d.channel_name ? truncateChannelName(d.channel_name) : `Channel ${d.channel_id.slice(-6)}`);
         labels.exit().remove();
+    }
+
+    static _updateMessageCounts(g, data, x, y) {
+        const { FONTS, COLORS } = this.CHART_CONSTANTS;
+        
+        const countLabels = g.selectAll('.count-label').data(data, d => d.channel_id);
+            
+        countLabels.enter()
+            .append('text')
+            .attr('class', 'count-label')
+            .attr('x', d => x(d.count) + 8)
+            .attr('y', d => y(d.channel_id) + y.bandwidth()/2)
+            .attr('dy', '0.35em')
+            .attr('text-anchor', 'start')
+            .attr('font-size', `${FONTS.channelLabelSize}px`)
+            .attr('font-weight', '600')
+            .attr('fill', COLORS.textDark)
+            .text(d => d.count.toLocaleString())
+            .style('opacity', 0)
+            .transition()
+            .duration(CONFIG.ANIMATION_DURATION)
+            .style('opacity', 1);
+            
+        countLabels.transition()
+            .duration(CONFIG.ANIMATION_DURATION)
+            .attr('x', d => x(d.count) + 8)
+            .text(d => d.count.toLocaleString());
+            
+        countLabels.exit()
+            .transition()
+            .duration(CONFIG.ANIMATION_DURATION)
+            .style('opacity', 0)
+            .remove();
     }
 
     static _renderHeatmapCells(container, hours, isUpdate) {
