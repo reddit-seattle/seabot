@@ -95,7 +95,7 @@ export default new SlashCommand({
     const modActionRow = buildModActionRow(interaction.guild?.id ?? "", {
       anon,
       user: user ?? undefined,
-      channel: channel as TextChannel ?? undefined,
+      channel: channel instanceof TextChannel ? channel : undefined,
       messageLink: messageLink ?? undefined,
     });
 
