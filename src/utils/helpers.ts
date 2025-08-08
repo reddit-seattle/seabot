@@ -179,15 +179,20 @@ export const processModReportInteractions = async (
     [id: string]: (i: MessageComponentInteraction<CacheType>) => void;
   } = {
     ignoreReport: async (i) => {
-      const reporter = i.message.embeds?.[0].author?.name;
+      const embed = i.message.embeds?.[0];
+      const reporter = embed?.author?.name;
+      const newEmbed = new EmbedBuilder(embed?.data).setColor(
+        0xbbbbbb
+      );
       await i.update({
         content: `Report by ${reporter ?? "anonymous"} ignored`,
-        embeds: [],
+        embeds: [newEmbed],
         components: [],
       });
     },
     ackReport: async (i) => {
-      const newEmbed = new EmbedBuilder(i.message.embeds?.[0]?.data).setColor(
+      const embed = i.message.embeds?.[0];
+      const newEmbed = new EmbedBuilder(embed?.data).setColor(
         0x00ff00
       );
       await i.update({
@@ -195,22 +200,6 @@ export const processModReportInteractions = async (
         embeds: [newEmbed],
         components: [],
       });
-    },
-    replyReport: async (_i) => {
-      // const embed = i.message.embeds?.[0] as MessageEmbed;
-      // const embedField = embed?.fields?.[0];
-      // if(embedField.name == 'ReplyID') {
-      //     const user = embed?.fields?.[1].value;
-      //     const modal = new ModalBuilder()
-      //         .setCustomId(`reportResponse_${embedField.value}`)
-      //         .setTitle(`Reply to ${user}`);
-      //     const messageInput = new TextInputBuilder()
-      //         .setCustomId(`reportResponse_message_${embedField.value}`)
-      //         .setLabel('Message')
-      //         .setStyle(TextInputStyle.Paragraph)
-      //     const inputRow = new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput);
-      //     modal.addComponents(inputRow);
-      // }
     },
   };
 

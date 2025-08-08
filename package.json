@@ -1,6 +1,6 @@
 {
   "name": "seabot",
-  "version": "0.0.1",
+  "version": "0.13.0",
   "description": "a bot. in SEA.",
   "main": "dist/seabot.js",
   "engines": {

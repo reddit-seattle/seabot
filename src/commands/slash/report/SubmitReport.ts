@@ -1,4 +1,4 @@
-import { EmbedBuilder, TextChannel, MessageFlags } from "discord.js";
+import { EmbedBuilder, TextChannel, MessageFlags, ChatInputCommandInteraction } from "discord.js";
 import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import SlashCommand from "../SlashCommand";
@@ -9,12 +9,13 @@ import { configuration } from "../../../server";
 
 export default new SlashCommand({
   name: "report",
-  description: "Submit a report to the mod team",
+  description: "Submit a report to the mod team. " +
+    "Please include as many details as possible to share context.",
   help: "Submit a report to the mod team",
   builder: new ChatInputCommandBuilder()
     // anon is required, note is required
     .addBooleanOptions([
-      (o) => o.setName("anon").setDescription("Submit anonymously").setRequired(true)
+      (o) => o.setName("anon").setDescription("Anonymous report").setRequired(true)
     ])
     .addStringOptions([
       (o) =>
@@ -38,7 +39,9 @@ export default new SlashCommand({
     .addAttachmentOptions([
       (o) => o.setName("evidence").setDescription("Attach evidence if necessary")
     ]),
-  execute: async (interaction) => {
+  execute: async (interaction: ChatInputCommandInteraction) => {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
     const { options } = interaction;
     // only get username if not anonymous.
     const anon = options.getBoolean("anon", true);
@@ -51,22 +54,9 @@ export default new SlashCommand({
     const message = options.getString("message");
     const messageLink = message?.match(REGEX.URL)?.[0] ?? null;
 
-    // we need a user or a channel or message
-    if (!(user || channel || messageLink)) {
-      await interaction.reply({
-        flags: MessageFlags.Ephemeral,
-        content:
-          "Please include either a user, a channel, or a message link with your report, to help mods track it down.",
-      });
-      return;
-    }
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const modReportsChannelId = configuration.channelIds?.["MOD_REPORTS"];
     if (!modReportsChannelId) {
-      await interaction.editReply({
-        flags: MessageFlags.Ephemeral,
-        content: "Mod reports channel is not configured. Please contact an administrator.",
-      });
+      await interaction.editReply("Mod reports channel is not configured. Please contact an administrator.");
       return;
     }
     const modReports = (await interaction.guild?.channels.cache
@@ -76,15 +66,9 @@ export default new SlashCommand({
     const reportEmbed = new EmbedBuilder({
       color: 0xff0000,
       title: "New User Report",
-      description: `${
-        anon ? "An anonymous user" : username
-      } has submitted a report\n<t:${timestamp}:F>\n<t:${timestamp}:R>`,
+      description: `${anon ? "An anonymous user" : username
+        } has submitted a report\n<t:${timestamp}:F>\n<t:${timestamp}:R>`,
       fields: [
-        // ...(
-        //     anon ? [] : [{
-        //         name: 'ReplyID',
-        //         value: interaction.user.id
-        //     }]),
         {
           name: "Reported by",
           value: anon ? `Anonymous` : `<@${interaction.user.id}>`,
@@ -103,7 +87,7 @@ export default new SlashCommand({
         },
       ],
     });
-    
+
     // Only add image if evidence exists and has a valid URL
     if (evidence?.url) {
       reportEmbed.setImage(evidence.url);
@@ -111,7 +95,7 @@ export default new SlashCommand({
     const modActionRow = buildModActionRow(interaction.guild?.id ?? "", {
       anon,
       user: user ?? undefined,
-      channel: channel ?? undefined,
+      channel: channel as TextChannel ?? undefined,
       messageLink: messageLink ?? undefined,
     });
 
@@ -120,9 +104,10 @@ export default new SlashCommand({
       components: [modActionRow],
     });
 
-    await interaction.followUp({
-      ephemeral: true,
-      content: `Thank you for submitting a report.\nIf your report was not anonymous, a moderator may reach out if they require any further information.`,
+    await interaction.editReply({
+      content: `Thank you for submitting a report ${anon ? "anonymously" : "as <@" + interaction.user.id + ">"}. ` +
+        "If your report was not anonymous, a moderator may reach out if they require any further information, " +
+        "so please keep an eye on your DMs / Message Requests."
     });
   },
 });
