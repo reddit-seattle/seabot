@@ -11,6 +11,7 @@ export default new SlashCommand({
   name: "report",
   description: "Report something to the mods. Please include as much detail as you wish to share.",
   help: "Submit a report to the mod team",
+  telemetry: false,
   builder: new ChatInputCommandBuilder()
     // anon is required, note is required
     .addBooleanOptions([

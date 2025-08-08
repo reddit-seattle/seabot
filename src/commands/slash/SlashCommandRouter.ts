@@ -37,7 +37,7 @@ export default class SlashCommandRouter extends CommandRouter {
           command.execute?.(interaction);
           // yay
           const telemetry = expressServer.getTelemetry();
-          if (telemetry && !command.adminOnly) {
+          if (telemetry && command.telemetry) {
             telemetry.logCommand(
               interaction.channelId,
               interaction.commandName,
@@ -48,7 +48,7 @@ export default class SlashCommandRouter extends CommandRouter {
         } catch (error) {
           // boo
           const telemetry = expressServer.getTelemetry();
-          if (telemetry && !command.adminOnly) {
+          if (telemetry && command.telemetry) {
             telemetry.logCommand(
               interaction.channelId,
               interaction.commandName,
