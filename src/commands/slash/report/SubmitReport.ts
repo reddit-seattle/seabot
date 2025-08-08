@@ -9,8 +9,7 @@ import { configuration } from "../../../server";
 
 export default new SlashCommand({
   name: "report",
-  description: "Submit a report to the mod team. " +
-    "Please include as many details as possible to share context.",
+  description: "Report something to the mods. Please include as much detail as you wish to share.",
   help: "Submit a report to the mod team",
   builder: new ChatInputCommandBuilder()
     // anon is required, note is required
@@ -23,21 +22,21 @@ export default new SlashCommand({
           .setName("note")
           .setDescription("Please explain the issue")
           .setRequired(true),
-      (o) => o.setName("message").setDescription("Message link to content")
+      (o) => o.setName("message").setDescription("Right-click, copy link")
     ])
     // user and channel are optional
     .addUserOptions([
-      (o) => o.setName("user").setDescription("The user you want to report")
+      (o) => o.setName("user").setDescription("Specify a user")
     ])
     .addChannelOptions([
       (o) =>
         o
           .setName("channel")
-          .setDescription("The channel where the issue occurred")
+          .setDescription("Link a channel")
     ])
     // evidence not required
     .addAttachmentOptions([
-      (o) => o.setName("evidence").setDescription("Attach evidence if necessary")
+      (o) => o.setName("attach").setDescription("Screenshots etc.")
     ]),
   execute: async (interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -50,8 +49,8 @@ export default new SlashCommand({
     const user = options.getUser("user", false);
     const channel = options.getChannel("channel", false);
     const note = options.getString("note", true);
-    const evidence = options.getAttachment("evidence");
-    const message = options.getString("message");
+    const attachment = options.getAttachment("attach");
+    const message = options.getString("message", false);
     const messageLink = message?.match(REGEX.URL)?.[0] ?? null;
 
     const modReportsChannelId = configuration.channelIds?.["MOD_REPORTS"];
@@ -65,7 +64,7 @@ export default new SlashCommand({
     const timestamp = Math.floor(Date.now() / 1000);
     const reportEmbed = new EmbedBuilder({
       color: 0xff0000,
-      title: "New User Report",
+      title: "New Report",
       description: `${anon ? "An anonymous user" : username
         } has submitted a report\n<t:${timestamp}:F>\n<t:${timestamp}:R>`,
       fields: [
@@ -88,9 +87,9 @@ export default new SlashCommand({
       ],
     });
 
-    // Only add image if evidence exists and has a valid URL
-    if (evidence?.url) {
-      reportEmbed.setImage(evidence.url);
+    // Only add image if attachment exists and has a valid URL
+    if (attachment?.url) {
+      reportEmbed.setImage(attachment.url);
     }
     const modActionRow = buildModActionRow(interaction.guild?.id ?? "", {
       anon,
@@ -103,11 +102,13 @@ export default new SlashCommand({
       embeds: [reportEmbed],
       components: [modActionRow],
     });
+    const reply = anon
+      ? "Thank you for submitting an anonymous report."
+      : (
+        `Thank you for submitting a report, <@${interaction.user.id}>. ` +
+        "Mods may reach out to you privately for more context or details."
+      );
 
-    await interaction.editReply({
-      content: `Thank you for submitting a report ${anon ? "anonymously" : "as <@" + interaction.user.id + ">"}. ` +
-        "If your report was not anonymous, a moderator may reach out if they require any further information, " +
-        "so please keep an eye on your DMs / Message Requests."
-    });
+    await interaction.editReply(reply);
   },
 });

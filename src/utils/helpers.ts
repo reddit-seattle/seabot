@@ -136,20 +136,14 @@ export const buildModActionRow = (
 
   const ackButton = new PrimaryButtonBuilder()
     .setCustomId("ackReport")
-    .setLabel("✅ACK");
-
-  // const replyButton = new MessageButton()
-  //     .setCustomId('replyReport')
-  //     .setEmoji('✉️')
-  //     .setLabel('Reply')
-  //     .setStyle(MessageButtonStyles.SECONDARY);
+    .setLabel("✅Acknowledge");
 
   let viewButton: LinkButtonBuilder | undefined = undefined;
 
   if (options.messageLink || options?.channel?.id) {
     const url = options.messageLink || createChannelLink(guildId, options.channel!.id);
     viewButton = new LinkButtonBuilder()
-      .setLabel("👀View")
+      .setLabel("🔗Link")
       .setURL(url);
   }
   const buttons = [
@@ -185,7 +179,7 @@ export const processModReportInteractions = async (
         0xbbbbbb
       );
       await i.update({
-        content: `Report by ${reporter ?? "anonymous"} ignored`,
+        content: `Report ignored by <@${i.user.id}>`,
         embeds: [newEmbed],
         components: [],
       });
@@ -196,7 +190,7 @@ export const processModReportInteractions = async (
         0x00ff00
       );
       await i.update({
-        content: `${i.message.content}\nReport was ACK'd by: ${i.user.username}`,
+        content: `Report acknowledged by <@${i.user.id}>`,
         embeds: [newEmbed],
         components: [],
       });
