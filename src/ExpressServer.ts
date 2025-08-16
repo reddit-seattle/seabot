@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 import { formatUptime } from "./utils/helpers";
 import { Logger } from "./utils/logger";
-import { SimpleTelemetry } from "./db/SimpleTelemetry";
+import { telemetry } from "./db";
 import DiscordBot from "./discord/DiscordBot";
 import ISeabotConfig from "./configuration/ISeabotConfig";
 import { Environment } from "./utils/constants";
@@ -12,7 +12,7 @@ import { Environment } from "./utils/constants";
 export default class ExpressServer {
   private _server;
   private _startTime: Date;
-  private _telemetry: SimpleTelemetry | null = null;
+  private _telemetry: typeof telemetry | null = null;
   private _discordBot: DiscordBot | null = null;
   private _metricsCache: { data: any; timestamp: number; cacheKey?: string } | null = null;
   private readonly CACHE_DURATION = 8000; // 8 seconds cache for live updates
@@ -25,17 +25,17 @@ export default class ExpressServer {
     try {
       const dbPath = process.env.NODE_ENV === 'production' ? Environment.telemetryDbPath : './telemetry.db';
       Logger.info(`Attempting to initialize telemetry with database path: ${dbPath}`);
-      
+
       // Check if the directory exists
       const dbDir = path.dirname(dbPath);
       Logger.info(`Database directory: ${dbDir}`);
       Logger.info(`Database directory exists: ${fs.existsSync(dbDir)}`);
-      
+
       if (process.env.NODE_ENV === 'production') {
         // In production, log more details about the mount directory
         Logger.info(`Current working directory: ${process.cwd()}`);
         Logger.info(`__dirname: ${__dirname}`);
-        
+
         // Check the mount point specifically
         if (fs.existsSync('/mnt/telemetry')) {
           const mountContents = fs.readdirSync('/mnt/telemetry');
@@ -44,8 +44,8 @@ export default class ExpressServer {
           Logger.warn(`/mnt/telemetry mount point does not exist`);
         }
       }
-      
-      this._telemetry = new SimpleTelemetry(dbPath, config);
+
+      this._telemetry = telemetry;
       Logger.info("Telemetry initialized successfully");
     } catch (error) {
       Logger.error("Failed to initialize telemetry:", error);
@@ -95,7 +95,7 @@ export default class ExpressServer {
         if (!this._telemetry) {
           return response.status(503).json({ "sorry mario": "your telemetry is in another castle" });
         }
-        
+
         // Get time range from query parameter (default to 24h)
         const timeRange = (request.query.range as string) || '24h';
         const now = Date.now();
@@ -138,7 +138,7 @@ export default class ExpressServer {
     this._server.use('/dashboard', express.static(path.join(__dirname, 'dashboard')));
   }
 
-  getTelemetry(): SimpleTelemetry | null {
+  getTelemetry(): typeof telemetry | null {
     return this._telemetry;
   }
 

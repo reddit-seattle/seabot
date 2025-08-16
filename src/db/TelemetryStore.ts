@@ -1,13 +1,14 @@
-import Database from 'better-sqlite3';
+import db from './sqlite';
 import { Message } from 'discord.js';
 import ISeabotConfig from '../configuration/ISeabotConfig';
+import { Database } from 'better-sqlite3';
 
-export class SimpleTelemetry {
-  private db: Database.Database;
+export class TelemetryStore {
+  private db: Database;
   private config: ISeabotConfig | null = null;
 
-  constructor(dbPath: string = './telemetry.db', config?: ISeabotConfig) {
-    this.db = new Database(dbPath);
+  constructor(config?: ISeabotConfig) {
+    this.db = db;
     this.config = config || null;
     this.init();
   }
@@ -36,17 +37,14 @@ export class SimpleTelemetry {
     `);
   }
 
-  // Log a message
   logMessage(message: Message) {
     try {
-      // Get category_id safely - only certain guild channels have parentId
       const categoryId = message.channel.isDMBased() 
         ? null 
         : 'parentId' in message.channel 
           ? message.channel.parentId 
           : null;
 
-      // Check if we should emit this message
       if (this.config?.telemetryCategories && this.config.telemetryCategories.length > 0) {
         if (!categoryId || !this.config.telemetryCategories.includes(categoryId)) {
           return; // Skip emitting this message
@@ -62,12 +60,10 @@ export class SimpleTelemetry {
         message.content.length
       );
     } catch (e) {
-      // Silent fail - don't break the bot
       console.warn('Telemetry log failed:', e);
     }
   }
 
-  // Log a command
   logCommand(channelId: string, commandName: string, success: boolean, subcommand?: string) {
     try {
       this.db.prepare(`
@@ -79,10 +75,8 @@ export class SimpleTelemetry {
     }
   }
 
-  // Simple metrics
   getMetrics(timeRange: string = '7d') {
     const timeFilter = timeRange === '24h' ? '-1 day' : '-7 days';
-    // Daily message counts by week
     const messageStats = this.db.prepare(`
       SELECT DATE(timestamp) as date, COUNT(*) as count
       FROM messages 
@@ -91,7 +85,6 @@ export class SimpleTelemetry {
       ORDER BY date
     `).all(timeFilter);
 
-    // Hourly message counts by day
     const hourlyMessages = this.db.prepare(`
       SELECT strftime('%H', timestamp) as hour, COUNT(*) as count
       FROM messages 
@@ -100,7 +93,6 @@ export class SimpleTelemetry {
       ORDER BY hour
     `).all(timeFilter);
 
-    // Channel activity (top 10 most active channels)
     const channelActivity = this.db.prepare(`
       SELECT channel_id, COUNT(*) as count
       FROM messages 
@@ -109,8 +101,7 @@ export class SimpleTelemetry {
       ORDER BY count DESC 
       LIMIT 10
     `).all(timeFilter);
-    
-    // Messages per 15 minutes over selected time range (time series)
+
     const timeSeriesHourly = this.db.prepare(`
       SELECT 
         strftime('%Y-%m-%d %H:', timestamp) || 
@@ -123,7 +114,6 @@ export class SimpleTelemetry {
       ORDER BY time
     `).all(timeFilter);
 
-    // Messages per 15 minutes by channel (for colored line chart)
     const timeSeriesByChannel = this.db.prepare(`
       SELECT 
         strftime('%Y-%m-%d %H:', timestamp) || 
@@ -137,7 +127,6 @@ export class SimpleTelemetry {
       ORDER BY time, channel_id
     `).all(timeFilter);
 
-    // Command usage statistics
     const commandStats = this.db.prepare(`
       SELECT 
         command_name,
@@ -151,7 +140,6 @@ export class SimpleTelemetry {
       ORDER BY count DESC
     `).all(timeFilter);
 
-    // Command success rate
     const commandSuccess = this.db.prepare(`
       SELECT 
         DATE(timestamp) as date,
@@ -164,7 +152,6 @@ export class SimpleTelemetry {
       ORDER BY date
     `).all(timeFilter);
 
-    // Category activity
     const categoryStats = this.db.prepare(`
       SELECT category_id, COUNT(*) as count
       FROM messages 
@@ -184,9 +171,5 @@ export class SimpleTelemetry {
       commandSuccess,
       categoryStats 
     };
-  }
-
-  close() {
-    this.db.close();
   }
 }

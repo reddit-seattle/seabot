@@ -115,6 +115,8 @@ export module Environment {
   export const ehConnectionString = process.env["ehConnectionString"] || "";
   export const sendTelemetry = process.env["sendTelemetry"] || false;
   export const telemetryDbPath = process.env["TELEMETRY_DB_PATH"] || "/mnt/telemetry/telemetry.db";
+  export const daysWithoutBackground = process.env["DAYS_WITHOUT_BACKGROUND"] || './assets/dayswithoutincident.png';
+  export const trackedWords = process.env["DAYS_SINCE_MEME_TRIGGER_WORDS"];
 }
 export module VoiceConstants {
   export const VOICE_TYPE = 2;
