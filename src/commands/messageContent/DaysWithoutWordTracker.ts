@@ -6,6 +6,7 @@ import ContentCommand from "./ContentCommand";
 
 const rawWords = (Environment.trackedWords || "").split(",").map(w => w.trim()).filter(Boolean);
 const TRACKED_WORDS = rawWords.length ? rawWords : ["the thing"];
+const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24
 
 // Escape any special chars
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -31,7 +32,7 @@ export default new ContentCommand({
         // days since last occurrence
         const lastSeen = new Date(tracker.last_seen);
         daysSince = Math.max(0, Math.floor(
-          (Date.now() - lastSeen.getTime()) / (1000 * 60 * 60 * 24)
+          (Date.now() - lastSeen.getTime()) / (MILLISECONDS_PER_DAY)
         ));
         if (daysSince === 0) {
           return; // Already triggered today
