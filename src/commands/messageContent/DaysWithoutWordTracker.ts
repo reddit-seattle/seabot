@@ -4,8 +4,7 @@ import { DaysWithoutImageGenerator } from "../../utils/DaysWithoutImageGenerator
 import { Environment } from "../../utils/constants";
 import ContentCommand from "./ContentCommand";
 
-const rawWords = (Environment.trackedWords || "").split(",").map(w => w.trim()).filter(Boolean);
-const TRACKED_WORDS = rawWords.length ? rawWords : ["the thing"];
+const TRACKED_WORDS = (Environment.trackedWords || "").split(",").map(w => w.trim()).filter(Boolean);
 const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24
 
 // Escape any special chars
