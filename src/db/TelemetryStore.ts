@@ -1,9 +1,10 @@
 import db from './sqlite';
 import { Message } from 'discord.js';
 import ISeabotConfig from '../configuration/ISeabotConfig';
+import { Database } from 'better-sqlite3';
 
 export class TelemetryStore {
-  private db: any;
+  private db: Database;
   private config: ISeabotConfig | null = null;
 
   constructor(config?: ISeabotConfig) {

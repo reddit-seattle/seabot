@@ -1,7 +1,18 @@
+
+import { Database } from 'better-sqlite3';
 import db from './sqlite';
 
+export interface WordTracker {
+    id: number;
+    word: string;
+    last_seen: string; // ISO string
+    word_count: number;
+    channel_id: string | null;
+    user_id: string | null;
+}
+
 export class WordTrackerStore {
-  private db: any;
+    private db: Database;
 
   constructor() {
     this.db = db;
@@ -25,18 +36,19 @@ export class WordTrackerStore {
     `);
   }
 
-  getWordTracker(word: string): any {
+  getWordTracker(word: string): WordTracker | null {
     try {
-      return this.db.prepare(`
+      const result = this.db.prepare(`
         SELECT * FROM word_trackers WHERE word = ?
-      `).get(word);
+      `).get(word) as WordTracker | undefined;
+      return result ?? null;
     } catch (e) {
       console.warn('Failed to get word tracker:', e);
       return null;
     }
   }
 
-  updateWordTracker(word: string, channelId: string, userId: string): any {
+  updateWordTracker(word: string, channelId: string, userId: string): WordTracker | null {
     try {
       const existing = this.getWordTracker(word);
       
@@ -69,11 +81,11 @@ export class WordTrackerStore {
     }
   }
 
-  getAllWordTrackers(): any[] {
+  getAllWordTrackers(): WordTracker[] {
     try {
       return this.db.prepare(`
         SELECT * FROM word_trackers ORDER BY last_seen DESC
-      `).all();
+      `).all() as WordTracker[];
     } catch (e) {
       console.warn('Failed to get all word trackers:', e);
       return [];
