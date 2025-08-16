@@ -7,6 +7,7 @@ import Status from "./Status";
 import Tea from "./Tea";
 import Valheim from "./Valheim";
 import Whoops from "./Whoops";
+import WordTracker from "./WordTracker";
 
 export default [
   Coffee,
@@ -16,6 +17,7 @@ export default [
   Speak,
   Status,
   Tea,
+  WordTracker,
   Valheim,
   Whoops,
 ];
