@@ -5,7 +5,7 @@ import { Environment } from "../../utils/constants";
 import ContentCommand from "./ContentCommand";
 
 const TRACKED_WORDS = (Environment.trackedWords || "").split(",").map(w => w.trim()).filter(Boolean);
-const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24
+const MILLISECONDS_PER_HOUR = 1000 * 60 * 60;
 
 // Escape any special chars
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -23,18 +23,24 @@ export default new ContentCommand({
 
       if (!triggeredWord) return;
 
-      let daysSince = 0;
+      let hoursSince = 0;
       const telemetryDb = wordTrackerStore;
       const tracker = telemetryDb.getWordTracker(triggeredWord);
 
       if (tracker) {
         // days since last occurrence
         const lastSeen = new Date(tracker.last_seen);
-        daysSince = Math.max(0, Math.floor(
-          (Date.now() - lastSeen.getTime()) / (MILLISECONDS_PER_DAY)
+        hoursSince = Math.max(0, Math.floor(
+          (Date.now() - lastSeen.getTime()) / (MILLISECONDS_PER_HOUR)
         ));
-        if (daysSince === 0) {
-          return; // Already triggered today
+        if (hoursSince === 0) {
+          // Update the tracker (we still want to record the mention even if we don't post)
+          telemetryDb.updateWordTracker(
+            triggeredWord,
+            message.channel.id,
+            message.author.id
+          );
+          return; // Already triggered within the last hour
         }
       }
 
@@ -47,7 +53,7 @@ export default new ContentCommand({
 
       const imageBuffer = await DaysWithoutImageGenerator.generateDaysWithoutImage(
         `${triggeredWord}`,
-        daysSince
+        hoursSince
       );
       const attachment = new AttachmentBuilder(imageBuffer, {
         name: `days-without-${triggeredWord}.png`
