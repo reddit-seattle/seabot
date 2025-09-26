@@ -34,12 +34,6 @@ export default new ContentCommand({
           (Date.now() - lastSeen.getTime()) / (MILLISECONDS_PER_HOUR)
         ));
         if (hoursSince === 0) {
-          // Update the tracker (we still want to record the mention even if we don't post)
-          telemetryDb.updateWordTracker(
-            triggeredWord,
-            message.channel.id,
-            message.author.id
-          );
           return; // Already triggered within the last hour
         }
       }
