@@ -29,15 +29,15 @@ export class DaysWithoutImageGenerator {
     }
 
     ctx.fillStyle = this.TEXT_COLOR;
-    ctx.font = 'bold 40px Arial';
+    ctx.font = 'bold 36px Arial';
     ctx.textAlign = 'left';
-    ctx.fillText(`days since we talked`, this.TEXT_LINE1_X, this.TEXT_LINE1_Y);
+    ctx.fillText(`hours since we talked`, this.TEXT_LINE1_X, this.TEXT_LINE1_Y);
     ctx.fillText(`about ${triggerWord}`, this.TEXT_LINE2_X, this.TEXT_LINE2_Y);
 
     const numberOnBoardcenterX = 105;
     const numberOnBoardCenterY = 155;
     ctx.fillStyle = this.NUMBER_COLOR;
-    ctx.font = 'bold 58px Arial';
+    ctx.font = 'bold 48px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.save();
@@ -49,7 +49,7 @@ export class DaysWithoutImageGenerator {
     const numberInHandCenterX = 90;
     const numberInHandCenterY = 295;
     ctx.fillStyle = this.NUMBER_COLOR;
-    ctx.font = 'bold 58px Arial';
+    ctx.font = 'bold 42px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.save();
