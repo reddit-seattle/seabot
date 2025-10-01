@@ -109,8 +109,22 @@ class ChartService {
             }));
         }
 
-        const spec = {
-            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        // Create layered chart with role ping markers
+        const rolePings = (data.rolePings || []).map(ping => {
+            // Create display text for multiple roles
+            const rolesList = ping.roles ? 
+                ping.roles.map(r => `${r.role_name} (${r.count})`).join(', ') :
+                'Unknown roles';
+            
+            return {
+                ...ping,
+                roles_display: rolesList,
+                total_pings: ping.count || ping.total_count || 0
+            };
+        });
+        const hasRolePings = rolePings.length > 0;
+
+        const baseLayer = {
             "data": {"values": processedData},
             "transform": isChannelData ? [
                 {
@@ -144,11 +158,7 @@ class ChartService {
                     "type": "nominal",
                     "title": "Channel",
                     "scale": this.getColorScale(),
-                    "sort": {"field": "count", "op": "sum", "order": "descending"},
-                    "legend": {
-                        "title": "Channel",
-                        "labelFontSize": this.CHART_CONSTANTS.FONTS.legendLabelSize,
-                    }
+                    "sort": {"field": "count", "op": "sum", "order": "descending"}
                 } : {"value": CONFIG.CHART_COLORS.primary},
                 "tooltip": isChannelData ? [
                     {"field": "time", "type": "temporal", "format": "%Y-%m-%d %H:%M"},
@@ -158,7 +168,54 @@ class ChartService {
                     {"field": "time", "type": "temporal", "format": "%Y-%m-%d %H:%M"},
                     {"field": "count", "type": "quantitative", "title": "Messages"}
                 ]
-            },
+            }
+        };
+
+        const spec = hasRolePings ? {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "layer": [
+                baseLayer,
+                {
+                    "data": {"values": rolePings},
+                    "mark": {
+                        "type": "tick",
+                        "color": "#ff6b35",
+                        "opacity": 0.9,
+                        "thickness": 25
+                    },
+                    "encoding": {
+                        "x": {
+                            "field": "time",
+                            "type": "temporal"
+                        },
+                        "y": {
+                            "datum": 0,
+                            "type": "quantitative"
+                        },
+                        "size": {
+                            "field": "total_pings",
+                            "type": "quantitative",
+                            "scale": {
+                                "type": "linear",
+                                "range": [1, 10]
+                            },
+                            "legend": null
+                        },
+                        "tooltip": [
+                            {"field": "time", "type": "temporal", "format": "%Y-%m-%d %H:%M", "title": "Role Pinged At"},
+                            {"field": "total_pings", "type": "quantitative", "title": "Total Pings"},
+                            {"field": "roles_display", "type": "nominal", "title": "Roles"}
+                        ]
+                    }
+                }
+            ],
+            "resolve": {"scale": {"color": "independent"}},
+            "width": "container",
+            "height": this.CHART_CONSTANTS.DIMENSIONS.chartHeight,
+            "config": this.getBaseConfig()
+        } : {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            ...baseLayer,
             "width": "container",
             "height": this.CHART_CONSTANTS.DIMENSIONS.chartHeight,
             "config": this.getBaseConfig()
@@ -246,8 +303,22 @@ class ChartService {
             channel_display: d.channel_name ? `#${d.channel_name}` : `#${d.channel_id.slice(-8)}`
         }));
 
-        const spec = {
-            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        // Add role ping markers to stacked chart
+        const rolePings = (data.rolePings || []).map(ping => {
+            // Create display text for multiple roles
+            const rolesList = ping.roles ? 
+                ping.roles.map(r => `${r.role_name} (${r.count})`).join(', ') :
+                'Unknown roles';
+            
+            return {
+                ...ping,
+                roles_display: rolesList,
+                total_pings: ping.count || ping.total_count || 0
+            };
+        });
+        const hasRolePings = rolePings.length > 0;
+
+        const baseStackedLayer = {
             "data": {"values": enrichedData},
             "transform": [
                 {
@@ -287,19 +358,61 @@ class ChartService {
                     "type": "nominal",
                     "title": "Channel",
                     "scale": this.getColorScale(),
-                    "sort": {"field": "total_count", "order": "descending"},
-                    "legend": {
-                        "title": "Channel",
-                        "orient": "right",
-                        "labelFontSize": this.CHART_CONSTANTS.FONTS.legendLabelSize,
-                    }
+                    "sort": {"field": "total_count", "order": "descending"}
                 },
                 "tooltip": [
                     {"field": "time", "type": "temporal", "format": "%Y-%m-%d %H:%M"},
                     {"field": "count", "type": "quantitative", "title": "Messages"},
                     {"field": "channel_display", "type": "nominal", "title": "Channel"}
                 ]
-            },
+            }
+        };
+
+        const spec = hasRolePings ? {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "layer": [
+                baseStackedLayer,
+                {
+                    "data": {"values": rolePings},
+                    "mark": {
+                        "type": "tick",
+                        "color": "#ff6b35",
+                        "opacity": 0.9,
+                        "thickness": 25
+                    },
+                    "encoding": {
+                        "x": {
+                            "field": "time",
+                            "type": "temporal"
+                        },
+                        "y": {
+                            "datum": 0,
+                            "type": "quantitative"
+                        },
+                        "size": {
+                            "field": "total_pings",
+                            "type": "quantitative",
+                            "scale": {
+                                "type": "linear",
+                                "range": [1, 10]
+                            },
+                            "legend": null
+                        },
+                        "tooltip": [
+                            {"field": "time", "type": "temporal", "format": "%Y-%m-%d %H:%M", "title": "Role Pinged At"},
+                            {"field": "total_pings", "type": "quantitative", "title": "Total Pings"},
+                            {"field": "roles_display", "type": "nominal", "title": "Roles"}
+                        ]
+                    }
+                }
+            ],
+            "resolve": {"scale": {"color": "independent"}, "legend": {"color": "independent"}},
+            "width": "container",
+            "height": this.CHART_CONSTANTS.DIMENSIONS.chartHeight,
+            "config": this.getBaseConfig()
+        } : {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            ...baseStackedLayer,
             "width": "container",
             "height": this.CHART_CONSTANTS.DIMENSIONS.chartHeight,
             "config": this.getBaseConfig()

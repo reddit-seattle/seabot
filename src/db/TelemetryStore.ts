@@ -2,6 +2,7 @@ import db from './sqlite';
 import { Message } from 'discord.js';
 import ISeabotConfig from '../configuration/ISeabotConfig';
 import { Database } from 'better-sqlite3';
+import { REGEX } from '../utils/constants';
 
 export class TelemetryStore {
   private db: Database;
@@ -32,8 +33,17 @@ export class TelemetryStore {
         success BOOLEAN
       );
 
+      CREATE TABLE IF NOT EXISTS role_pings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        channel_id TEXT,
+        role_id TEXT,
+        message_id TEXT
+      );
+
       CREATE INDEX IF NOT EXISTS idx_messages_timestamp ON messages(timestamp);
       CREATE INDEX IF NOT EXISTS idx_commands_timestamp ON commands(timestamp);
+      CREATE INDEX IF NOT EXISTS idx_role_pings_timestamp ON role_pings(timestamp);
     `);
   }
 
@@ -59,8 +69,37 @@ export class TelemetryStore {
         categoryId,
         message.content.length
       );
+
+      // Track role pings if configured
+      this.logRolePings(message);
     } catch (e) {
       console.warn('Telemetry log failed:', e);
+    }
+  }
+
+  logRolePings(message: Message) {
+    try {
+      // Only track if we have tracked roles configured
+      if (!this.config?.trackedRoleIds || this.config.trackedRoleIds.length === 0) {
+        return;
+      }
+
+      // Find role mentions in the message
+      const roleMentions = message.content.match(REGEX.ROLE);
+      if (!roleMentions) return;
+
+      // Extract role IDs and check if they're tracked
+      for (const mention of roleMentions) {
+        const roleId = mention.replace(/<@&(\d+)>/, '$1');
+        if (this.config.trackedRoleIds.includes(roleId)) {
+          this.db.prepare(`
+            INSERT INTO role_pings (channel_id, role_id, message_id)
+            VALUES (?, ?, ?)
+          `).run(message.channelId, roleId, message.id);
+        }
+      }
+    } catch (e) {
+      console.warn('Role ping log failed:', e);
     }
   }
 
@@ -161,6 +200,26 @@ export class TelemetryStore {
       ORDER BY count DESC
     `).all(timeFilter);
 
+    const rolePings = this.db.prepare(`
+      SELECT 
+        time,
+        GROUP_CONCAT(role_id || ':' || count, '|') as role_data,
+        SUM(count) as total_count
+      FROM (
+        SELECT 
+          strftime('%Y-%m-%d %H:', timestamp) || 
+          printf('%02d', (CAST(strftime('%M', timestamp) AS INTEGER) / 15) * 15) || 
+          ':00Z' as time,
+          role_id,
+          COUNT(*) as count
+        FROM role_pings 
+        WHERE timestamp > datetime('now', ?)
+        GROUP BY strftime('%Y-%m-%d %H', timestamp), (CAST(strftime('%M', timestamp) AS INTEGER) / 15), role_id
+      ) grouped_pings
+      GROUP BY time
+      ORDER BY time
+    `).all(timeFilter);
+
     return { 
       messageStats,
       hourlyMessages,
@@ -169,7 +228,8 @@ export class TelemetryStore {
       timeSeriesByChannel,
       commandStats, 
       commandSuccess,
-      categoryStats 
+      categoryStats,
+      rolePings
     };
   }
 }
