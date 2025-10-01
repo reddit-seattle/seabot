@@ -180,6 +180,47 @@ export default class ExpressServer {
           }
         }
       }
+
+      // Enrich role ping data with role names
+      if (metrics.rolePings) {
+        const roleNamesCache = new Map<string, string>();
+
+        for (const rolePingData of metrics.rolePings) {
+          // Parse the aggregated role_data format: "roleId1:count1|roleId2:count2"
+          const roleEntries = rolePingData.role_data.split('|');
+          const enrichedRoles = [];
+
+          for (const roleEntry of roleEntries) {
+            const [roleId, count] = roleEntry.split(':');
+            
+            // Fetch role name if not cached
+            if (!roleNamesCache.has(roleId)) {
+              try {
+                const guild = this._discordBot.client.guilds.cache.first();
+                if (guild) {
+                  const role = await guild.roles.fetch(roleId).catch(() => null);
+                  if (role) {
+                    roleNamesCache.set(roleId, role.name);
+                  }
+                }
+              } catch (e) {
+                // Ignore errors for individual role fetches
+              }
+            }
+
+            const roleName = roleNamesCache.get(roleId) || `Role ${roleId.slice(-4)}`;
+            enrichedRoles.push({
+              role_id: roleId,
+              role_name: roleName,
+              count: parseInt(count)
+            });
+          }
+
+          // Add enriched role information to the ping data
+          rolePingData.roles = enrichedRoles;
+          rolePingData.count = rolePingData.total_count;
+        }
+      }
     } catch (error) {
       Logger.error("Error enriching channel names:", error);
     }

@@ -19,6 +19,8 @@ export default interface ISeabotConfig {
 
   telemetryCategories?: Array<string>;
 
+  trackedRoleIds?: Array<string>;
+
   channelIds?: { [key: string]: string };
 
   roleIds: {
