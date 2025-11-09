@@ -9,6 +9,7 @@ const ASSIGNABLE_ROLES = [
   '1333912863605002271', // politics timeout
   '1388337523012534342', // resident
   '1339007768203366492', // thunderdome
+  '1437188425567703092', // holiday giveaway
 ];
 
 // users who can't be assigned roles
