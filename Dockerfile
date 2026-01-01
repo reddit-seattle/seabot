@@ -1,5 +1,5 @@
 # Build stage
-FROM node:22-alpine AS build
+FROM node:22-alpine3.20 AS build
 
 ARG environment=development
 WORKDIR /app
@@ -26,7 +26,7 @@ COPY . .
 RUN npm run container:$environment
 
 # Production stage
-FROM node:22-alpine AS production
+FROM node:22-alpine3.20 AS production
 WORKDIR /app
 
 RUN addgroup -g 1001 -S nodejs && \
