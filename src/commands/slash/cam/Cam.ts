@@ -9,6 +9,13 @@ import WeatherApi from "../weather/WeatherApi";
 const WEBCAM_CONFIG = {
     webcams: [
         {
+            id: "caphill",
+            url: "https://s3.amazonaws.com/images.repo.mh.wetmet.net/285-05-01/current_thumbnail.jpg",
+            description: "Capitol Hill cam",
+            zip: "98102",
+            enabled: true
+        },
+        {
             id: "rainier",
             url: "https://www.nps.gov/webcams-mora/mountain.jpg",
             description: "Mount Rainier",
@@ -23,10 +30,24 @@ const WEBCAM_CONFIG = {
             enabled: true
         },
         {
+            id: "sodo2",
+            url: "https://cdn.tegna-media.com/king/weather/roofcam2.jpg",
+            description: "King5 roof cam 2",
+            zip: "98134",
+            enabled: true
+        },
+        {
             id: "qa",
             url: "https://cdn.tegna-media.com/king/weather/queenanne.jpg",
             description: "Queen Anne Hill",
             zip: "98109",
+            enabled: true
+        },
+        {
+            id: "tower",
+            url: "https://cdn.tegna-media.com/king/weather/columbia.jpg",
+            description: "Columbia Tower",
+            zip: "98104",
             enabled: true
         }
         // Add more working webcams here
