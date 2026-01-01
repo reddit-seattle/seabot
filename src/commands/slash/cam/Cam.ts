@@ -11,7 +11,7 @@ const WEBCAM_CONFIG = {
         {
             id: "caphill",
             url: "https://s3.amazonaws.com/images.repo.mh.wetmet.net/285-05-01/current_thumbnail.jpg",
-            description: "King5 roof cam",
+            description: "Capitol Hill cam",
             zip: "98134",
             enabled: true
         },
