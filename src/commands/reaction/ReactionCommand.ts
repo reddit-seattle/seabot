@@ -1,5 +1,4 @@
-import { MessageReaction, Message, User } from "discord.js";
-
+import { Message, MessageReaction, User } from "discord.js";
 import { Command, CommandConfiguration } from "../Command";
 
 export interface ReactionCommandConfiguration extends CommandConfiguration {
@@ -8,7 +7,7 @@ export interface ReactionCommandConfiguration extends CommandConfiguration {
   execute: (
     reaction: MessageReaction,
     message?: Message,
-    user?: User
+    user?: User,
   ) => any | Promise<any>;
 }
 

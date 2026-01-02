@@ -14,15 +14,14 @@ import {
 } from "discord.js";
 
 import createCommandRouters from "../commands/createCommandRouters";
-import DiscordEventRouter from "./DiscordEventRouter";
-import ErrorLogger from "./ErrorLogger";
 import InMemoryDbConnector from "../db/InMemoryDbConnector";
 import { Logger } from "../utils/logger";
+import DiscordEventRouter from "./DiscordEventRouter";
+import ErrorLogger from "./ErrorLogger";
 
-import { Environment } from "../utils/constants";
-import { MessageTelemetryLogger } from "../utils/MessageTelemetryLogger";
-import { minutesToMilliseconds } from "../utils/Time/conversion";
 import { configuration } from "../server";
+import { Environment } from "../utils/constants";
+import { minutesToMilliseconds } from "../utils/Time/conversion";
 export default class DiscordBot {
   private _client = new Client({
     intents: [
@@ -88,28 +87,19 @@ export default class DiscordBot {
 
     process.on("unhandledRejection", console.error);
     process.on("unhandledRejection", async (error: Error) =>
-      this._errorLogger.logError(error)
+      this._errorLogger.logError(error),
     );
 
     eventRouter.addEventListener(
       Events.GuildMemberAdd,
-      this.showNewMemberMessage
+      this.showNewMemberMessage,
     );
     eventRouter.addEventListener(
       Events.GuildMemberRemove,
-      this.showRevolvingSimpsonsDoor
+      this.showRevolvingSimpsonsDoor,
     );
     eventRouter.addEventListener(Events.ThreadCreate, this.logThreadCreation);
     eventRouter.addEventListener(Events.ThreadDelete, this.logThreadDeletion);
-
-    // EventHub telemetry for analytics
-    if (Environment.sendTelemetry) {
-      const logger = new MessageTelemetryLogger(Environment.ehConnectionString, Environment.Constants.telemetryEventHub);
-      eventRouter.addEventListener(
-        Events.MessageCreate,
-        logger.logMessageTelemetry
-      );
-    }
   }
 
   private startCommandRouters(eventRouter: DiscordEventRouter) {
@@ -122,9 +112,10 @@ export default class DiscordBot {
 
     if (Date.now() - member.joinedAt.getTime() < minutesToMilliseconds(5)) {
       const { guild, nickname, user } = member;
-      guild?.systemChannel?.send(`Thanks for stopping by, ${nickname ?? user.username}
-        https://media.giphy.com/media/fDO2Nk0ImzvvW/giphy.gif`
-      );
+      guild?.systemChannel?.send(`Thanks for stopping by, ${
+        nickname ?? user.username
+      }
+        https://media.giphy.com/media/fDO2Nk0ImzvvW/giphy.gif`);
     }
   }
 
@@ -168,7 +159,7 @@ export default class DiscordBot {
 
   private async logThreadCreation(
     thread: ThreadChannel,
-    newlyCreated: boolean
+    newlyCreated: boolean,
   ) {
     if (newlyCreated) {
       const { guild, name, id } = thread;
@@ -219,7 +210,7 @@ export default class DiscordBot {
 
 const modLogEntry = async (
   guild: Guild,
-  content: string | MessagePayload | MessageCreateOptions
+  content: string | MessagePayload | MessageCreateOptions,
 ) => {
   const modLogChannelId = configuration.channelIds?.["MOD_LOG"];
   if (!modLogChannelId) return;

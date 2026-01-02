@@ -10,12 +10,12 @@ if (Environment.cosmosHost && Environment.cosmosHost !== "") {
     });
   } catch (ex: any) {
     console.log(
-      `Error connecting to cosmos instance, proceeding without Cosmos:\n${ex}`
+      `Error connecting to cosmos instance, proceeding without Cosmos:\n${ex}`,
     );
   }
 } else {
   console.log(
-    "Cosmos environment variables not set. Proceeding without Cosmos."
+    "Cosmos environment variables not set. Proceeding without Cosmos.",
   );
 }
 

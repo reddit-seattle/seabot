@@ -30,60 +30,62 @@ export default new SlashCommand({
               opt
                 .setName("channel")
                 .setDescription("channel to slowmode")
-                .setRequired(true)
+                .setRequired(true),
           ])
           .addNumberOptions([
             (opt) =>
               opt
                 .setName("time")
                 .setDescription("slowmode time in seconds")
-                .setRequired(true)
+                .setRequired(true),
           ])
           .addStringOptions([
             (opt) =>
               opt
                 .setName("reason")
                 .setDescription("Optional audit log reason for slowmode")
-                .setRequired(false)
+                .setRequired(false),
           ])
           .addBooleanOptions([
             (opt) =>
               opt
                 .setName("hidden")
                 .setDescription(
-                  "Hide bot response with details (default is public)"
+                  "Hide bot response with details (default is public)",
                 )
-                .setRequired(false)
+                .setRequired(false),
           ]),
       (cmd) =>
         cmd
           .setName(slowmodeSubCommands.CLEAR)
           .setDescription(
-            "disable slowmode for a channel - equivalent to `set slowmode 0`"
+            "disable slowmode for a channel - equivalent to `set slowmode 0`",
           )
           .addChannelOptions([
             (opt) =>
               opt
                 .setName("channel")
                 .setDescription("channel to slowmode")
-                .setRequired(true)
+                .setRequired(true),
           ])
           .addBooleanOptions([
             (opt) =>
               opt
                 .setName("hidden")
                 .setDescription(
-                  "Hide bot response with details (default is public)"
+                  "Hide bot response with details (default is public)",
                 )
-                .setRequired(false)
-          ])
+                .setRequired(false),
+          ]),
     ]),
   execute: async (interaction: ChatInputCommandInteraction) => {
     const { options } = interaction;
     const subcmd = options.getSubcommand();
     const channel = options.getChannel("channel", true);
     const hidden = options.getBoolean("hidden", false) ?? false;
-    await interaction.deferReply({ flags: hidden ? MessageFlags.Ephemeral : undefined });
+    await interaction.deferReply({
+      flags: hidden ? MessageFlags.Ephemeral : undefined,
+    });
     switch (subcmd) {
       case slowmodeSubCommands.SET:
         const time = options.getNumber("time", true);
@@ -94,12 +96,12 @@ export default new SlashCommand({
             interaction.followUp(
               `Slowmode of ${time} seconds set on ${channel.name}${
                 reason ? `: ${reason}.` : `.`
-              }`
+              }`,
             );
           } catch (e: any) {
             if (e instanceof DiscordAPIError) {
               interaction.followUp(
-                "There was an error setting slowmode: " + e.message
+                "There was an error setting slowmode: " + e.message,
               );
             } else {
               interaction.followUp("Unknown error occurred");
@@ -116,7 +118,7 @@ export default new SlashCommand({
           interaction.followUp(`Cleared slowmode on ${channel.name}.`);
         } else {
           interaction.followUp(
-            "Cannot clear slowmode on a non-text channel, or a channel without slowmode enabled."
+            "Cannot clear slowmode on a non-text channel, or a channel without slowmode enabled.",
           );
         }
 

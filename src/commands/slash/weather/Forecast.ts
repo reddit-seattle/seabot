@@ -13,14 +13,14 @@ export default new SlashCommand({
         option
           .setName("location")
           .setDescription("string location or zip code")
-          .setRequired(true)
+          .setRequired(true),
     ])
     .addBooleanOptions([
       (option) =>
         option
           .setName("weekly")
           .setDescription("get weekly forecast instead of 3-hour intervals")
-          .setRequired(false)
+          .setRequired(false),
     ]),
   execute: async (interaction) => {
     const location = interaction.options.getString("location");

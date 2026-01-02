@@ -4,8 +4,7 @@ import { Logger } from "../utils/logger";
 
 import IScheduledTask from "./IScheduledTask";
 
-import { configuration } from "../server";
-import { discordBot } from "../server";
+import { configuration, discordBot } from "../server";
 import { Duration } from "../utils/Time/Duration";
 
 const AutoClearChannels: IScheduledTask = {
@@ -21,7 +20,7 @@ async function clearChannels() {
   discordBot.client.guilds.cache.forEach(async (guild) => {
     configuration.autoDeleteMessages?.channels?.forEach((channelClearInfo) => {
       const channelToClear = guild.channels.cache.get(
-        channelClearInfo.targetId
+        channelClearInfo.targetId,
       ) as TextChannel;
       if (!channelToClear) {
         return;
@@ -51,16 +50,16 @@ async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
 
     // delete all messages over the maximum age
     const oldMessages = allMessages.filter(
-      (message) => message.createdAt.getTime() < minimumMessageCreatedTime
+      (message) => message.createdAt.getTime() < minimumMessageCreatedTime,
     );
-    if(oldMessages?.size) {
+    if (oldMessages?.size) {
       await channel.bulkDelete(oldMessages);
     }
 
     // delete messages greater than maximum message count (if configured)
     if (numberOfMessages && allMessages.size > numberOfMessages) {
       const messagesToPrune = allMessages.last(
-        allMessages.size - numberOfMessages
+        allMessages.size - numberOfMessages,
       );
       messagesToPrune.forEach((message) => {
         if (message.deletable) {
@@ -74,9 +73,9 @@ async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
 }
 
 function getConfigurationEntry(
-  targetId: string
+  targetId: string,
 ): AutoDeleteConfiguration | undefined {
   return configuration.autoDeleteMessages?.channels.find(
-    (x) => x.targetId === targetId
+    (x) => x.targetId === targetId,
   );
 }

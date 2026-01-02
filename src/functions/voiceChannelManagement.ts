@@ -10,7 +10,7 @@ import { configuration } from "../server";
 
 export const handleVoiceStatusUpdate = async (
   oldState: VoiceState,
-  newState: VoiceState
+  newState: VoiceState,
 ) => {
   // check for bot
   if (oldState?.member?.user?.bot) return;
@@ -38,11 +38,12 @@ export const createVoiceChannelForMember = async (state: VoiceState) => {
   }
   const config = configuration.userVoiceChannels;
   const user = guild.members.cache.get(state?.member?.user?.id);
-  const user_channel_name = `${user?.nickname ?? user?.user.username
-    }'s voice chat`;
-  const category_channel = await guild.channels.cache.find(
-    (channel) => channel.id === config?.groupId
-  ) as CategoryChannel;
+  const user_channel_name = `${
+    user?.nickname ?? user?.user.username
+  }'s voice chat`;
+  const category_channel = (await guild.channels.cache.find(
+    (channel) => channel.id === config?.groupId,
+  )) as CategoryChannel;
   // find channel group
   if (category_channel) {
     //TODO: if the user's channel already exists, just put them in that and prevent deletion

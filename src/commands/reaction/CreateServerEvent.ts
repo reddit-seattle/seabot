@@ -27,7 +27,7 @@ export default new ReactionCommand({
   execute: async (
     reaction: MessageReaction,
     message?: Message,
-    user?: User
+    user?: User,
   ): Promise<GuildScheduledEvent | undefined> => {
     //dangerous - allow seabot to react to a bot's commands for creating server events
     if (!user) {
@@ -68,7 +68,7 @@ export default new ReactionCommand({
       image: image?.url,
       description: `${description?.substring(
         0,
-        maximumEventDescriptionLength
+        maximumEventDescriptionLength,
       )}${
         description?.length &&
         description?.length > maximumEventDescriptionLength

@@ -18,7 +18,8 @@ export default new SlashCommand({
     .setName("time-me-out")
     .setDescription("take a timeout")
     .addIntegerOptions([
-      (opt) => opt.setName("amount").setRequired(true).setDescription("how many")
+      (opt) =>
+        opt.setName("amount").setRequired(true).setDescription("how many"),
     ])
     .addStringOptions([
       (opt) =>
@@ -28,13 +29,13 @@ export default new SlashCommand({
           .setDescription("hours / minutes")
           .setChoices(
             { name: "hours", value: HOURS },
-            { name: "minutes", value: MINUTES }
+            { name: "minutes", value: MINUTES },
           ),
       (opt) =>
         opt
           .setName("message")
           .setDescription("say something to the channel on your way out")
-          .setRequired(false)
+          .setRequired(false),
     ]),
   execute: async (interaction: ChatInputCommandInteraction) => {
     const { options, channel } = interaction;
@@ -54,22 +55,25 @@ export default new SlashCommand({
     // do a lil logic
     if (timeoutInMinutes <= 0 || timeoutInMinutes > MAX_TIMEOUT_IN_MINUTES) {
       await interaction.followUp(
-        "sorry that's too long, go touch grass on your own instead"
+        "sorry that's too long, go touch grass on your own instead",
       );
     } else {
       // more math
       const timeoutMilliseconds = timeoutInMinutes * 60 * 1000;
 
       // timeout
-      await member.timeout(timeoutMilliseconds, `self-inflicted: ${message || 'No Reason'}`);
+      await member.timeout(
+        timeoutMilliseconds,
+        `self-inflicted: ${message || "No Reason"}`,
+      );
 
       // tell the user
       await interaction.followUp(
-        "Enjoy the timeout, message a mod if you need help."
+        "Enjoy the timeout, message a mod if you need help.",
       );
 
       // let everyone else know
-      const display = `${member.displayName} has taken a timeout${message ? `: ${message}` : '.'}`;
+      const display = `${member.displayName} has taken a timeout${message ? `: ${message}` : "."}`;
       if (channel && "send" in channel) {
         await channel.send(display);
       }

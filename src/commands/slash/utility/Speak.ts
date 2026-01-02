@@ -10,7 +10,8 @@ export default new SlashCommand({
   builder: new ChatInputCommandBuilder()
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addStringOptions([
-      (opt) => opt.setName("text").setDescription("what to say").setRequired(true)
+      (opt) =>
+        opt.setName("text").setDescription("what to say").setRequired(true),
     ]),
   execute: async (interaction) => {
     const { options, channel } = interaction;

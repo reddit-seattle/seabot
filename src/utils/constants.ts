@@ -1,4 +1,3 @@
-
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -103,19 +102,17 @@ export module Strings {
 }
 
 export module Environment {
-  export module Constants {
-    export const telemetryEventHub = "messages";
-  }
   export const DEBUG = process.env["seabotDEBUG"] == "true" || false;
   export const botToken = process.env["botToken"] || undefined;
   export const weatherAPIKey = process.env["weatherAPIKey"] || "";
   export const airQualityAPIKey = process.env["airQualityAPIKey"] || "";
   export const cosmosHost = process.env["cosmosHost"] || "";
   export const cosmosAuthKey = process.env["cosmosAuthKey"] || "";
-  export const ehConnectionString = process.env["ehConnectionString"] || "";
-  export const sendTelemetry = process.env["sendTelemetry"] || false;
-  export const telemetryDbPath = process.env["TELEMETRY_DB_PATH"] || "/mnt/telemetry/telemetry.db";
-  export const daysWithoutBackground = process.env["DAYS_WITHOUT_BACKGROUND"] || './assets/dayswithoutincident.png';
+  export const telemetryDbPath =
+    process.env["TELEMETRY_DB_PATH"] || "/mnt/telemetry/telemetry.db";
+  export const daysWithoutBackground =
+    process.env["DAYS_WITHOUT_BACKGROUND"] ||
+    "./assets/dayswithoutincident.png";
   export const trackedWords = process.env["DAYS_SINCE_MEME_TRIGGER_WORDS"];
 }
 export module VoiceConstants {

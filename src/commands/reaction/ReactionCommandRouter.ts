@@ -1,5 +1,4 @@
 import { Events, MessageReaction, User } from "discord.js";
-
 import CommandRouter from "../CommandRouter";
 import ReactionCommand from "./ReactionCommand";
 
@@ -9,7 +8,7 @@ export default class ReactionCommandRouter extends CommandRouter {
     commands.forEach((command) => {
       commandMap.set(
         command.emojiName ? command.emojiName : command.name,
-        command
+        command,
       );
     });
 
@@ -42,7 +41,7 @@ export default class ReactionCommandRouter extends CommandRouter {
           console.dir(e);
           message.react("💩");
         }
-      }
+      },
     );
   }
 }

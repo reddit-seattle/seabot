@@ -1,8 +1,6 @@
 import { Message, MessageReaction } from "discord.js";
-
-import ReactionCommand from "./ReactionCommand";
-
 import { replaceMentions } from "../../utils/helpers";
+import ReactionCommand from "./ReactionCommand";
 
 export default new ReactionCommand({
   name: "lmgtfy",
@@ -15,7 +13,7 @@ export default new ReactionCommand({
     }
     const resultantContent = replaceMentions(message);
     message.reply(
-      `https://lmgtfy.app/?q=${encodeURIComponent(resultantContent)}`
+      `https://lmgtfy.app/?q=${encodeURIComponent(resultantContent)}`,
     );
   },
 });

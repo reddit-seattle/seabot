@@ -1,7 +1,5 @@
 import { ChatInputCommandBuilder } from "@discordjs/builders";
-import {
-  EmbedBuilder
-} from "discord.js";
+import { EmbedBuilder } from "discord.js";
 
 import SlashCommand from "../SlashCommand";
 import WeatherApi from "./WeatherApi";
@@ -10,22 +8,21 @@ export default new SlashCommand({
   description: "Get current air quality",
   help: "aqi 98102",
   name: "aqi",
-  builder: new ChatInputCommandBuilder()
-    .addNumberOptions([
-      (option) =>
-        option
-          .setName("location")
-          .setDescription("location zip code")
-          .setRequired(true)
-          .setMaxValue(99999)
-    ]),
+  builder: new ChatInputCommandBuilder().addNumberOptions([
+    (option) =>
+      option
+        .setName("location")
+        .setDescription("location zip code")
+        .setRequired(true)
+        .setMaxValue(99999),
+  ]),
   execute: async (interaction) => {
     const location = interaction.options.getNumber("location");
     const isZip = location?.toString().length == 5;
     if (location && isZip) {
       await interaction.deferReply();
       const airQuality = await WeatherApi.getAirQualityByZip(
-        location.toString()
+        location.toString(),
       );
       if (airQuality?.[0]) {
         const forecast = (

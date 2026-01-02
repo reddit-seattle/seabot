@@ -1,5 +1,4 @@
 import { Events, Message } from "discord.js";
-
 import CommandRouter from "../CommandRouter";
 import ContentCommand from "./ContentCommand";
 
@@ -21,7 +20,7 @@ export default class ContentCommandRouter extends CommandRouter {
             console.error(error);
           }
         }
-      }
+      },
     );
   }
 }

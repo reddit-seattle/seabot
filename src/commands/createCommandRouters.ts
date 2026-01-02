@@ -7,7 +7,7 @@ import SlashCommandRouter from "./slash/SlashCommandRouter";
 
 export default function createCommandRouters(
   eventRouter: DiscordEventRouter,
-  discordBot: DiscordBot
+  discordBot: DiscordBot,
 ) {
   const routers = [
     new ContentCommandRouter(eventRouter, discordBot, commands.content),

@@ -1,3 +1,3 @@
-import subreddit from "./subreddit"
+import subreddit from "./subreddit";
 
 export default [subreddit];

@@ -75,7 +75,7 @@ export default class WeatherApi {
 
   private static buildCurrentWeatherEmbed(
     response: WeatherResponse,
-    title: string
+    title: string,
   ): EmbedBuilder {
     const richEmbed = new EmbedBuilder().setTitle(title);
     var val = Math.floor(response.wind.deg / 22.5 + 0.5);
@@ -105,7 +105,7 @@ export default class WeatherApi {
 
   private static buildForecastEmbed(
     response: ForecastResponse,
-    title: string
+    title: string,
   ): EmbedBuilder {
     const richEmbed = new EmbedBuilder().setTitle(title);
     let { list } = response;
@@ -124,14 +124,14 @@ export default class WeatherApi {
 
   private static buildWeeklyEmbed(
     response: WeeklyForecastResponse,
-    title: string
+    title: string,
   ): EmbedBuilder {
     const richEmbed = new EmbedBuilder().setTitle(title);
     let { list } = response;
     each(list.slice(0, 7), (record) => {
       const date = format(
         addHours(fromUnixTime(record.dt), -8),
-        "EEEE MMMM do, yyyy"
+        "EEEE MMMM do, yyyy",
       );
       const weather = `
                 Low ${record.temp.min}° - High ${record.temp.max}°

@@ -18,7 +18,7 @@ export default new SlashCommand({
       (option) =>
         option
           .setName("command")
-          .setDescription("The command you would like help with")
+          .setDescription("The command you would like help with"),
     ]),
   async execute(message: Message) {
     // filter admin commands to only mods
@@ -26,7 +26,7 @@ export default new SlashCommand({
       (command) =>
         !command?.adminOnly ||
         (command?.adminOnly &&
-          message.member?.roles.cache.has(configuration.roleIds.moderator))
+          message.member?.roles.cache.has(configuration.roleIds.moderator)),
     );
 
     const emojiIdMap = new Map<string, string>();
@@ -37,11 +37,11 @@ export default new SlashCommand({
       }
 
       const emoji = message.guild?.emojis.cache.find(
-        (emoji: GuildEmoji) => emoji.name === command.name
+        (emoji: GuildEmoji) => emoji.name === command.name,
       );
       if (emoji == undefined) {
         console.warn(
-          `Could not find matching emoji for reaction command "${command.name}".`
+          `Could not find matching emoji for reaction command "${command.name}".`,
         );
         return;
       }
