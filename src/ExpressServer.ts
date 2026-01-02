@@ -2,12 +2,12 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import fs from "fs";
 import path from "path";
-import { formatUptime } from "./utils/helpers";
-import { Logger } from "./utils/logger";
+import ISeabotConfig from "./configuration/ISeabotConfig";
 import { telemetry } from "./db";
 import DiscordBot from "./discord/DiscordBot";
-import ISeabotConfig from "./configuration/ISeabotConfig";
 import { Environment } from "./utils/constants";
+import { formatUptime } from "./utils/helpers";
+import { Logger } from "./utils/logger";
 
 export default class ExpressServer {
   private _server;
@@ -16,6 +16,15 @@ export default class ExpressServer {
   private _discordBot: DiscordBot | null = null;
   private _metricsCache: { data: any; timestamp: number; cacheKey?: string } | null = null;
   private readonly CACHE_DURATION = 8000; // 8 seconds cache for live updates
+
+      // Rate limiting for endpoint
+    private readonly rateLimiter = rateLimit({
+      windowMs: 30 * 1000, // 30 seconds window
+      max: 10, // 10 requests per window per IP
+      message: { error: "Too many requests, please slow down" },
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
 
   constructor(config?: ISeabotConfig) {
     this._server = express();
@@ -52,7 +61,7 @@ export default class ExpressServer {
     }
 
     // TODO - make this a badass web page
-    this._server.get("/", (_request, response) => {
+    this._server.get("/", this.rateLimiter, (_request, response) => {
       const uptime = process.uptime();
       const uptimeFormatted = formatUptime(uptime);
 
@@ -80,17 +89,8 @@ export default class ExpressServer {
       response.json(buildInfo);
     });
 
-    // Rate limiting for metrics endpoint
-    const metricsRateLimit = rateLimit({
-      windowMs: 30 * 1000, // 30 seconds window
-      max: 10, // 10 requests per window per IP
-      message: { error: "Too many requests, please slow down" },
-      standardHeaders: true,
-      legacyHeaders: false,
-    });
-
     // Metrics endpoint - cached
-    this._server.get("/metrics", metricsRateLimit, async (request, response) => {
+    this._server.get("/metrics", this.rateLimiter, async (request, response) => {
       try {
         if (!this._telemetry) {
           return response.status(503).json({ "sorry mario": "your telemetry is in another castle" });

@@ -3,7 +3,6 @@ import {
   Interaction,
   RESTPostAPIApplicationCommandsJSONBody,
   Routes,
-  TextChannel,
 } from "discord.js";
 import { Environment, Strings } from "../../utils/constants";
 

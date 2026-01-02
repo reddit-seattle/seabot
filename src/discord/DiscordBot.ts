@@ -20,7 +20,6 @@ import InMemoryDbConnector from "../db/InMemoryDbConnector";
 import { Logger } from "../utils/logger";
 
 import { Environment } from "../utils/constants";
-import { MessageTelemetryLogger } from "../utils/MessageTelemetryLogger";
 import { minutesToMilliseconds } from "../utils/Time/conversion";
 import { configuration } from "../server";
 export default class DiscordBot {
@@ -101,15 +100,6 @@ export default class DiscordBot {
     );
     eventRouter.addEventListener(Events.ThreadCreate, this.logThreadCreation);
     eventRouter.addEventListener(Events.ThreadDelete, this.logThreadDeletion);
-
-    // EventHub telemetry for analytics
-    if (Environment.sendTelemetry) {
-      const logger = new MessageTelemetryLogger(Environment.ehConnectionString, Environment.Constants.telemetryEventHub);
-      eventRouter.addEventListener(
-        Events.MessageCreate,
-        logger.logMessageTelemetry
-      );
-    }
   }
 
   private startCommandRouters(eventRouter: DiscordEventRouter) {
