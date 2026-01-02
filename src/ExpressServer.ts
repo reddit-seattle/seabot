@@ -51,6 +51,10 @@ export default class ExpressServer {
       Logger.error("Failed to initialize telemetry:", error);
     }
 
+    const rootRateLimit = rateLimit({
+      windowMs: 60 * 1000, // 1 minute
+      max: 30,             // limit each IP to 30 requests per window
+    });
     // TODO - make this a badass web page
     this._server.get("/", rootRateLimit, (_request, response) => {
       const uptime = process.uptime();
