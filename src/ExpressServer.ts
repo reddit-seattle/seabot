@@ -52,7 +52,7 @@ export default class ExpressServer {
     }
 
     // TODO - make this a badass web page
-    this._server.get("/", (_request, response) => {
+    this._server.get("/", rootRateLimit, (_request, response) => {
       const uptime = process.uptime();
       const uptimeFormatted = formatUptime(uptime);
 
@@ -78,6 +78,15 @@ export default class ExpressServer {
       };
 
       response.json(buildInfo);
+    });
+
+    // Rate limiting for root endpoint
+    const rootRateLimit = rateLimit({
+      windowMs: 60 * 1000, // 1 minute window
+      max: 30, // 30 requests per window per IP
+      message: { error: "Too many requests to root endpoint, please slow down" },
+      standardHeaders: true,
+      legacyHeaders: false,
     });
 
     // Rate limiting for metrics endpoint
