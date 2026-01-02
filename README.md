@@ -62,7 +62,7 @@ There are [a lot to customize](./src/utils/constants.ts), but you really only ne
 
 **Customization:**
 - `DAYS_WITHOUT_BACKGROUND`: url / image link to override url for `days without` image
-- `DAYS_SINCE_MEME_TRIGGER_WORDS`: - words to trigger "days without saying" meme - `Piss,etc`
+- `DAYS_SINCE_MEME_TRIGGER_WORDS`: words to trigger "days without saying" meme - `Piss,etc`
 - `TELEMETRY_DB_PATH`: file path override for local telemetry DB path
 
 **Other**:
@@ -75,7 +75,7 @@ and other various config. If you are debugging locally, change `devConfig` - bec
 
 
 ## Database
-Seabot uses two forms of databases
+Seabot uses two forms of databases.
 ### cosmos db
 cosmos db (azure hosted, free tier available) is only used for the `/incident` commands, Seabot should still work without it.
 `cosmosHost=https://your-db.documents.azure.com:443/`
@@ -83,7 +83,7 @@ cosmos db (azure hosted, free tier available) is only used for the `/incident` c
 
 ### sqlite
 Seabot uses a local sqlite db for message telemetry (dashboards) and tracking funny words.
-Customize which words with `DAYS_SINCE_MEME_TRIGGER_WORDS`, and customize the path of your DB with `TELEMETRY_DB_PATH`. Seabot uses a container-mounted storage blob in production, so it defaults to `/mnt/telemetry/telemetry.db`
+Customize which words with `DAYS_SINCE_MEME_TRIGGER_WORDS`, and customize the path of your DB with `TELEMETRY_DB_PATH`. Seabot uses a container-mounted storage blob in production, so it defaults to `/mnt/telemetry/telemetry.db`.
 
 ### Other weird values for env vars (unused)
 ```ts

@@ -17,14 +17,14 @@ export default class ExpressServer {
   private _metricsCache: { data: any; timestamp: number; cacheKey?: string } | null = null;
   private readonly CACHE_DURATION = 8000; // 8 seconds cache for live updates
 
-      // Rate limiting for endpoint
-    private readonly rateLimiter = rateLimit({
-      windowMs: 30 * 1000, // 30 seconds window
-      max: 10, // 10 requests per window per IP
-      message: { error: "Too many requests, please slow down" },
-      standardHeaders: true,
-      legacyHeaders: false,
-    });
+  // Rate limiting for endpoint
+  private readonly rateLimiter = rateLimit({
+    windowMs: 30 * 1000, // 30 seconds window
+    max: 10, // 10 requests per window per IP
+    message: { error: "Too many requests, please slow down" },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
 
   constructor(config?: ISeabotConfig) {
     this._server = express();
