@@ -11,7 +11,7 @@ Pull requests will be reviewed but please, be gentle.
 ---
 
 ## Running a SEABot
-If you do (for whatever reason) decide to fork/clone/run this amazing bot on your own, there are a few  different ways to do so.
+If you do (for whatever reason) decide to fork/clone/run this amazing bot on your own, there are a few different ways to do so.
 
 ### 1. VSCode Debug (F5)
 Create a `.vscode/launch.json` configuration entry like so:
@@ -35,8 +35,7 @@ Create a `.vscode/launch.json` configuration entry like so:
 **New** - webpack! Now you can pack the site for dev or production readiness.
 1. Clone the repo
 2. `npm i` to install all dependent packages
-4. `npm start` to pack the thing up and kick it off, or separately:
-  a. `npm run pack:dev`, `npm run seabot`
+3. `npm start` to pack the thing up and kick it off, or separately: `npm run pack:dev`, `npm run seabot`
 
 
 ### 3. Containerized
