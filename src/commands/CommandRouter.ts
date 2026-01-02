@@ -17,7 +17,7 @@ export default abstract class CommandRouter {
   constructor(
     eventRouter: DiscordEventRouter,
     discordBot: DiscordBot,
-    commands: Command[]
+    commands: Command[],
   ) {
     this._eventRouter = eventRouter;
     this._discordBot = discordBot;

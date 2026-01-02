@@ -34,12 +34,12 @@ function textToEmojis(text: string, interaction: CommandInteraction) {
   for (const emoji of emojis) {
     // In Discord.js v15, access emojis through guild
     let discordEmoji = interaction.guild?.emojis.cache.find(
-      (x: GuildEmoji) => x.name === emoji[0]
+      (x: GuildEmoji) => x.name === emoji[0],
     );
     if (discordEmoji) {
       text = text.replace(
         `<${emoji[0]}>`,
-        `<:${discordEmoji.name}:${discordEmoji.id}>`
+        `<:${discordEmoji.name}:${discordEmoji.id}>`,
       );
     } else {
       throw new Error(`Unhandled emoji in string: "${emoji}" in "${text}`);
@@ -64,10 +64,10 @@ export default new SlashCommand({
           option.addChoices(
             ...sortedChoices.map((choice) => {
               return { name: choice, value: RJStrings[choice] };
-            })
+            }),
           );
           return option;
-        }
+        },
       ]),
   execute: (interaction) => {
     const emote = interaction.options.getString("emote");
@@ -78,7 +78,9 @@ export default new SlashCommand({
       return;
     } else {
       interaction.reply(
-        emote ? textToEmojis(emote, interaction) : "RJ does not know that command"
+        emote
+          ? textToEmojis(emote, interaction)
+          : "RJ does not know that command",
       );
     }
   },

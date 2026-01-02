@@ -1,9 +1,7 @@
 import { GuildEmoji, Message } from "discord.js";
-
-import ContentCommand from "./ContentCommand";
-
-import { replaceMentions } from "../../utils/helpers";
 import { REGEX, Strings } from "../../utils/constants";
+import { replaceMentions } from "../../utils/helpers";
+import ContentCommand from "./ContentCommand";
 
 type AutoResponse = {
   message?: (() => string) | string;
@@ -17,19 +15,28 @@ const responseMap = new Map<string | RegExp, AutoResponse>([
   [/hodor/i, { reaction: "🚪" }],
   [/bisbopt/i, { reaction: (message) => emojiFromName("bisbopt", message) }],
   [/duck/i, { reaction: "🦆" }],
-  [/69/i, { reaction: (message) => emojiFromName("nice", message), trim: true }],
-  [/420/i, { reaction: (message) => emojiFromName("weed", message), trim: true }],
-  [/puya[1ilӏ]{1,2}up/i, { reaction: (message) => emojiFromName("downvote", message) }],
+  [
+    /69/i,
+    { reaction: (message) => emojiFromName("nice", message), trim: true },
+  ],
+  [
+    /420/i,
+    { reaction: (message) => emojiFromName("weed", message), trim: true },
+  ],
+  [
+    /puya[1ilӏ]{1,2}up/i,
+    { reaction: (message) => emojiFromName("downvote", message) },
+  ],
   [/bruh/i, { reaction: (message) => emojiFromName("bruh", message) }],
   [/^SEA$/im, { message: "HAWKS!" }],
   [/(tbf|to be fair)/i, { message: Strings.letterkennyGif, chance: 0.33 }],
-  [/(\s|^)eggs?/i, {reaction: "🥚", chance: 0.2}],
-  [/pike[']?s[']? place/i, { message: 'uh, pike* place tyvm', chance: 1 }],
+  [/(\s|^)eggs?/i, { reaction: "🥚", chance: 0.2 }],
+  [/pike[']?s[']? place/i, { message: "uh, pike* place tyvm", chance: 1 }],
 ]);
 
 function emojiFromName(emojiName: string, message: Message): GuildEmoji | null {
   const emoji = message.guild?.emojis.cache.find(
-    (x: GuildEmoji) => x.name === emojiName
+    (x: GuildEmoji) => x.name === emojiName,
   );
   return emoji || null;
 }
@@ -44,7 +51,7 @@ const trigger = new RegExp(
       }
     })
     .join("|"),
-  "i"
+  "i",
 );
 
 export default new ContentCommand({

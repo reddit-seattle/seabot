@@ -1,13 +1,13 @@
 import { promises as fs } from "fs";
 import * as Path from "path";
+import { Logger } from "../utils/logger";
 import defaultConfig from "./defaultConfig";
 import ISeabotConfig from "./ISeabotConfig";
-import { Logger } from "../utils/logger";
 
 import { Duration } from "../utils/Time/Duration";
 
 export default async function loadConfiguration(
-  path: string
+  path: string,
 ): Promise<ISeabotConfig> {
   path = Path.join(path, `seabotConfig.json`);
   Logger.info(`Loading configuration file from "${path}"...`);
@@ -16,17 +16,17 @@ export default async function loadConfiguration(
   try {
     await fs.access(`${path}`);
     configuration = JSON.parse(
-      (await fs.readFile(path)).toString()
+      (await fs.readFile(path)).toString(),
     ) as ISeabotConfig;
     Logger.info("Loaded Configuration:");
     Logger.dir(configuration);
     if (configuration.autoDeleteMessages) {
       const { channels } = configuration.autoDeleteMessages;
-      for(const channel of channels) {
+      for (const channel of channels) {
         if (channel.timeBeforeClearing) {
           channel.timeBeforeClearing = new Duration(channel.timeBeforeClearing);
         }
-      };
+      }
     }
   } catch (error) {
     /*
@@ -35,7 +35,7 @@ export default async function loadConfiguration(
      * to validate the loaded configuration file.
      */
     console.warn(
-      "Configuration file not found, or is malformed. Continuing with default configuration..."
+      "Configuration file not found, or is malformed. Continuing with default configuration...",
     );
     configuration = defaultConfig;
   }

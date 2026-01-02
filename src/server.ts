@@ -1,13 +1,13 @@
-import { TextChannel, ActivityType, Events } from "discord.js";
+import { ActivityType, Events, TextChannel } from "discord.js";
 import { exit } from "process";
 
-import scheduledTasks from "./schedules/";
 import loadConfiguration from "./configuration/loadConfiguration";
+import scheduledTasks from "./schedules/";
 
+import ISeabotConfig from "./configuration/ISeabotConfig";
 import DiscordBot from "./discord/DiscordBot";
 import DiscordEventRouter from "./discord/DiscordEventRouter";
 import ExpressServer from "./ExpressServer";
-import ISeabotConfig from "./configuration/ISeabotConfig";
 import TaskScheduler from "./schedules/TaskScheduler";
 import { Logger } from "./utils/logger";
 
@@ -29,7 +29,7 @@ async function startServer() {
   startExpressServer();
   discordBot = new DiscordBot();
   await startDiscordBot();
-  
+
   // Update express server with Discord bot reference
   expressServer.setDiscordBot(discordBot);
 }
@@ -40,11 +40,11 @@ async function startDiscordBot() {
     const eventRouter = new DiscordEventRouter(discordBot.client);
     eventRouter.addEventListener(
       Events.InteractionCreate,
-      processModReportInteractions
+      processModReportInteractions,
     );
     eventRouter.addEventListener(
       Events.VoiceStateUpdate,
-      handleVoiceStatusUpdate
+      handleVoiceStatusUpdate,
     );
     eventRouter.addEventListener(Events.ClientReady, announcePresence);
     eventRouter.addEventListener(Events.ClientReady, startTaskScheduler);
@@ -79,7 +79,7 @@ function announcePresence() {
     //announce when seabot process starts (debug channel must be set)
     if (configuration?.channelIds?.["DEBUG"]) {
       const debugChannel = await guild.channels.fetch(
-        configuration.channelIds?.["DEBUG"]
+        configuration.channelIds?.["DEBUG"],
       );
       (debugChannel as TextChannel)?.send("Greetings - SEABot is back online");
     }

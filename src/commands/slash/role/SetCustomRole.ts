@@ -41,7 +41,7 @@ export default new SlashCommand({
         option
           .setName("emoji")
           .setDescription("Role icon emoji")
-          .setRequired(false)
+          .setRequired(false),
     ]),
   execute: async (interaction: ChatInputCommandInteraction) => {
     const { options, member, user, guild } = interaction;
@@ -72,8 +72,9 @@ export default new SlashCommand({
       const roleSeparatorPosition =
         guild?.roles.cache.get(configuration.roleIds.premium)?.position ?? 15;
       console.log(
-        `Creating premium role ${roleName} at position ${roleSeparatorPosition + 1
-        }`
+        `Creating premium role ${roleName} at position ${
+          roleSeparatorPosition + 1
+        }`,
       );
       role = await guild?.roles?.create({
         name: roleName,
@@ -81,7 +82,7 @@ export default new SlashCommand({
       });
       if (!role) {
         logs.push(
-          "Error creating role. Ask a mod to check permissions or existing roles."
+          "Error creating role. Ask a mod to check permissions or existing roles.",
         );
         await interaction.followUp({
           flags: MessageFlags.Ephemeral,
@@ -103,7 +104,10 @@ export default new SlashCommand({
       const primaryNumber = primary ? resolveColor(primary) : null;
       const secondaryNumber = secondary ? resolveColor(secondary) : null;
 
-      if (primaryNumber === blockedColorNumber || secondaryNumber === blockedColorNumber) {
+      if (
+        primaryNumber === blockedColorNumber ||
+        secondaryNumber === blockedColorNumber
+      ) {
         await interaction.followUp({
           flags: MessageFlags.Ephemeral,
           content: `ಠ_ಠ Pick a different color.`,
@@ -138,7 +142,11 @@ export default new SlashCommand({
         colorsObj.secondaryColor = secondary as ColorResolvable;
       }
 
-      logs.push(`Setting role colors: ${Object.entries(colorsObj).map(([k, v]) => `${k}: ${v}`).join(", ")}`);
+      logs.push(
+        `Setting role colors: ${Object.entries(colorsObj)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join(", ")}`,
+      );
 
       try {
         await role.setColors(colorsObj);
@@ -168,10 +176,10 @@ export default new SlashCommand({
       logs.push(`Setting role icon: ${emoji}`);
       try {
         const emoji_id = REGEX.EMOJI.exec(emoji)?.[1];
-        const icon = emoji_id && await guild?.emojis.fetch(emoji_id);
+        const icon = emoji_id && (await guild?.emojis.fetch(emoji_id));
         if (!icon) {
           logs.push(
-            `Error finding emoji ${emoji} on this server, please add it or ask a mod`
+            `Error finding emoji ${emoji} on this server, please add it or ask a mod`,
           );
           await interaction.followUp({
             flags: MessageFlags.Ephemeral,

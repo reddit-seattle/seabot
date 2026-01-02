@@ -1,4 +1,9 @@
-import { EmbedBuilder, TextChannel, MessageFlags, ChatInputCommandInteraction } from "discord.js";
+import {
+  EmbedBuilder,
+  TextChannel,
+  MessageFlags,
+  ChatInputCommandInteraction,
+} from "discord.js";
 import { ChatInputCommandBuilder } from "@discordjs/builders";
 
 import SlashCommand from "../SlashCommand";
@@ -9,13 +14,15 @@ import { configuration } from "../../../server";
 
 export default new SlashCommand({
   name: "report",
-  description: "Report something to the mods. Please include as much detail as you wish to share.",
+  description:
+    "Report something to the mods. Please include as much detail as you wish to share.",
   help: "Submit a report to the mod team",
   telemetry: false,
   builder: new ChatInputCommandBuilder()
     // anon is required, note is required
     .addBooleanOptions([
-      (o) => o.setName("anon").setDescription("Anonymous report").setRequired(true)
+      (o) =>
+        o.setName("anon").setDescription("Anonymous report").setRequired(true),
     ])
     .addStringOptions([
       (o) =>
@@ -23,21 +30,16 @@ export default new SlashCommand({
           .setName("note")
           .setDescription("Please explain the issue")
           .setRequired(true),
-      (o) => o.setName("message").setDescription("Right-click, copy link")
+      (o) => o.setName("message").setDescription("Right-click, copy link"),
     ])
     // user and channel are optional
-    .addUserOptions([
-      (o) => o.setName("user").setDescription("Specify a user")
-    ])
+    .addUserOptions([(o) => o.setName("user").setDescription("Specify a user")])
     .addChannelOptions([
-      (o) =>
-        o
-          .setName("channel")
-          .setDescription("Link a channel")
+      (o) => o.setName("channel").setDescription("Link a channel"),
     ])
     // evidence not required
     .addAttachmentOptions([
-      (o) => o.setName("attach").setDescription("Screenshots etc.")
+      (o) => o.setName("attach").setDescription("Screenshots etc."),
     ]),
   execute: async (interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -56,7 +58,9 @@ export default new SlashCommand({
 
     const modReportsChannelId = configuration.channelIds?.["MOD_REPORTS"];
     if (!modReportsChannelId) {
-      await interaction.editReply("Mod reports channel is not configured. Please contact an administrator.");
+      await interaction.editReply(
+        "Mod reports channel is not configured. Please contact an administrator.",
+      );
       return;
     }
     const modReports = (await interaction.guild?.channels.cache
@@ -66,8 +70,9 @@ export default new SlashCommand({
     const reportEmbed = new EmbedBuilder({
       color: 0xff0000,
       title: "New Report",
-      description: `${anon ? "An anonymous user" : username
-        } has submitted a report\n<t:${timestamp}:F>\n<t:${timestamp}:R>`,
+      description: `${
+        anon ? "An anonymous user" : username
+      } has submitted a report\n<t:${timestamp}:F>\n<t:${timestamp}:R>`,
       fields: [
         {
           name: "Reported by",
@@ -105,10 +110,8 @@ export default new SlashCommand({
     });
     const reply = anon
       ? "Thank you for submitting an anonymous report."
-      : (
-        `Thank you for submitting a report, <@${interaction.user.id}>. ` +
-        "Mods may reach out to you privately for more context or details."
-      );
+      : `Thank you for submitting a report, <@${interaction.user.id}>. ` +
+        "Mods may reach out to you privately for more context or details.";
 
     await interaction.editReply(reply);
   },

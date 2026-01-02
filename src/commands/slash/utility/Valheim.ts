@@ -14,6 +14,6 @@ export default new SlashCommand({
         server: \`${ServerInfo.Valheim.serverName}\`
         ip: \`${ServerInfo.Valheim.ipAddress}\`
         password: \`${ServerInfo.Valheim.access}\`
-        `
+        `,
     ),
 });

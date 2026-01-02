@@ -1,5 +1,3 @@
 import Cam from "./Cam";
 
-export default [
-  Cam,
-];
+export default [Cam];

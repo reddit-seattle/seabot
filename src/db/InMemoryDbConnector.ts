@@ -1,10 +1,9 @@
 import { ItemDefinition } from "@azure/cosmos";
-
 import IDatabase from "./IDatabase";
 
-export default class InMemoryDbConnector<T extends ItemDefinition>
-  implements IDatabase<T>
-{
+export default class InMemoryDbConnector<
+  T extends ItemDefinition,
+> implements IDatabase<T> {
   private _memoryStore: T[] = new Array<T>();
 
   async init() {}

@@ -22,15 +22,21 @@ export default new SlashCommand({
     .setName("word-tracker")
     .setDescription("Manages word tracking")
     .addSubcommands([
-      (cmd) => cmd.setName(WORDTRACKER_COMMAND_TYPES.LIST_COMMAND).setDescription("List all tracked words"),
-      (cmd) => cmd.setName(WORDTRACKER_COMMAND_TYPES.REMOVE_COMMAND).setDescription("Remove a word from the tracker list")
-        .addStringOptions([
-          (option) =>
-            option
-              .setName("word")
-              .setDescription("The word to remove")
-              .setRequired(true)
-        ])
+      (cmd) =>
+        cmd
+          .setName(WORDTRACKER_COMMAND_TYPES.LIST_COMMAND)
+          .setDescription("List all tracked words"),
+      (cmd) =>
+        cmd
+          .setName(WORDTRACKER_COMMAND_TYPES.REMOVE_COMMAND)
+          .setDescription("Remove a word from the tracker list")
+          .addStringOptions([
+            (option) =>
+              option
+                .setName("word")
+                .setDescription("The word to remove")
+                .setRequired(true),
+          ]),
     ]),
   execute: async (interaction: ChatInputCommandInteraction) => {
     const cmd = interaction.options.getSubcommand(true);
@@ -49,22 +55,28 @@ export default new SlashCommand({
         return;
       }
 
-      const trackerList = trackers.map((tracker: any) => {
-        const daysSince = Math.floor(
-          (Date.now() - new Date(tracker.last_seen).getTime()) / (1000 * 60 * 60 * 24)
-        );
-        return `- **${tracker.word}**: ${daysSince} days ago (${tracker.word_count} total mentions)`;
-      }).join("\n");
+      const trackerList = trackers
+        .map((tracker: any) => {
+          const daysSince = Math.floor(
+            (Date.now() - new Date(tracker.last_seen).getTime()) /
+              (1000 * 60 * 60 * 24),
+          );
+          return `- **${tracker.word}**: ${daysSince} days ago (${tracker.word_count} total mentions)`;
+        })
+        .join("\n");
 
       interaction.followUp({
         content: `**Tracked Words:**\n${trackerList}`,
         flags: MessageFlags.Ephemeral,
       });
-
     } else if (cmd === WORDTRACKER_COMMAND_TYPES.REMOVE_COMMAND) {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       const { member } = interaction;
-      if (!(member?.roles as GuildMemberRoleManager).cache.has(configuration.roleIds.moderator)) {
+      if (
+        !(member?.roles as GuildMemberRoleManager).cache.has(
+          configuration.roleIds.moderator,
+        )
+      ) {
         await interaction.editReply({
           content: "bad. naughty. shame",
         });

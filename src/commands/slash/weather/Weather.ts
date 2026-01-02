@@ -7,14 +7,13 @@ export default new SlashCommand({
   description: "Get current weather",
   help: "weather [98102 | Seattle]",
   name: "weather",
-  builder: new ChatInputCommandBuilder()
-    .addStringOptions([
-      (option) =>
-        option
-          .setName("location")
-          .setDescription("string location or zip code")
-          .setRequired(true)
-    ]),
+  builder: new ChatInputCommandBuilder().addStringOptions([
+    (option) =>
+      option
+        .setName("location")
+        .setDescription("string location or zip code")
+        .setRequired(true),
+  ]),
   execute: async (interaction) => {
     await interaction.deferReply();
     const location = interaction.options.getString("location");

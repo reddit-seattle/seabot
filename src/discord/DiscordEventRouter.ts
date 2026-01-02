@@ -75,7 +75,7 @@ export default class DiscordEventRouter {
 
   private async resolvePartialsInArgs(
     eventType: Events,
-    eventArgs: HandledEventArgs
+    eventArgs: HandledEventArgs,
   ) {
     type Resolved = Message | MessageReaction | GuildMember;
     let resolvedArgs: Resolved;

@@ -1,7 +1,7 @@
 import {
   LinkButtonBuilder,
   PrimaryButtonBuilder,
-  SecondaryButtonBuilder
+  SecondaryButtonBuilder,
 } from "@discordjs/builders";
 import { APIInteractionDataResolvedChannel } from "discord-api-types/v10";
 import {
@@ -15,7 +15,7 @@ import {
   MessageReaction,
   PartialMessage,
   PartialUser,
-  User
+  User,
 } from "discord.js";
 
 import { getUnixTime } from "date-fns";
@@ -29,7 +29,7 @@ import { Config, REGEX } from "./constants";
  * @returns A string array of [command_arg, arg1, arg2, ...]
  */
 export const SplitMessageIntoArgs: (message: Message) => string[] = (
-  message
+  message,
 ) => {
   return message.content.slice(Config.prefix.length).trim().split(" ");
 };
@@ -41,7 +41,7 @@ export function getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
 }
 
 export const replaceMentions: (message: Message | PartialMessage) => string = (
-  message
+  message,
 ) => {
   let { content } = message;
   content = content ? content : "";
@@ -106,14 +106,13 @@ export const parseApolloMarkdownLink = (apolloLink: string) => {
 };
 
 export const relativeDateString = (input: string | Date) => {
-  const time = getUnixTime(new Date(input))
-  return `<t:${time}:R>`
-}
-
+  const time = getUnixTime(new Date(input));
+  return `<t:${time}:R>`;
+};
 
 export const isModReaction = (
   reacc: MessageReaction,
-  user: User | PartialUser
+  user: User | PartialUser,
 ) => {
   const guildUser = reacc.message.guild?.members.cache.get(user.id);
   return guildUser?.roles.cache.has(configuration.roleIds.moderator) ?? false;
@@ -128,7 +127,7 @@ type ModActionOptions = {
 
 export const buildModActionRow = (
   guildId: string,
-  options: ModActionOptions
+  options: ModActionOptions,
 ) => {
   const ignoreButton = new SecondaryButtonBuilder()
     .setCustomId("ignoreReport")
@@ -141,10 +140,9 @@ export const buildModActionRow = (
   let viewButton: LinkButtonBuilder | undefined = undefined;
 
   if (options.messageLink || options?.channel?.id) {
-    const url = options.messageLink || createChannelLink(guildId, options.channel!.id);
-    viewButton = new LinkButtonBuilder()
-      .setLabel("🔗Link")
-      .setURL(url);
+    const url =
+      options.messageLink || createChannelLink(guildId, options.channel!.id);
+    viewButton = new LinkButtonBuilder().setLabel("🔗Link").setURL(url);
   }
   const buttons = [
     ignoreButton,
@@ -161,7 +159,7 @@ export const createChannelLink = (guildId: string, channelId: string) => {
 };
 
 export const processModReportInteractions = async (
-  interaction: Interaction<CacheType>
+  interaction: Interaction<CacheType>,
 ) => {
   if (
     !interaction.isButton() ||
@@ -175,9 +173,7 @@ export const processModReportInteractions = async (
     ignoreReport: async (i) => {
       const embed = i.message.embeds?.[0];
       const reporter = embed?.author?.name;
-      const newEmbed = new EmbedBuilder(embed?.data).setColor(
-        0xbbbbbb
-      );
+      const newEmbed = new EmbedBuilder(embed?.data).setColor(0xbbbbbb);
       await i.update({
         content: `Report ignored by <@${i.user.id}>`,
         embeds: [newEmbed],
@@ -186,9 +182,7 @@ export const processModReportInteractions = async (
     },
     ackReport: async (i) => {
       const embed = i.message.embeds?.[0];
-      const newEmbed = new EmbedBuilder(embed?.data).setColor(
-        0x00ff00
-      );
+      const newEmbed = new EmbedBuilder(embed?.data).setColor(0x00ff00);
       await i.update({
         content: `Report acknowledged by <@${i.user.id}>`,
         embeds: [newEmbed],
@@ -238,7 +232,8 @@ export const validateColor = (color: string | null): ColorResolvable | null => {
     let cleanColor = color.trim();
 
     // Check if it's a Discord color name (case insensitive)
-    const colorKey = cleanColor.charAt(0).toUpperCase() + cleanColor.slice(1).toLowerCase();
+    const colorKey =
+      cleanColor.charAt(0).toUpperCase() + cleanColor.slice(1).toLowerCase();
     if (Colors[colorKey as keyof typeof Colors] !== undefined) {
       return colorKey as keyof typeof Colors;
     }

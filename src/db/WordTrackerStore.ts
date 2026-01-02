@@ -1,18 +1,17 @@
-
-import { Database } from 'better-sqlite3';
-import db from './sqlite';
+import { Database } from "better-sqlite3";
+import db from "./sqlite";
 
 export interface WordTracker {
-    id: number;
-    word: string;
-    last_seen: string; // ISO string
-    word_count: number;
-    channel_id: string | null;
-    user_id: string | null;
+  id: number;
+  word: string;
+  last_seen: string; // ISO string
+  word_count: number;
+  channel_id: string | null;
+  user_id: string | null;
 }
 
 export class WordTrackerStore {
-    private db: Database;
+  private db: Database;
 
   constructor() {
     this.db = db;
@@ -38,67 +37,91 @@ export class WordTrackerStore {
 
   getWordTracker(word: string): WordTracker | null {
     try {
-      const result = this.db.prepare(`
+      const result = this.db
+        .prepare(
+          `
         SELECT * FROM word_trackers WHERE word = ?
-      `).get(word) as WordTracker | undefined;
+      `,
+        )
+        .get(word) as WordTracker | undefined;
       return result ?? null;
     } catch (e) {
-      console.warn('Failed to get word tracker:', e);
+      console.warn("Failed to get word tracker:", e);
       return null;
     }
   }
 
-  updateWordTracker(word: string, channelId: string, userId: string): WordTracker | null {
+  updateWordTracker(
+    word: string,
+    channelId: string,
+    userId: string,
+  ): WordTracker | null {
     try {
       const existing = this.getWordTracker(word);
-      
+
       if (existing) {
-        this.db.prepare(`
+        this.db
+          .prepare(
+            `
           UPDATE word_trackers 
           SET last_seen = CURRENT_TIMESTAMP, 
               word_count = word_count + 1,
               channel_id = ?,
               user_id = ?
           WHERE word = ?
-        `).run(channelId, userId, word);
-        
+        `,
+          )
+          .run(channelId, userId, word);
+
         return {
           ...existing,
           word_count: (existing as any).word_count + 1,
-          last_seen: new Date().toISOString()
+          last_seen: new Date().toISOString(),
         };
       } else {
-        this.db.prepare(`
+        this.db
+          .prepare(
+            `
           INSERT INTO word_trackers (word, channel_id, user_id)
           VALUES (?, ?, ?)
-        `).run(word, channelId, userId);
-        
+        `,
+          )
+          .run(word, channelId, userId);
+
         return this.getWordTracker(word);
       }
     } catch (e) {
-      console.warn('Failed to update word tracker:', e);
+      console.warn("Failed to update word tracker:", e);
       return null;
     }
   }
 
   getAllWordTrackers(): WordTracker[] {
     try {
-      return this.db.prepare(`
+      return this.db
+        .prepare(
+          `
         SELECT * FROM word_trackers ORDER BY last_seen DESC
-      `).all() as WordTracker[];
+      `,
+        )
+        .all() as WordTracker[];
     } catch (e) {
-      console.warn('Failed to get all word trackers:', e);
+      console.warn("Failed to get all word trackers:", e);
       return [];
     }
   }
 
   resetWordTracker(word: string) {
     try {
-      return this.db.prepare(`
+      return this.db
+        .prepare(
+          `
         DELETE FROM word_trackers WHERE word = ?
-      `).run(word);
+      `,
+        )
+        .run(word);
     } catch (e) {
-      console.warn('Failed to reset word tracker:', e);
+      console.warn("Failed to reset word tracker:", e);
       return null;
     }
   }

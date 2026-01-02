@@ -9,9 +9,9 @@ import {
 
 import IDatabase from "./IDatabase";
 
-export default class DBConnector<T extends ItemDefinition>
-  implements IDatabase<T>
-{
+export default class DBConnector<
+  T extends ItemDefinition,
+> implements IDatabase<T> {
   private client: CosmosClient;
   private databaseId: string;
   private collectionId: string;
@@ -27,7 +27,7 @@ export default class DBConnector<T extends ItemDefinition>
   constructor(
     cosmosClient: CosmosClient,
     databaseId: string,
-    containerId: string
+    containerId: string,
   ) {
     this.client = cosmosClient;
     this.databaseId = databaseId;

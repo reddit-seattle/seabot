@@ -22,8 +22,12 @@ export default new DatabaseCommand<IncidentModel>(
       .setName("incident")
       .setDescription("How many days since our last incident?")
       .addSubcommands([
-        (cmd) => cmd.setName("last").setDescription("days since last `incident`"),
-        (cmd) => cmd.setName("list").setDescription("list our incidents (please use sparingly)"),
+        (cmd) =>
+          cmd.setName("last").setDescription("days since last `incident`"),
+        (cmd) =>
+          cmd
+            .setName("list")
+            .setDescription("list our incidents (please use sparingly)"),
         (cmd) =>
           cmd
             .setName("new")
@@ -34,11 +38,11 @@ export default new DatabaseCommand<IncidentModel>(
                   .setName("link")
                   .setDescription("message link to start of incident"),
               (option) =>
-                option.setName("note").setDescription("what went down")
-            ])
+                option.setName("note").setDescription("what went down"),
+            ]),
       ]),
     execute: handler,
-  }
+  },
 );
 
 enum SubCommands {
@@ -49,7 +53,7 @@ enum SubCommands {
 
 async function handler(
   this: DatabaseCommand<IncidentModel>,
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ) {
   const cmd = interaction.options.getSubcommand(true);
   if (cmd === SubCommands.LAST) {
@@ -66,7 +70,7 @@ async function handler(
       return;
     }
     const daysSince = millisecondsToDays(
-      Date.now() - new Date(incident?.occurrence).getTime()
+      Date.now() - new Date(incident?.occurrence).getTime(),
     );
     // tell everyone
     interaction.followUp({
@@ -84,7 +88,7 @@ async function handler(
     const { member } = interaction;
     if (
       (member?.roles as GuildMemberRoleManager).cache.has(
-        configuration.roleIds.moderator
+        configuration.roleIds.moderator,
       )
     ) {
       //create a new incident
@@ -98,13 +102,13 @@ async function handler(
       if (result) {
         //make a statement confirming db transaction
         interaction.followUp(
-          `Created incident id ${result.id}: ${result.note} at ${result.occurrence}`
+          `Created incident id ${result.id}: ${result.note} at ${result.occurrence}`,
         );
         //let everyone know we've reset to 0
         interaction.guild?.systemChannel?.send(
           `Congratulations! It has now been \`0\` days since our last incident!\n***${
             result.note ?? "No note provided for this incident."
-          }***${result.link ? `\n${result.link}` : ``}`
+          }***${result.link ? `\n${result.link}` : ``}`,
         );
       } else {
         // db transaction failed
@@ -115,27 +119,33 @@ async function handler(
       interaction.followUp("You cannot perform this action. Ping a mod");
     }
   } else if (cmd === SubCommands.LIST) {
-     //not a private response
-     await interaction.deferReply();
+    //not a private response
+    await interaction.deferReply();
 
-     const incidents = (await this.connector.listAll() as IncidentModel[])?.reverse().slice(0, 10);
-     if (!incidents?.length) {
-       // uh, we got a problem
-       interaction.followUp({
-         content: "No incidents yet. Hmm...",
-         flags: MessageFlags.Ephemeral,
-       });
-       return;
-     }
-     
-     // tell everyone
-     interaction.followUp({
-       content: incidents.map((incident) => {
-        const note = incident.note || 'Unknown incident';
-        const incidentText = incident.link ? `[${note}](<${incident.link}>)` : note;
-        return `- ${incidentText}: ${relativeDateString(incident.occurrence)}`;
-       }).join("\n"),
-     });
+    const incidents = ((await this.connector.listAll()) as IncidentModel[])
+      ?.reverse()
+      .slice(0, 10);
+    if (!incidents?.length) {
+      // uh, we got a problem
+      interaction.followUp({
+        content: "No incidents yet. Hmm...",
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
+    // tell everyone
+    interaction.followUp({
+      content: incidents
+        .map((incident) => {
+          const note = incident.note || "Unknown incident";
+          const incidentText = incident.link
+            ? `[${note}](<${incident.link}>)`
+            : note;
+          return `- ${incidentText}: ${relativeDateString(incident.occurrence)}`;
+        })
+        .join("\n"),
+    });
   } else {
     // idk somehow you used the command without a subcommand
     interaction.followUp("Subcommand required. RTFM");

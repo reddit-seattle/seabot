@@ -5,18 +5,18 @@ import IDatabase from "../../../db/IDatabase";
 import InMemoryDbConnector from "../../../db/InMemoryDbConnector";
 import SlashCommand, { SlashCommandConfiguration } from "../SlashCommand";
 
-import { Database } from "../../../utils/constants";
 import { cosmosClient } from "../../../db/cosmosClient";
+import { Database } from "../../../utils/constants";
 
 type ConnectorType = "Incidents";
 
 export class DatabaseCommand<
-  ModelType extends ItemDefinition
+  ModelType extends ItemDefinition,
 > extends SlashCommand {
   private static connectorCache = new Map<string, any>();
 
   public static getConnector<ModelType extends ItemDefinition>(
-    connectorType: ConnectorType
+    connectorType: ConnectorType,
   ) {
     if (DatabaseCommand.connectorCache.has(connectorType)) {
       return DatabaseCommand.connectorCache.get(connectorType);
@@ -29,13 +29,13 @@ export class DatabaseCommand<
       connector = new DBConnector<ModelType>(
         cosmosClient as CosmosClient,
         Database.DATABASE_ID,
-        connectorType
+        connectorType,
       );
     }
 
     connector.init().catch((reason) => {
       console.error(
-        `Failed to connect to database container of type ${connectorType}`
+        `Failed to connect to database container of type ${connectorType}`,
       );
       console.error(reason);
     });
@@ -51,7 +51,7 @@ export class DatabaseCommand<
 
   constructor(
     connectorType: ConnectorType,
-    configuration: SlashCommandConfiguration
+    configuration: SlashCommandConfiguration,
   ) {
     super(configuration);
     this._connector = DatabaseCommand.getConnector<ModelType>(connectorType);

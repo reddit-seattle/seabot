@@ -22,7 +22,7 @@ export default class SlashCommandRouter extends CommandRouter {
 
       const command = commandMap[interaction.commandName];
       const { options, guild } = interaction;
-      
+
       // Extract subcommand if present
       let subcommand: string | null = null;
       try {
@@ -30,7 +30,7 @@ export default class SlashCommandRouter extends CommandRouter {
       } catch {
         // No subcommand, that's fine
       }
-      
+
       if (command) {
         try {
           command.execute?.(interaction);
@@ -41,7 +41,7 @@ export default class SlashCommandRouter extends CommandRouter {
               interaction.channelId,
               interaction.commandName,
               true,
-              subcommand || undefined
+              subcommand || undefined,
             );
           }
         } catch (error) {
@@ -52,13 +52,13 @@ export default class SlashCommandRouter extends CommandRouter {
               interaction.channelId,
               interaction.commandName,
               false,
-              subcommand || undefined
+              subcommand || undefined,
             );
           }
-          
-          if(Environment.DEBUG && configuration?.channelIds?.["DEBUG"]) {
+
+          if (Environment.DEBUG && configuration?.channelIds?.["DEBUG"]) {
             const debugChannel = await guild?.channels.fetch(
-              configuration?.channelIds?.["DEBUG"]
+              configuration?.channelIds?.["DEBUG"],
             );
             if (debugChannel?.isTextBased()) {
               await debugChannel.send(`
@@ -83,7 +83,7 @@ export default class SlashCommandRouter extends CommandRouter {
 
     this.eventRouter.addEventListener(
       Events.InteractionCreate,
-      tryToExecuteSlashCommand
+      tryToExecuteSlashCommand,
     );
 
     this.discordBot.client.guilds.cache.forEach(async (guild) => {
@@ -98,11 +98,11 @@ export default class SlashCommandRouter extends CommandRouter {
       await this.discordBot.rest.put(
         Routes.applicationGuildCommands(
           this.discordBot.client.user?.id || "",
-          guild.id
+          guild.id,
         ),
         {
           body: registeredCommands,
-        }
+        },
       );
     });
   }

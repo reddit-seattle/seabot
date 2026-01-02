@@ -1,3 +1,3 @@
-import timeout from "./timeout"
+import timeout from "./timeout";
 
-export default [timeout]
+export default [timeout];
