@@ -1,14 +1,13 @@
 import { AttachmentBuilder, Message } from "discord.js";
 import { wordTrackerStore } from "../../db";
 import { DaysWithoutImageGenerator } from "../../utils/DaysWithoutImageGenerator";
-import { Environment } from "../../utils/constants";
+import { Environment, Time } from "../../utils/constants";
 import ContentCommand from "./ContentCommand";
 
 const TRACKED_WORDS = (Environment.trackedWords || "")
   .split(",")
   .map((w) => w.trim())
   .filter(Boolean);
-const MILLISECONDS_PER_HOUR = 1000 * 60 * 60;
 
 // Escape any special chars
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -41,7 +40,7 @@ export default new ContentCommand({
         const lastSeen = new Date(tracker.last_seen);
         hoursSince = Math.max(
           0,
-          Math.floor((Date.now() - lastSeen.getTime()) / MILLISECONDS_PER_HOUR),
+          Math.floor((Date.now() - lastSeen.getTime()) / Time.MS_PER_HOUR),
         );
         if (hoursSince === 0) {
           return; // Already triggered within the last hour

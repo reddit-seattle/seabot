@@ -125,6 +125,18 @@ export module VoiceConstants {
   }
 }
 
+export module Time {
+  export const MS_PER_HOUR = 1000 * 60 * 60;
+  export const MS_PER_DAY = MS_PER_HOUR * 24;
+}
+
+export module BettingConstants {
+  export const POINTS_PER_WIN = 1;
+  export const BONUS_POINTS = 1;
+  export const BETTING_WINDOW_HOURS = 24;
+  export const MAX_NOTE_LENGTH = 200;
+}
+
 export module ServerInfo {
   export module Valheim {
     export const serverName = "/r/Seattle valheim dedicated";

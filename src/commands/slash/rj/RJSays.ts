@@ -49,26 +49,24 @@ function textToEmojis(text: string, interaction: CommandInteraction) {
   return text;
 }
 
+const sortedChoices = Object.keys(RJStrings).sort();
+
 export default new SlashCommand({
   name: "rj",
   help: "rj list",
   description: "makes funny little RJ emotes",
-  builder: () =>
-    new ChatInputCommandBuilder()
-      .setName("rj")
-      .setDescription("makes funny little RJ emotes")
-      .addStringOptions([
-        (option) => {
-          option.setName("emote").setDescription("which emote would you like");
-          const sortedChoices = Object.keys(RJStrings).sort();
-          option.addChoices(
-            ...sortedChoices.map((choice) => {
-              return { name: choice, value: RJStrings[choice] };
-            }),
-          );
-          return option;
-        },
-      ]),
+  builder: new ChatInputCommandBuilder().addStringOptions([
+    (option) => {
+      option.setName("emote").setDescription("which emote would you like");
+      option.addChoices(
+        ...sortedChoices.map((choice) => ({
+          name: choice,
+          value: RJStrings[choice],
+        })),
+      );
+      return option;
+    },
+  ]),
   execute: (interaction) => {
     const emote = interaction.options.getString("emote");
     if (!emote) {

@@ -10,28 +10,14 @@ export default new SlashCommand({
   name: "help",
   help: "help",
   description: "Display SeaBot command help",
-  builder: () =>
-    new ChatInputCommandBuilder().addStringOptions([
-      (option) => {
-        option.setName("command");
-        option.setDescription("The command you would like help with");
-        const choices: any[] = [];
-        // Lazy loading to prevent Typescript from trying to initialize this before commands have been loaded.
-        import("../").then((commands: any) => {
-          commands.default.forEach((command: any) => {
-            choices.push({
-              name: command.name,
-              value: command.name,
-            });
-          });
-          choices.sort((a, b) =>
-            a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
-          );
-          option.addChoices(...choices);
-        });
-        return option;
-      },
-    ]),
+  builder: new ChatInputCommandBuilder().addStringOptions([
+    (option) => {
+      option.setName("command");
+      option.setDescription("The command you would like help with");
+      option.setRequired(false);
+      return option;
+    },
+  ]),
   execute: async (interaction) => {
     // filter admin commands to only mods
     const roles = interaction.member?.roles as GuildMemberRoleManager;
@@ -68,7 +54,7 @@ export default new SlashCommand({
         ...filteredCommands.map((command) => {
           return {
             name: command.name,
-            value: `${command.description}\nExample: ${Config.prefix}${command.help}`,
+            value: `${command.description}`,
             inline: false,
           };
         }),

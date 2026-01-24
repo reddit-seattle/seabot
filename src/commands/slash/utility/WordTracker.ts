@@ -7,6 +7,7 @@ import {
 
 import { wordTrackerStore } from "../../../db";
 import { configuration } from "../../../server";
+import { Time } from "../../../utils/constants";
 import SlashCommand from "../SlashCommand";
 
 const enum WORDTRACKER_COMMAND_TYPES {
@@ -59,7 +60,7 @@ export default new SlashCommand({
         .map((tracker: any) => {
           const daysSince = Math.floor(
             (Date.now() - new Date(tracker.last_seen).getTime()) /
-              (1000 * 60 * 60 * 24),
+              Time.MS_PER_DAY,
           );
           return `- **${tracker.word}**: ${daysSince} days ago (${tracker.word_count} total mentions)`;
         })

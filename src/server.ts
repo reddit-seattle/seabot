@@ -1,4 +1,10 @@
-import { ActivityType, Events, TextChannel } from "discord.js";
+import {
+  ActivityType,
+  Events,
+  GuildBan,
+  Message,
+  TextChannel,
+} from "discord.js";
 import { exit } from "process";
 
 import loadConfiguration from "./configuration/loadConfiguration";
@@ -11,7 +17,9 @@ import ExpressServer from "./ExpressServer";
 import TaskScheduler from "./schedules/TaskScheduler";
 import { Logger } from "./utils/logger";
 
+import bettingStore from "./db/BettingStore";
 import { handleVoiceStatusUpdate } from "./functions/voiceChannelManagement";
+import { registerModalHandlers } from "./modals";
 import { processModReportInteractions } from "./utils/helpers";
 
 let expressServer: ExpressServer;
@@ -46,11 +54,22 @@ async function startDiscordBot() {
       Events.VoiceStateUpdate,
       handleVoiceStatusUpdate,
     );
+
     eventRouter.addEventListener(Events.ClientReady, announcePresence);
     eventRouter.addEventListener(Events.ClientReady, startTaskScheduler);
 
+    eventRouter.addEventListener(Events.GuildBanAdd, async (ban: GuildBan) => {
+      if (!ban.user.bot) {
+        // Award users who bet on this ban
+        await bettingStore.processBan(ban.user.id, ban.guild);
+      }
+    });
+
+    // Register modal handlers
+    registerModalHandlers(eventRouter);
+
     // Simple telemetry - track messages (production only)
-    eventRouter.addEventListener(Events.MessageCreate, (message: any) => {
+    eventRouter.addEventListener(Events.MessageCreate, (message: Message) => {
       if (!message.author.bot) {
         expressServer.getTelemetry()?.logMessage(message);
       }

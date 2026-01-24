@@ -1,5 +1,6 @@
 import commands from "./";
 import ContentCommandRouter from "./messageContent/ContentCommandRouter";
+import ContextMenuCommandRouter from "./contextMenu/ContextMenuCommandRouter";
 import DiscordBot from "../discord/DiscordBot";
 import DiscordEventRouter from "../discord/DiscordEventRouter";
 import ReactionCommandRouter from "./reaction/ReactionCommandRouter";
@@ -11,6 +12,7 @@ export default function createCommandRouters(
 ) {
   const routers = [
     new ContentCommandRouter(eventRouter, discordBot, commands.content),
+    new ContextMenuCommandRouter(eventRouter, discordBot, commands.contextMenu),
     new ReactionCommandRouter(eventRouter, discordBot, commands.reaction),
     new SlashCommandRouter(eventRouter, discordBot, commands.slash),
   ];

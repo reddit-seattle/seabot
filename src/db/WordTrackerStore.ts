@@ -75,7 +75,7 @@ export class WordTrackerStore {
 
         return {
           ...existing,
-          word_count: (existing as any).word_count + 1,
+          word_count: existing.word_count + 1,
           last_seen: new Date().toISOString(),
         };
       } else {
