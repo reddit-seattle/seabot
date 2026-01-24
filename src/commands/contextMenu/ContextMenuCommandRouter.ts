@@ -41,12 +41,12 @@ export default class ContextMenuCommandRouter extends CommandRouter {
         }
 
         try {
-          command.execute?.(interaction);
+          await command.execute?.(interaction);
         } catch (error) {
-          if (interaction.replied) {
-            interaction.editReply(Strings.unhandledError);
+          if (interaction.replied || interaction.deferred) {
+            await interaction.editReply(Strings.unhandledError);
           } else {
-            interaction.reply(Strings.unhandledError);
+            await interaction.reply(Strings.unhandledError);
           }
 
           throw error;
