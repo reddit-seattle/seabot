@@ -27,7 +27,10 @@ jobs:
       run: |
         echo "Fetching quotes from ub3r-b0t..."
         echo "Testing with hardcoded key for debugging..."
-        curl --location --request GET 'https://admin.ub3r-b0t.com/api/quotes/370945003566006272?=' --header "X-Key: ${UB3R_B0T_QUOTE_KEY}" -f -o quotes.json
+        curl --location --request GET 'https://admin.ub3r-b0t.com/api/quotes/370945003566006272?=' \
+          --header "X-Key: ${UB3R_B0T_QUOTE_KEY}" \
+          -f -o quotes.json \
+          --retry 3 --retry-delay 10 --retry-all-errors
 
         # data exists
         if [ ! -f quotes.json ]; then
