@@ -197,8 +197,10 @@ export default new SlashCommand({
       const filename = "cam.jpg";
 
       // Get weather/time context
-        const weatherContext = await getSeattleWeatherContext(imageResult.zip);
-        const attachment = new AttachmentBuilder().setFileData(imageResult.buffer).setFilename(filename);
+      const weatherContext = await getSeattleWeatherContext(imageResult.zip);
+      const attachment = new AttachmentBuilder()
+        .setFileData(imageResult.buffer)
+        .setFilename(filename);
 
       const embed = new EmbedBuilder()
         .setTitle(imageResult.description)
