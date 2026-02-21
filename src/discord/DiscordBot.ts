@@ -14,6 +14,7 @@ import {
 } from "discord.js";
 
 import createCommandRouters from "../commands/createCommandRouters";
+import { initEventsTitleEnforcer } from "../commands/slash/events";
 import InMemoryDbConnector from "../db/InMemoryDbConnector";
 import { Logger } from "../utils/logger";
 import DiscordEventRouter from "./DiscordEventRouter";
@@ -100,6 +101,7 @@ export default class DiscordBot {
     );
     eventRouter.addEventListener(Events.ThreadCreate, this.logThreadCreation);
     eventRouter.addEventListener(Events.ThreadDelete, this.logThreadDeletion);
+    initEventsTitleEnforcer(eventRouter);
   }
 
   private startCommandRouters(eventRouter: DiscordEventRouter) {
