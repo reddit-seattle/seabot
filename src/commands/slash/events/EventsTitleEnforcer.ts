@@ -1,7 +1,7 @@
 import { Events, ThreadChannel } from "discord.js";
 import DiscordEventRouter from "../../../discord/DiscordEventRouter";
 import { Environment } from "../../../utils/constants";
-import parseEventDates from "../../../utils/eventDateParser";
+import { parseEventDate } from "../../../utils/eventDateParser";
 
 const USER_PLACEHOLDER = "{user}";
 const TITLE_WARNING =
@@ -17,7 +17,7 @@ function buildWarning(userId: string): string {
 async function onThreadCreate(thread: ThreadChannel, newlyCreated: boolean) {
   if (!newlyCreated) return;
   if (thread.parentId !== Environment.eventsChannelId) return;
-  if (parseEventDates(thread.name) !== null) return;
+  if (parseEventDate(thread.name) !== null) return;
 
   const owner = await thread.fetchOwner();
   if (!owner?.id) return;

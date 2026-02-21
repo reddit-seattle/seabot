@@ -1,8 +1,16 @@
-type ParseResult = {
-  startdate: Date;
-  displayTime: boolean;
-  enddate?: Date | null;
+import { normalizeYear } from "./helpers";
+
+type ParsedEventDate = {
+  start: Date;
+  end?: Date | null;
 };
+
+// Main regex considerations:
+// ---------------------
+// numeric date with optional time: "12/31/2022 8am", "3/15 at 12:30pm"
+// month name with optional time: "Jan 12, 2022 8am", "September 5 at 12:30pm"
+// bracketed month name with time: "[Event Jan 12 | 8am]"
+// ---------------------
 
 const MONTH_NAMES = [
   "jan",
@@ -37,6 +45,10 @@ const MONTH_NAME_SUFFIXES: { [key: string]: string } = {
 const MONTH_NAME_VARIANTS = MONTH_NAMES.map(
   (m) => `${m}${MONTH_NAME_SUFFIXES[m]}`,
 );
+
+const dateRegexTemplate = (varName: string) =>
+  `(?<${varName}Month>\\d{1,2})/(?<${varName}Day>\\d{1,2})(?:/(?<${varName}Year>\\d{2,4}))?`;
+
 const MONTH_NAME_PART = `(?<monthName>${MONTH_NAME_VARIANTS.join("|")})`;
 
 // Matches numeric date formats, e.g. "12/31", "12/31/2022"
@@ -47,33 +59,45 @@ const NUMERIC_DATE_PART =
 // Matches time formats, e.g. "12:30pm", "8am", "23:45"
 const TIME_PART = "(?<hour>\\d{1,2})(?::(?<minute>\\d{2}))?\\s*(?<ampm>am|pm)?";
 
-// Main regexes
-// ---------------------
-// Matches numeric date with optional time, e.g. "12/31/2022 8am", "3/15 at 12:30pm"
-// Matches month name date with optional time, e.g. "Jan 12, 2022 8am", "September 5 at 12:30pm"
-// Matches bracketed month name date with time, e.g. "[Event Jan 12 | 8am]"
-// ---------------------
-
 // Template for day and optional year after month name: "12" or "12, 2022"
 const MONTH_DAY_PART = "\\s*(?<monthDay>\\d{1,2})";
+
 // Matches optional year and eats punctuation: ", 2022" or " 2022" or ",2022"
 const MONTH_YEAR_PART = "(?:,?\\s*(?<monthYear>\\d{4}))?";
+
 // Combined for convenience
 const MONTH_DAY_YEAR_PART = `${MONTH_DAY_PART}${MONTH_YEAR_PART}`;
 
 // Matches numeric date with optional time: "12/31/2022 8am", "3/15 at 12:30pm", "11/22/23", "12/31"
-const NUMERIC_DATE_TIME = new RegExp(
+export const NUMERIC_DATE_TIME = new RegExp(
   `${NUMERIC_DATE_PART}(?:\\s*(?:at|@)?\\s*${TIME_PART})?`,
   "i",
 );
 // Matches month name date with optional time: "Jan 12, 2022 8am", "September 5 at 12:30pm", "Feb 3", "March 15, 2023"
-const MONTH_NAME_DATE_TIME = new RegExp(
+export const MONTH_NAME_DATE_TIME = new RegExp(
   `${MONTH_NAME_PART}${MONTH_DAY_YEAR_PART}(?:\\s*(?:at|@)?\\s*${TIME_PART})?`,
   "i",
 );
 // Matches bracketed month name date with time: "[Event Jan 12 | 8am]"
-const BRACKETED_MONTH_NAME = new RegExp(
+export const BRACKETED_MONTH_NAME = new RegExp(
   `\\[(?:\\w+)?\\s*${MONTH_NAME_PART}${MONTH_DAY_YEAR_PART}\\s*\\|\\s*${TIME_PART}\\]`,
+  "i",
+);
+
+// Matches numeric date range formats, e.g. "2/22-2/25", "2/22/2026-2/25/2026", "[2/22 - 2/25]"
+export const NUMERIC_DATE_RANGE = new RegExp(
+  // Optional brackets
+  "^\\[?\\s*" +
+    // Start date
+    dateRegexTemplate("start") +
+    // Optional spaces and dash
+    "\\s*-\\s*" +
+    // End date
+    dateRegexTemplate("end") +
+    // Optional brackets
+    "\\s*\\]?" +
+    // Optional time (not supported for range)
+    "",
   "i",
 );
 
@@ -81,65 +105,87 @@ function parseMonthName(name: string): number {
   return MONTH_NAMES.indexOf(name.slice(0, 3).toLowerCase()) + 1;
 }
 
-export default function parseEventDate(input: string): ParseResult | null {
-  let match = input.match(NUMERIC_DATE_TIME);
+export function parseEventDate(input: string): ParsedEventDate | null {
+  let is_multi_day = false;
+  // try date range
+  let match = input.match(NUMERIC_DATE_RANGE);
   let groups = match?.groups;
+  if (groups) is_multi_day = true;
   if (!groups) {
+    // try month name formats
     match = input.match(MONTH_NAME_DATE_TIME);
     groups = match?.groups;
   }
   if (!groups) {
+    // try bracketed month name / time
     match = input.match(BRACKETED_MONTH_NAME);
     groups = match?.groups;
   }
+  if (!groups) {
+    // try numeric date formats
+    match = input.match(NUMERIC_DATE_TIME);
+    groups = match?.groups;
+  }
+
   if (!groups) return null;
 
-  // for later reference
-  const today = new Date();
-  const currentYear = today.getFullYear();
+  const parsedStartYear = normalizeYear(groups.year || groups.monthYear);
+  const parsedStartMonth = groups.month
+    ? parseInt(groups.month)
+    : groups.monthName
+      ? parseMonthName(groups.monthName)
+      : groups.startMonth
+        ? parseInt(groups.startMonth)
+        : undefined;
+  const parsedStartDay = groups.day
+    ? parseInt(groups.day)
+    : groups.monthDay
+      ? parseInt(groups.monthDay)
+      : groups.startDay
+        ? parseInt(groups.startDay)
+        : undefined;
+  if (!parsedStartYear || !parsedStartMonth || !parsedStartDay) return null;
 
-  let year = 0,
-    month = 0,
-    day = 0,
-    hour = 12,
-    minute = 0,
-    displayTime = false;
-
-  if (groups.month && groups.day) {
-    month = parseInt(groups.month, 10);
-    day = parseInt(groups.day, 10);
-    // If year is missing, default to current year.
-    year = groups.year ? parseInt(groups.year, 10) : currentYear;
-    // normalize 2-digit years to current century
-    if (year < 100) {
-      year += currentYear - (currentYear % 100);
-    }
-  } else if (groups.monthName && groups.monthDay) {
-    month = parseMonthName(groups.monthName);
-    day = parseInt(groups.monthDay, 10);
-    // If year is missing, default to current year.
-    year = groups.monthYear ? parseInt(groups.monthYear, 10) : currentYear;
-    if (year < 100) {
-      year += currentYear - (currentYear % 100);
+  let parsedHour = groups.hour ? parseInt(groups.hour) : 0;
+  if (groups.ampm) {
+    const ampm = groups.ampm.toLowerCase();
+    if (ampm === "pm" && parsedHour < 12) {
+      parsedHour += 12;
+    } else if (ampm === "am" && parsedHour === 12) {
+      parsedHour = 0;
     }
   }
+  const parsedMinute = groups.minute ? parseInt(groups.minute) : 0;
 
-  if (groups.hour) {
-    hour = parseInt(groups.hour, 10);
-    minute = groups.minute ? parseInt(groups.minute, 10) : 0;
-    displayTime = true;
-    if (groups.ampm) {
-      // Convert 12-hour time to 24-hour time
-      if (groups.ampm.toLowerCase() === "pm" && hour < 12) hour += 12;
-      if (groups.ampm.toLowerCase() === "am" && hour === 12) hour = 0;
+  let end: Date | null = null;
+
+  if (is_multi_day) {
+    const parsedEndYear = normalizeYear(groups.endYear || groups.endMonthYear);
+    const parsedEndMonth = groups.endMonth
+      ? parseInt(groups.endMonth)
+      : groups.endMonthName
+        ? parseMonthName(groups.endMonthName)
+        : undefined;
+    const parsedEndDay = groups.endDay
+      ? parseInt(groups.endDay)
+      : groups.endMonthDay
+        ? parseInt(groups.endMonthDay)
+        : undefined;
+    if (!parsedEndYear || !parsedEndMonth || !parsedEndDay) end = null;
+    else {
+      end = new Date(parsedEndYear, parsedEndMonth - 1, parsedEndDay);
     }
   }
-
-  if (!year || !month || !day) return null;
-
   return {
-    startdate: new Date(year, month - 1, day, hour, minute),
-    displayTime,
-    enddate: null,
+    start: new Date(
+      parsedStartYear,
+      // javascript is so silly sometimes
+      parsedStartMonth - 1,
+      parsedStartDay,
+      // start time is currently unused
+      parsedHour,
+      parsedMinute,
+    ),
+    end,
   };
 }

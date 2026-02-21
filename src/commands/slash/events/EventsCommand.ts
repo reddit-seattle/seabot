@@ -6,15 +6,36 @@ import {
   MessageFlags,
 } from "discord.js";
 import { Environment } from "../../../utils/constants";
-import parseEventDates from "../../../utils/eventDateParser";
+import { parseEventDate } from "../../../utils/eventDateParser";
 import SlashCommand from "../SlashCommand";
+
+export type EventEntry = {
+  label: string;
+  start: Date;
+  end?: Date;
+};
 
 const DEFAULT_DAYS = 7;
 const MAX_TITLE_LENGTH = 50;
 
+// Returns M/D
 function shortDate(date: Date): string {
-  // Returns M/D/YYYY
-  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+}
+
+// Helper to clean event titles by removing bracketed date/range substrings
+function createEventLabel(
+  name: string,
+  url: string,
+  maxLength: number = MAX_TITLE_LENGTH,
+): string {
+  let label = name;
+  // Remove any bracketed chunk that contains a date/range
+  label = label.replace(/\[(?:[^\]]*\d{1,2}\/\d{1,2}[^\]]*)\]/g, "").trim();
+  if (label.length > maxLength) {
+    label = label.slice(0, maxLength - 3) + "...";
+  }
+  return `[${label}](${url})`;
 }
 
 export default new SlashCommand({
@@ -66,61 +87,32 @@ export default new SlashCommand({
       ...archived.threads.values(),
     ];
 
-    const singleDay: { label: string; start: Date; time: string | null }[] = [];
-    const multiDay: {
-      label: string;
-      start: Date;
-      end: Date;
-      time: string | null;
-    }[] = [];
+    const singleDay: EventEntry[] = [];
+    const multiDay: EventEntry[] = [];
 
     for (const thread of allThreads) {
       const { name, url } = thread;
-      const dates = parseEventDates(name);
-      if (!dates || !dates.startdate) continue; // Skip if no valid start date
+      const dates = parseEventDate(name);
+      if (!dates || !dates.start) continue; // Skip if no valid start date
 
-      const { startdate, enddate, displayTime } = dates;
-      // Truncate event title if too long
-      let truncatedTitle = name;
-      if (truncatedTitle.length > MAX_TITLE_LENGTH) {
-        truncatedTitle = truncatedTitle.slice(0, MAX_TITLE_LENGTH - 3) + "...";
-      }
-      const link = `[${truncatedTitle}](${url})`;
+      const { start, end } = dates;
+      const label = createEventLabel(name, url);
 
       // Calculate the end of the event's start day
-      const endOfStartDay = new Date(startdate);
+      const endOfStartDay = new Date(start);
       endOfStartDay.setHours(23, 59, 59, 999);
 
-      if (enddate) {
+      if (end) {
         // Multi-day: include if the event overlaps with the window
-        const endOfEndDay = new Date(enddate);
+        const endOfEndDay = new Date(end);
         endOfEndDay.setHours(23, 59, 59, 999);
-        if (startdate <= windowEnd && endOfEndDay >= now) {
-          multiDay.push({
-            label: link,
-            start: startdate,
-            end: enddate,
-            time: displayTime
-              ? startdate.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : null,
-          });
+        if (start <= windowEnd && endOfEndDay >= now) {
+          multiDay.push({ label, start, end });
         }
       } else {
         // Single-day: include if the event's day has not completely passed and is within the window
-        if (endOfStartDay >= now && startdate <= windowEnd) {
-          singleDay.push({
-            label: link,
-            start: startdate,
-            time: displayTime
-              ? startdate.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : null,
-          });
+        if (endOfStartDay >= now && start <= windowEnd) {
+          singleDay.push({ label, start });
         }
       }
     }
@@ -129,69 +121,57 @@ export default new SlashCommand({
     multiDay.sort((a, b) => a.start.getTime() - b.start.getTime());
 
     // Group all events by start date (M/D/YYYY)
-    const grouped: Record<
-      string,
-      Array<{
-        time: string | null;
-        label: string;
-        isMulti: boolean;
-        end?: Date;
-      }>
-    > = {};
+    const grouped: Record<string, EventEntry[]> = {};
     for (const event of singleDay) {
-      const { start, label, time } = event;
+      const { start, label } = event;
       const key = shortDate(start);
       if (!grouped[key]) grouped[key] = [];
-      grouped[key].push({ time, label, isMulti: false });
-    }
-    for (const event of multiDay) {
-      const { start, end, time, label } = event;
-      const key = shortDate(start);
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push({
-        time,
-        label,
-        isMulti: true,
-        end,
-      });
+      grouped[key].push({ start, label });
     }
 
     const embed = new EmbedBuilder()
       .setTitle(`Upcoming Events — Next ${DEFAULT_DAYS} Days`)
       .setColor(0x5865f2);
-
-    let embedDescription = "";
-
-    const dateKeys = Object.keys(grouped).sort((a, b) => {
-      const [am, ad, ay] = a.split("/").map(Number);
-      const [bm, bd, by] = b.split("/").map(Number);
-      return (
-        new Date(ay, am - 1, ad).getTime() - new Date(by, bm - 1, bd).getTime()
-      );
-    });
-
-    if (dateKeys.length === 0) {
-      embedDescription = "No upcoming events found for this time period.";
-    } else {
-      embedDescription = dateKeys
-        .map((date) => {
-          const events = grouped[date];
-          const lines = events.map((e) => {
-            if (e.isMulti && e.end) {
-              // Show range for multi-day
-              return `Multi-day: ${shortDate(e.end)} — ${e.label}`;
-            }
-            return e.label;
-          });
-          return `**${date}**\n${lines.join("\n")}`;
-        })
-        .join("\n\n");
-    }
-    const channelMention = `<#${Environment.eventsChannelId}>`;
-
-    embed.setDescription(
-      `${embedDescription}\n\nCheck ${channelMention} for more things to do!`,
+    const dateKeys = Object.keys(grouped).sort(
+      (a, b) => grouped[a][0].start.getTime() - grouped[b][0].start.getTime(),
     );
+    const channelMention = `<#${Environment.eventsChannelId}>`;
+    embed.setTitle("Upcoming events:");
+    embed.setDescription(`See ${channelMention} for more information`);
+
+    // Add single-day events as fields
+    if (dateKeys.length === 0) {
+      embed.addFields({
+        name: "No upcoming events",
+        value: `go post in ${channelMention}`,
+        inline: false,
+      });
+    } else {
+      dateKeys.forEach((date) => {
+        const events = grouped[date];
+        const lines = events.map((e) => e.label);
+        embed.addFields({
+          name: date,
+          value: lines.join("\n"),
+          inline: false,
+        });
+      });
+    }
+
+    // Add multiday events as a single field
+    const multiDayFormatted = multiDay
+      .map(({ start, end, label }) => {
+        if (!end) return "";
+        return `**${shortDate(start)}-${shortDate(end)}**: ${label}`;
+      })
+      .filter(Boolean);
+    if (multiDayFormatted.length > 0) {
+      embed.addFields({
+        name: "Multiday events",
+        value: multiDayFormatted.join("\n"),
+        inline: false,
+      });
+    }
     await interaction.editReply({ embeds: [embed] });
   },
 });
