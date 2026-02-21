@@ -138,6 +138,7 @@ export default new SlashCommand({
     const channelMention = `<#${Environment.eventsChannelId}>`;
     embed.setTitle("Upcoming events:");
     embed.setDescription(`See ${channelMention} for more information`);
+    embed.setFooter({ text: "Dates may be incorrectly parsed - check event threads to confirm" });
 
     // Add single-day events as fields
     if (dateKeys.length === 0) {
