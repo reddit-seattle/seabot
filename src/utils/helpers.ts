@@ -250,3 +250,21 @@ export const validateColor = (color: string | null): ColorResolvable | null => {
     return null;
   }
 };
+
+/**
+ * Normalizes a year string to a 4-digit year.
+ * If the input is a 2-digit year, it is assumed to be in the current century.
+ * If the input is missing or invalid, it defaults to the current year.
+ * @param yearStr - The year string to normalize
+ * @returns A 4-digit year as a number
+ */
+export const normalizeYear = (yearStr: string | undefined): number => {
+  const currentYear = new Date().getFullYear();
+  const currentCentury = currentYear - (currentYear % 100);
+  if (!yearStr) return currentYear;
+  let year = parseInt(yearStr, 10);
+  if (year < 100) {
+    year += currentCentury;
+  }
+  return year;
+};
