@@ -65,8 +65,7 @@ export default new SlashCommand({
     const guild = interaction.guild;
     if (!guild) return;
 
-    // fetch via client in case the channel is in a different guild (avoid GuildChannelUnowned)
-    const channel = await guild.client.channels
+    const channel = await guild.channels
       .fetch(Environment.eventsChannelId)
       .catch(() => null);
     if (!channel || channel.type !== ChannelType.GuildForum) {
@@ -138,7 +137,9 @@ export default new SlashCommand({
     const channelMention = `<#${Environment.eventsChannelId}>`;
     embed.setTitle("Upcoming events:");
     embed.setDescription(`See ${channelMention} for more information`);
-    embed.setFooter({ text: "Dates may be incorrectly parsed - check event threads to confirm" });
+    embed.setFooter({
+      text: "Dates may be incorrectly parsed - check event threads to confirm",
+    });
 
     // Add single-day events as fields
     if (dateKeys.length === 0) {
