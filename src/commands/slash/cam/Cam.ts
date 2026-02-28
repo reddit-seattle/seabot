@@ -194,24 +194,18 @@ export default new SlashCommand({
         return;
       }
 
-      const filename = "cam.jpg";
-
       // Get weather/time context
       const weatherContext = await getSeattleWeatherContext(imageResult.zip);
-      const attachment = new AttachmentBuilder()
-        .setFileData(imageResult.buffer)
-        .setFilename(filename);
 
       const embed = new EmbedBuilder()
         .setTitle(imageResult.description)
         .setDescription(`${weatherContext}`)
-        .setImage(`attachment://${filename}`)
         .setColor(0x0066cc)
         .setTimestamp();
 
       await interaction.editReply({
         embeds: [embed],
-        files: [attachment],
+        files: [imageResult.buffer],
       });
     } catch (error) {
       console.error("Error fetching webcam image:", error);
