@@ -18,7 +18,6 @@ export interface PlaceBetParams {
   interaction: BetInteraction;
   targetUserId: string;
   note?: string;
-  daysUntilBan: number | null;
 }
 
 /**
@@ -27,7 +26,7 @@ export interface PlaceBetParams {
 export async function handleBetPlacement(
   params: PlaceBetParams,
 ): Promise<InteractionReplyOptions> {
-  const { interaction, targetUserId, note, daysUntilBan } = params;
+  const { interaction, targetUserId, note } = params;
 
   // Validate note length
   if (note && note.length > BettingConstants.MAX_NOTE_LENGTH) {
@@ -55,7 +54,6 @@ export async function handleBetPlacement(
     interaction.guildId!,
     joinTime,
     note,
-    daysUntilBan,
   );
 
   if (!bet) {
@@ -67,9 +65,6 @@ export async function handleBetPlacement(
 
   // Build response message
   let responseMessage = "Bet placed.";
-  if (daysUntilBan !== null) {
-    responseMessage += ` Prediction: ${daysUntilBan} day${daysUntilBan !== 1 ? "s" : ""}.`;
-  }
   if (note) {
     responseMessage += ` Note: ${note}`;
   }

@@ -21,7 +21,7 @@ export default new SlashCommand({
   description: "Bet on whether new users will be banned",
   adminOnly: true,
   builder: new ChatInputCommandBuilder().addSubcommands([
-    // /betban bet <user> [note] [duration]
+    // /betban bet <user> [note]
     (cmd) =>
       cmd
         .setName(BETBAN_COMMAND_TYPES.BET)
@@ -32,14 +32,6 @@ export default new SlashCommand({
               .setName("user")
               .setDescription("The user to bet on")
               .setRequired(true),
-        ])
-        .addIntegerOptions([
-          (option) =>
-            option
-              .setName("days")
-              .setDescription("Predicted days until ban")
-              .setRequired(false)
-              .setMinValue(1),
         ])
         .addStringOptions([
           (option) =>
@@ -76,13 +68,11 @@ export default new SlashCommand({
 async function handleBet(interaction: ChatInputCommandInteraction) {
   const targetUser = interaction.options.getUser("user", true);
   const note = interaction.options.getString("note") ?? undefined;
-  const daysUntilBan = interaction.options.getInteger("days") ?? null;
 
   const response = await handleBetPlacement({
     interaction,
     targetUserId: targetUser.id,
     note,
-    daysUntilBan,
   });
 
   return interaction.reply(response);

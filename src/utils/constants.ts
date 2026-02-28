@@ -133,8 +133,8 @@ export module Time {
 
 export module BettingConstants {
   export const POINTS_PER_WIN = 1;
-  export const BONUS_POINTS = 1;
-  export const BETTING_WINDOW_HOURS = 24;
+  export const BETTING_WINDOW_HOURS = 48;
+  export const RESOLUTION_TIME_DAYS = 30;
   export const MAX_NOTE_LENGTH = 200;
 }
 

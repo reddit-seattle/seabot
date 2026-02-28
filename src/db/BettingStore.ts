@@ -13,12 +13,10 @@ export interface BanBet {
   target_user_id: string; // User being bet against
   guild_id: string;
   note: string | null; // Optional reason/note
-  predicted_days_until_ban: number | null; // Predicted days until ban
   bet_placed_at: string; // ISO timestamp
   target_joined_at: string; // ISO timestamp when target joined
   is_active: boolean; // Whether bet is still active
   is_won: boolean | null;
-  days_prediction_correct: boolean | null;
 }
 
 export interface BetPoints {
@@ -44,12 +42,10 @@ export class BettingStore {
         target_user_id TEXT NOT NULL,
         guild_id TEXT NOT NULL,
         note TEXT,
-        predicted_days_until_ban INTEGER DEFAULT NULL,
         bet_placed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         target_joined_at DATETIME NOT NULL,
         is_active BOOLEAN DEFAULT 1,
         is_won BOOLEAN DEFAULT NULL,
-        days_prediction_correct BOOLEAN DEFAULT NULL,
         UNIQUE(bettor_user_id, target_user_id, guild_id)
       );
 
@@ -76,14 +72,13 @@ export class BettingStore {
     guildId: string,
     targetJoinedAt: Date,
     note?: string,
-    predictedDaysUntilBan?: number | null,
   ): BanBet | null {
     try {
       const result = this.db
         .prepare(
           `
-        INSERT INTO ban_bets (bettor_user_id, target_user_id, guild_id, note, predicted_days_until_ban, target_joined_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO ban_bets (bettor_user_id, target_user_id, guild_id, note, target_joined_at)
+        VALUES (?, ?, ?, ?, ?)
         RETURNING *
       `,
         )
@@ -92,7 +87,6 @@ export class BettingStore {
           targetUserId,
           guildId,
           note ?? null,
-          predictedDaysUntilBan ?? null,
           targetJoinedAt.toISOString(),
         ) as BanBet;
       return result ?? null;
@@ -163,42 +157,23 @@ export class BettingStore {
 
         // Process each bet
         for (const bet of activeBets) {
-          let timingCorrect = false;
-
-          // Check if timing prediction was correct
-          if (bet.predicted_days_until_ban !== null) {
-            const betPlacedTime = new Date(bet.bet_placed_at);
-            const daysSinceBet =
-              (banTime.getTime() - betPlacedTime.getTime()) / Time.MS_PER_DAY;
-
-            // Check if banned on predicted day
-            timingCorrect =
-              Math.ceil(daysSinceBet) === bet.predicted_days_until_ban;
-          }
 
           // Update the bet record
           this.db
             .prepare(
               `
             UPDATE ban_bets 
-            SET is_won = 1, is_active = 0, days_prediction_correct = ?
+            SET is_won = 1, is_active = 0
             WHERE id = ?
           `,
             )
-            .run(timingCorrect ? 1 : 0, bet.id);
+            .run(bet.id);
 
           this.addPoints(
             bet.bettor_user_id,
             guild.id,
             BettingConstants.POINTS_PER_WIN,
           );
-          if (timingCorrect) {
-            this.addPoints(
-              bet.bettor_user_id,
-              guild.id,
-              BettingConstants.BONUS_POINTS,
-            );
-          }
         }
       });
 
@@ -224,16 +199,7 @@ export class BettingStore {
       try {
         const bettor = await guild.members.fetch(bet.bettor_user_id);
         if (bettor) {
-          const totalPoints =
-            BettingConstants.POINTS_PER_WIN +
-            (bet.days_prediction_correct ? BettingConstants.BONUS_POINTS : 0);
-          const suffix =
-            bet.predicted_days_until_ban !== null &&
-            bet.days_prediction_correct
-              ? " and how many days it would take"
-              : "";
-          const message = `You received ${pluralize(totalPoints, "point")} for correctly predicting a ban${suffix}.`;
-
+          const message = `You received ${pluralize(BettingConstants.POINTS_PER_WIN, "point")} for correctly predicting a ban.`;
           await bettor.send(message);
         }
       } catch (e) {
@@ -245,12 +211,9 @@ export class BettingStore {
   /**
    * Deactivate expired bets (outside the betting window)
    */
-  deactivateExpiredBets(bettingWindowHours: number): number {
+  deactivateExpiredBets(): number {
     try {
-      const cutoffTime = new Date(
-        Date.now() - bettingWindowHours * Time.MS_PER_HOUR,
-      );
-
+      const cutoff = Date.now() - BettingConstants.RESOLUTION_TIME_DAYS * Time.MS_PER_DAY;
       const result = this.db
         .prepare(
           `
@@ -261,7 +224,7 @@ export class BettingStore {
           AND target_joined_at < ?
       `,
         )
-        .run(cutoffTime.toISOString());
+        .run(cutoff);
 
       return result.changes;
     } catch (e) {

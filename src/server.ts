@@ -19,7 +19,6 @@ import { Logger } from "./utils/logger";
 
 import bettingStore from "./db/BettingStore";
 import { handleVoiceStatusUpdate } from "./functions/voiceChannelManagement";
-import { registerModalHandlers } from "./modals";
 import { processModReportInteractions } from "./utils/helpers";
 
 let expressServer: ExpressServer;
@@ -65,8 +64,6 @@ async function startDiscordBot() {
       }
     });
 
-    // Register modal handlers
-    registerModalHandlers(eventRouter);
 
     // Simple telemetry - track messages (production only)
     eventRouter.addEventListener(Events.MessageCreate, (message: Message) => {
