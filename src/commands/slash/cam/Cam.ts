@@ -198,9 +198,9 @@ export default new SlashCommand({
 
       // Get weather/time context
       const weatherContext = await getSeattleWeatherContext(imageResult.zip);
-      const attachment = new AttachmentBuilder(imageResult.buffer, {
-        name: filename,
-      });
+      const attachment = new AttachmentBuilder()
+        .setFileData(imageResult.buffer)
+        .setFilename(filename);
 
       const embed = new EmbedBuilder()
         .setTitle(imageResult.description)

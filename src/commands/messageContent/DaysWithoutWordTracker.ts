@@ -1,4 +1,4 @@
-import { AttachmentBuilder, Message } from "discord.js";
+import { Message } from "discord.js";
 import { wordTrackerStore } from "../../db";
 import { DaysWithoutImageGenerator } from "../../utils/DaysWithoutImageGenerator";
 import { Environment, Time } from "../../utils/constants";
@@ -59,12 +59,8 @@ export default new ContentCommand({
           `${triggeredWord}`,
           hoursSince,
         );
-      const attachment = new AttachmentBuilder(imageBuffer, {
-        name: `days-without-${triggeredWord}.png`,
-      });
-
       await message.reply({
-        files: [attachment],
+        files: [imageBuffer],
       });
     } catch (error) {
       console.error("Error in days-without-tracker:", error);

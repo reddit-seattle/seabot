@@ -114,6 +114,7 @@ export module Environment {
     process.env["DAYS_WITHOUT_BACKGROUND"] ||
     "./assets/dayswithoutincident.png";
   export const trackedWords = process.env["DAYS_SINCE_MEME_TRIGGER_WORDS"];
+  export const eventsChannelId = process.env["EVENTS_CHANNEL_ID"] || undefined;
 }
 export module VoiceConstants {
   export const VOICE_TYPE = 2;
