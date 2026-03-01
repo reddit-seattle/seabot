@@ -31,7 +31,7 @@ const responseMap = new Map<string | RegExp, AutoResponse>([
   [/^SEA$/im, { message: "HAWKS!" }],
   [/(tbf|to be fair)/i, { message: Strings.letterkennyGif, chance: 0.33 }],
   [/(\s|^)eggs?/i, { reaction: "🥚", chance: 0.2 }],
-  [/pike['|`|"]?s['|`|"]? place/i, { message: "uh, pike* place tyvm", chance: 1 }],
+  [/pike['|`|"|`|'|‘|“|”]?s['|`|"|`|'|‘|“|”]? place/i, { message: "uh, pike* place tyvm", chance: 1 }],
 ]);
 
 function emojiFromName(emojiName: string, message: Message): GuildEmoji | null {
