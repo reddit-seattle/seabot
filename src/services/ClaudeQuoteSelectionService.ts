@@ -13,6 +13,7 @@ interface UsageMetrics {
   dailyOutputTokens: number;
   lastResetDate: string;
   perChannelCooldowns: { [channelId: string]: number }; // timestamp
+  recentQuoteIndices: { [channelId: string]: number[] }; // quote IDs
 }
 
 export class ClaudeQuoteSelectionService {
@@ -24,12 +25,14 @@ export class ClaudeQuoteSelectionService {
     dailyOutputTokens: 0,
     lastResetDate: new Date().toISOString().split("T")[0],
     perChannelCooldowns: {},
+    recentQuoteIndices: {},
   };
 
   private static readonly DAILY_REQUEST_CAP = 420;
   private static readonly PER_CHANNEL_COOLDOWN_MS = 5000; // 5 seconds between requests per channel
   private static readonly MAX_INPUT_LENGTH = 1000; // Truncate message to this length
   private static readonly SHORTLIST_SIZE = 50;
+  private static readonly MAX_RECENT_HISTORY = 20;
 
   private static readonly DEFAULT_PROMPT_TEMPLATE =
     "Pick the funniest quote to reply with. Respond with ONLY the number.\n\n" +
@@ -73,18 +76,28 @@ export class ClaudeQuoteSelectionService {
     Logger.info(`Built token index with ${Object.keys(this._tokenIndex).length} unique tokens`);
   }
 
-  private static getShortlist(messageContent: string): Quote[] {
-    const words = messageContent
-      .toLowerCase()
-      .match(/\b\w+\b/g) || [];
+  private static getShortlist(
+    messageContent: string,
+    channelId: string,
+  ): Quote[] {
+    const words = messageContent.toLowerCase().match(/\b\w+\b/g) || [];
 
     const scoreMap = new Map<number, number>();
+    const recentIndices = this._usage.recentQuoteIndices[channelId] || [];
 
     // Score quotes by word overlap
     words.forEach((word) => {
       const matchingIndices = this._tokenIndex[word] || [];
       matchingIndices.forEach((idx) => {
-        scoreMap.set(idx, (scoreMap.get(idx) || 0) + 1);
+        // Skip if this quote was recently used in this channel
+        if (recentIndices.includes(idx)) {
+          return;
+        }
+
+        const q = QuoteService.getQuoteByIndex(idx);
+        if (q) {
+          scoreMap.set(idx, (scoreMap.get(idx) || 0) + 1);
+        }
       });
     });
 
@@ -100,12 +113,18 @@ export class ClaudeQuoteSelectionService {
       const totalQuotes = QuoteService.getQuoteCount();
       const sampleSize = Math.min(this.SHORTLIST_SIZE, totalQuotes);
       const seen = new Set<number>();
-      while (sorted.length < sampleSize) {
+      // Also add current recent indices to seen to avoid duplicates in random fill
+      recentIndices.forEach((idx) => seen.add(idx));
+
+      while (sorted.length < sampleSize && seen.size < totalQuotes) {
         const idx = Math.floor(Math.random() * totalQuotes);
         if (seen.has(idx)) continue;
         seen.add(idx);
+
         const q = QuoteService.getQuoteByIndex(idx);
-        if (q) sorted.push(q);
+        if (q) {
+          sorted.push(q);
+        }
       }
     }
 
@@ -151,14 +170,19 @@ export class ClaudeQuoteSelectionService {
     }
 
     try {
-      const shortlist = this.getShortlist(messageContent);
+      const shortlist = this.getShortlist(messageContent, channelId);
       if (shortlist.length === 0) {
         return null;
       }
 
       // If shortlist is small enough, just pick randomly
       if (shortlist.length === 1) {
-        return shortlist[0];
+        const q = shortlist[0];
+        const idx = QuoteService.findQuoteIndex(q);
+        if (idx !== -1) {
+          this.recordUsage(channelId, idx, 0, 0);
+        }
+        return q;
       }
 
       const truncatedMessage = messageContent.substring(
@@ -187,12 +211,6 @@ export class ClaudeQuoteSelectionService {
         ],
       });
 
-      // Update metrics
-      this._usage.dailyRequestCount += 1;
-      this._usage.dailyInputTokens += message.usage.input_tokens;
-      this._usage.dailyOutputTokens += message.usage.output_tokens;
-      this._usage.perChannelCooldowns[channelId] = Date.now();
-
       // Parse response
       const responseText = message.content[0];
       if (responseText.type !== "text") {
@@ -200,14 +218,48 @@ export class ClaudeQuoteSelectionService {
       }
 
       const quoteNum = parseInt(responseText.text.trim());
-      if (isNaN(quoteNum) || quoteNum < 1 || quoteNum > shortlist.length) {
-        return shortlist[0];
+      const selectedQuote =
+        isNaN(quoteNum) || quoteNum < 1 || quoteNum > shortlist.length
+          ? shortlist[0]
+          : shortlist[quoteNum - 1];
+
+      const idx = QuoteService.findQuoteIndex(selectedQuote);
+      if (idx !== -1) {
+        this.recordUsage(
+          channelId,
+          idx,
+          message.usage.input_tokens,
+          message.usage.output_tokens,
+        );
       }
 
-      return shortlist[quoteNum - 1];
+      return selectedQuote;
     } catch (error) {
       Logger.error("Failed to select quote via Claude:", error);
       return null;
+    }
+  }
+
+  private static recordUsage(
+    channelId: string,
+    quoteIdx: number,
+    inputTokens: number,
+    outputTokens: number,
+  ): void {
+    this._usage.dailyRequestCount += 1;
+    this._usage.dailyInputTokens += inputTokens;
+    this._usage.dailyOutputTokens += outputTokens;
+    this._usage.perChannelCooldowns[channelId] = Date.now();
+
+    if (!this._usage.recentQuoteIndices[channelId]) {
+      this._usage.recentQuoteIndices[channelId] = [];
+    }
+
+    this._usage.recentQuoteIndices[channelId].push(quoteIdx);
+    if (
+      this._usage.recentQuoteIndices[channelId].length > this.MAX_RECENT_HISTORY
+    ) {
+      this._usage.recentQuoteIndices[channelId].shift();
     }
   }
 

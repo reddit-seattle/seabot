@@ -11,6 +11,7 @@ interface UsageMetrics {
   dailyRequestCount: number;
   lastResetDate: string;
   perChannelCooldowns: { [channelId: string]: number };
+  recentQuoteIndices: { [channelId: string]: number[] };
 }
 
 export class GeminiQuoteSelectionService {
@@ -20,6 +21,7 @@ export class GeminiQuoteSelectionService {
     dailyRequestCount: 0,
     lastResetDate: new Date().toISOString().split("T")[0],
     perChannelCooldowns: {},
+    recentQuoteIndices: {},
   };
 
   private static readonly DAILY_REQUEST_CAP = 500;
@@ -27,6 +29,7 @@ export class GeminiQuoteSelectionService {
   private static readonly MAX_INPUT_LENGTH = 1000;
   private static readonly SHORTLIST_SIZE = 150;
   private static readonly MODEL = "gemini-2.5-flash";
+  private static readonly MAX_RECENT_HISTORY = 20;
 
   private static readonly DEFAULT_PROMPT_TEMPLATE =
     "Pick the funniest quote to reply with. Respond with ONLY the number.\n\n" +
@@ -68,15 +71,27 @@ export class GeminiQuoteSelectionService {
     );
   }
 
-  private static getShortlist(messageContent: string): Quote[] {
+  private static getShortlist(
+    messageContent: string,
+    channelId: string,
+  ): Quote[] {
     const words = messageContent.toLowerCase().match(/\b\w+\b/g) || [];
 
     const scoreMap = new Map<number, number>();
+    const recentIndices = this._usage.recentQuoteIndices[channelId] || [];
 
     words.forEach((word) => {
       const matchingIndices = this._tokenIndex[word] || [];
       matchingIndices.forEach((idx) => {
-        scoreMap.set(idx, (scoreMap.get(idx) || 0) + 1);
+        // Skip if this quote was recently used in this channel
+        if (recentIndices.includes(idx)) {
+          return;
+        }
+
+        const q = QuoteService.getQuoteByIndex(idx);
+        if (q) {
+          scoreMap.set(idx, (scoreMap.get(idx) || 0) + 1);
+        }
       });
     });
 
@@ -90,12 +105,17 @@ export class GeminiQuoteSelectionService {
       const totalQuotes = QuoteService.getQuoteCount();
       const sampleSize = Math.min(this.SHORTLIST_SIZE, totalQuotes);
       const seen = new Set<number>();
-      while (sorted.length < sampleSize) {
+      // Also add current recent indices to seen to avoid duplicates in random fill
+      recentIndices.forEach((idx) => seen.add(idx));
+
+      while (sorted.length < sampleSize && seen.size < totalQuotes) {
         const idx = Math.floor(Math.random() * totalQuotes);
         if (seen.has(idx)) continue;
         seen.add(idx);
         const q = QuoteService.getQuoteByIndex(idx);
-        if (q) sorted.push(q);
+        if (q) {
+          sorted.push(q);
+        }
       }
     }
 
@@ -136,13 +156,18 @@ export class GeminiQuoteSelectionService {
     }
 
     try {
-      const shortlist = this.getShortlist(messageContent);
+      const shortlist = this.getShortlist(messageContent, channelId);
       if (shortlist.length === 0) {
         return null;
       }
 
       if (shortlist.length === 1) {
-        return shortlist[0];
+        const q = shortlist[0];
+        const idx = QuoteService.findQuoteIndex(q);
+        if (idx !== -1) {
+          this.recordUsage(channelId, idx);
+        }
+        return q;
       }
 
       const truncatedMessage = messageContent.substring(
@@ -172,18 +197,34 @@ export class GeminiQuoteSelectionService {
       const response = result.response;
       const text = response.text().trim();
 
-      this._usage.dailyRequestCount += 1;
-      this._usage.perChannelCooldowns[channelId] = Date.now();
-
       const quoteNum = parseInt(text);
-      if (isNaN(quoteNum) || quoteNum < 1 || quoteNum > shortlist.length) {
-        return shortlist[0];
+      const selectedQuote = isNaN(quoteNum) || quoteNum < 1 || quoteNum > shortlist.length
+        ? shortlist[0]
+        : shortlist[quoteNum - 1];
+
+      const idx = QuoteService.findQuoteIndex(selectedQuote);
+      if (idx !== -1) {
+        this.recordUsage(channelId, idx);
       }
 
-      return shortlist[quoteNum - 1];
+      return selectedQuote;
     } catch (error) {
       Logger.error("Failed to select quote via Gemini:", error);
       return null;
+    }
+  }
+
+  private static recordUsage(channelId: string, quoteIdx: number): void {
+    this._usage.dailyRequestCount += 1;
+    this._usage.perChannelCooldowns[channelId] = Date.now();
+
+    if (!this._usage.recentQuoteIndices[channelId]) {
+      this._usage.recentQuoteIndices[channelId] = [];
+    }
+
+    this._usage.recentQuoteIndices[channelId].push(quoteIdx);
+    if (this._usage.recentQuoteIndices[channelId].length > this.MAX_RECENT_HISTORY) {
+      this._usage.recentQuoteIndices[channelId].shift();
     }
   }
 

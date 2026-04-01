@@ -121,8 +121,9 @@ export class QuoteService {
   }
 
   private static parseQuoteData(data: unknown): void {
+    let rawQuotes: Quote[] = [];
     if (Array.isArray(data)) {
-      this._quotes = data.map((item) => {
+      rawQuotes = data.map((item) => {
         if (typeof item === "string") {
           return { text: item };
         }
@@ -131,13 +132,16 @@ export class QuoteService {
     } else if (typeof data === "object" && data !== null) {
       const obj = data as Record<string, unknown>;
       const quotesArray = (obj.quotes || obj.results || []) as unknown[];
-      this._quotes = quotesArray.map((item) => {
+      rawQuotes = quotesArray.map((item) => {
         if (typeof item === "string") {
           return { text: item };
         }
         return item as Quote;
       });
     }
+
+    // Filter out quotes that are too long (e.g. copypastas)
+    this._quotes = rawQuotes.filter((q) => q.text && q.text.length <= 500);
   }
 
   static getRandomQuote(): Quote | null {
@@ -156,6 +160,16 @@ export class QuoteService {
 
   static getQuoteCount(): number {
     return this._quotes.length;
+  }
+
+  static findQuoteIndex(q: Quote): number {
+    for (let i = 0; i < this._quotes.length; i++) {
+      const check = this._quotes[i];
+      if (check && check.text === q.text) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   static iterateQuotes(callback: (quote: Quote, index: number) => void): void {
