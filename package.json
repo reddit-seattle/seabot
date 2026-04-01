@@ -7,7 +7,11 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0",
     "@azure/cosmos": "^3.15.1",
+    "@azure/identity": "^4.0.1",
+    "@azure/storage-blob": "^12.20.0",
+    "@google/generative-ai": "^0.24.1",
     "better-sqlite3": "^12.2.0",
     "canvas": "^3.1.2",
     "date-fns": "^3.6.0",
