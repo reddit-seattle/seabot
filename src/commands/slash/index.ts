@@ -11,6 +11,7 @@ import redditCommands from "./reddit";
 import modCommands from "./mod";
 import timeoutCommands from "./timeout";
 import camCommands from "./cam";
+import quoteCommands from "./quote";
 
 const commands: SlashCommand[] = [
   ...databaseCommands,
@@ -25,6 +26,7 @@ const commands: SlashCommand[] = [
   ...modCommands,
   ...timeoutCommands,
   ...camCommands,
+  ...quoteCommands,
 ];
 
 export default commands;

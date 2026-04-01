@@ -115,6 +115,13 @@ export module Environment {
     "./assets/dayswithoutincident.png";
   export const trackedWords = process.env["DAYS_SINCE_MEME_TRIGGER_WORDS"];
   export const eventsChannelId = process.env["EVENTS_CHANNEL_ID"] || undefined;
+  // Quote prank feature
+  export const blobStorageAccount = process.env["BLOB_STORAGE_ACCOUNT"] || "";
+  export const blobStorageKey = process.env["BLOB_STORAGE_KEY"] || "";
+  export const claudeApiKey = process.env["CLAUDE_API_KEY"] || "";
+  export const quoteDebugChannelId = process.env["QUOTE_DEBUG_CHANNEL_ID"] || "";
+  export const quoteSelectionPrompt = process.env["QUOTE_SELECTION_PROMPT"] || "";
+  export const geminiApiKey = process.env["GEMINI_API_KEY"] || "";
 }
 export module VoiceConstants {
   export const VOICE_TYPE = 2;

@@ -19,6 +19,9 @@ import InMemoryDbConnector from "../db/InMemoryDbConnector";
 import { Logger } from "../utils/logger";
 import DiscordEventRouter from "./DiscordEventRouter";
 import ErrorLogger from "./ErrorLogger";
+import { QuoteService } from "../services/QuoteService";
+import { ClaudeQuoteSelectionService } from "../services/ClaudeQuoteSelectionService";
+import { GeminiQuoteSelectionService } from "../services/GeminiQuoteSelectionService";
 
 import { configuration } from "../server";
 import { Environment } from "../utils/constants";
@@ -86,6 +89,9 @@ export default class DiscordBot {
     await this.login(Environment.botToken);
     this.startCommandRouters(eventRouter);
 
+    // Initialize quote service for April Fools feature
+    await this.initializeQuoteService();
+
     process.on("unhandledRejection", console.error);
     process.on("unhandledRejection", async (error: Error) =>
       this._errorLogger.logError(error),
@@ -107,6 +113,24 @@ export default class DiscordBot {
   private startCommandRouters(eventRouter: DiscordEventRouter) {
     Logger.info("Starting command router...");
     createCommandRouters(eventRouter, this);
+  }
+
+  private async initializeQuoteService(): Promise<void> {
+    try {
+      const success = await QuoteService.initialize();
+      if (success) {
+        Logger.info(
+          `Quote service ready with ${QuoteService.quoteCount} quotes`,
+        );
+        // Initialize Claude selection service after quotes are loaded
+        ClaudeQuoteSelectionService.initialize();
+        GeminiQuoteSelectionService.initialize();
+      } else {
+        Logger.warn("Quote service failed to initialize");
+      }
+    } catch (error) {
+      Logger.error("Error initializing quote service:", error);
+    }
   }
 
   private async showRevolvingSimpsonsDoor(member: GuildMember) {
