@@ -17,6 +17,7 @@ export type EventEntry = {
 
 const DEFAULT_DAYS = 7;
 const MAX_TITLE_LENGTH = 50;
+const MAX_THREAD_AGE_MONTHS = 11;
 
 // Returns M/D
 function shortDate(date: Date): string {
@@ -91,6 +92,14 @@ export default new SlashCommand({
 
     for (const thread of allThreads) {
       const { name, url } = thread;
+
+      // Skip threads created more than MAX_THREAD_AGE_MONTHS months ago
+      if (thread.createdAt) {
+        const cutoff = new Date(now);
+        cutoff.setMonth(cutoff.getMonth() - MAX_THREAD_AGE_MONTHS);
+        if (thread.createdAt < cutoff) continue;
+      }
+
       const dates = parseEventDate(name);
       if (!dates || !dates.start) continue; // Skip if no valid start date
 
