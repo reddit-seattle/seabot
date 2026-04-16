@@ -33,7 +33,7 @@ async function clearChannels() {
 
 async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
   try {
-    if (!channel.lastMessage) {
+    if (!channel.lastMessageId) {
       return;
     }
 
@@ -46,7 +46,7 @@ async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
     const minimumMessageCreatedTime =
       Date.now() - configurationEntry.timeBeforeClearing.getMilliseconds() - 1;
 
-    let allMessages = await channel.messages.fetch();
+    let allMessages = await channel.messages.fetch({ limit: 100 });
 
     // delete all messages over the maximum age
     const oldMessages = allMessages.filter(
@@ -54,6 +54,8 @@ async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
     );
     if (oldMessages?.size) {
       await channel.bulkDelete(oldMessages);
+      // Re-fetch after deletion so the count below reflects the current state
+      allMessages = await channel.messages.fetch({ limit: 100 });
     }
 
     // delete messages greater than maximum message count (if configured)
@@ -61,11 +63,11 @@ async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
       const messagesToPrune = allMessages.last(
         allMessages.size - numberOfMessages,
       );
-      messagesToPrune.forEach((message) => {
-        if (message.deletable) {
-          message.delete();
-        }
-      });
+      await Promise.all(
+        messagesToPrune
+          .filter((message) => message.deletable)
+          .map((message) => message.delete()),
+      );
     }
   } catch (e) {
     Logger.error("Error in deleteMessages:", e);
