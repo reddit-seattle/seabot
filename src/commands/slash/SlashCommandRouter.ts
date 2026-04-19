@@ -33,7 +33,7 @@ export default class SlashCommandRouter extends CommandRouter {
 
       if (command) {
         try {
-          command.execute?.(interaction);
+          await command.execute?.(interaction);
           // yay
           const telemetry = expressServer.getTelemetry();
           if (telemetry && command.telemetry) {
@@ -86,25 +86,32 @@ export default class SlashCommandRouter extends CommandRouter {
       tryToExecuteSlashCommand,
     );
 
-    this.discordBot.client.guilds.cache.forEach(async (guild) => {
-      const registeredCommands: RESTPostAPIApplicationCommandsJSONBody[] = [];
-      for (const commandName in commands) {
-        const command = commands[commandName];
-        if (command?.builder) {
-          registeredCommands.push(command.builder.toJSON());
-        }
+    const registeredCommands: RESTPostAPIApplicationCommandsJSONBody[] = [];
+    for (const commandName in commands) {
+      const command = commands[commandName];
+      if (command?.builder) {
+        registeredCommands.push(command.builder.toJSON());
       }
+    }
 
-      await this.discordBot.rest.put(
-        Routes.applicationGuildCommands(
-          this.discordBot.client.user?.id || "",
-          guild.id,
+    const results = await Promise.allSettled(
+      this.discordBot.client.guilds.cache.map((guild) =>
+        this.discordBot.rest.put(
+          Routes.applicationGuildCommands(
+            this.discordBot.client.user?.id || "",
+            guild.id,
+          ),
+          {
+            body: registeredCommands,
+          },
         ),
-        {
-          body: registeredCommands,
-        },
-      );
-    });
+      ),
+    );
+    for (const result of results) {
+      if (result.status === "rejected") {
+        console.error("Failed to register guild commands:", result.reason);
+      }
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-import { TextChannel } from "discord.js";
+import { SnowflakeUtil, TextChannel } from "discord.js";
 import { AutoDeleteConfiguration } from "../configuration/ISeabotConfig";
 import { Logger } from "../utils/logger";
 
@@ -6,6 +6,8 @@ import IScheduledTask from "./IScheduledTask";
 
 import { configuration, discordBot } from "../server";
 import { Duration } from "../utils/Time/Duration";
+
+const BULK_DELETE_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
 
 const AutoClearChannels: IScheduledTask = {
   name: "AutoClearChannel",
@@ -17,18 +19,25 @@ const AutoClearChannels: IScheduledTask = {
 export default AutoClearChannels;
 
 async function clearChannels() {
-  discordBot.client.guilds.cache.forEach(async (guild) => {
-    configuration.autoDeleteMessages?.channels?.forEach((channelClearInfo) => {
-      const channelToClear = guild.channels.cache.get(
-        channelClearInfo.targetId,
-      ) as TextChannel;
-      if (!channelToClear) {
-        return;
-      }
-
-      deleteMessages(channelToClear, channelClearInfo.numberOfMessages);
-    });
-  });
+  const results = await Promise.allSettled(
+    discordBot.client.guilds.cache.map(async (guild) => {
+      const channels = configuration.autoDeleteMessages?.channels ?? [];
+      await Promise.allSettled(
+        channels.map((channelClearInfo) => {
+          const channelToClear = guild.channels.cache.get(
+            channelClearInfo.targetId,
+          ) as TextChannel;
+          if (!channelToClear) return Promise.resolve();
+          return deleteMessages(channelToClear, channelClearInfo.numberOfMessages);
+        }),
+      );
+    }),
+  );
+  for (const result of results) {
+    if (result.status === "rejected") {
+      Logger.error("Error in clearChannels:", result.reason);
+    }
+  }
 }
 
 async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
@@ -42,9 +51,14 @@ async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
       return;
     }
 
-    // delete everything before this
+    // Snowflake early exit: if the newest message is newer than the age threshold,
+    // and there's no count-based pruning configured, skip the fetch entirely
     const minimumMessageCreatedTime =
       Date.now() - configurationEntry.timeBeforeClearing.getMilliseconds() - 1;
+    const lastMessageTimestamp = SnowflakeUtil.timestampFrom(channel.lastMessageId);
+    if (lastMessageTimestamp > minimumMessageCreatedTime && !numberOfMessages) {
+      return;
+    }
 
     let allMessages = await channel.messages.fetch({ limit: 100 });
 
@@ -53,7 +67,24 @@ async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
       (message) => message.createdAt.getTime() < minimumMessageCreatedTime,
     );
     if (oldMessages?.size) {
-      await channel.bulkDelete(oldMessages);
+      // bulkDelete only works on messages < 14 days old
+      const now = Date.now();
+      const bulkDeletable = oldMessages.filter(
+        (m) => now - m.createdAt.getTime() < BULK_DELETE_MAX_AGE_MS,
+      );
+      const tooOld = oldMessages.filter(
+        (m) => now - m.createdAt.getTime() >= BULK_DELETE_MAX_AGE_MS,
+      );
+
+      if (bulkDeletable.size > 0) {
+        await channel.bulkDelete(bulkDeletable);
+      }
+      if (tooOld.size > 0) {
+        await Promise.allSettled(
+          tooOld.filter((m) => m.deletable).map((m) => m.delete()),
+        );
+      }
+
       // Re-fetch after deletion so the count below reflects the current state
       allMessages = await channel.messages.fetch({ limit: 100 });
     }

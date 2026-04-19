@@ -5,6 +5,7 @@ import loadConfiguration from "./configuration/loadConfiguration";
 import scheduledTasks from "./schedules/";
 
 import ISeabotConfig from "./configuration/ISeabotConfig";
+import db from "./db/sqlite";
 import DiscordBot from "./discord/DiscordBot";
 import DiscordEventRouter from "./discord/DiscordEventRouter";
 import ExpressServer from "./ExpressServer";
@@ -17,6 +18,7 @@ import { processModReportInteractions } from "./utils/helpers";
 let expressServer: ExpressServer;
 let configuration: ISeabotConfig;
 let discordBot: DiscordBot;
+let taskScheduler: TaskScheduler | null = null;
 
 export { configuration, discordBot, expressServer };
 
@@ -72,18 +74,27 @@ function startExpressServer() {
   }
 }
 
-function announcePresence() {
+async function announcePresence() {
   Logger.info("connected to servers:");
-  discordBot.client.guilds.cache.forEach(async (guild) => {
-    Logger.info(guild.name);
-    //announce when seabot process starts (debug channel must be set)
-    if (configuration?.channelIds?.["DEBUG"]) {
-      const debugChannel = await guild.channels.fetch(
-        configuration.channelIds?.["DEBUG"],
-      );
-      (debugChannel as TextChannel)?.send("Greetings - SEABot is back online");
+
+  const results = await Promise.allSettled(
+    discordBot.client.guilds.cache.map(async (guild) => {
+      Logger.info(guild.name);
+      if (configuration?.channelIds?.["DEBUG"]) {
+        const debugChannel = await guild.channels.fetch(
+          configuration.channelIds?.["DEBUG"],
+        );
+        await (debugChannel as TextChannel)?.send(
+          "Greetings - SEABot is back online",
+        );
+      }
+    }),
+  );
+  for (const result of results) {
+    if (result.status === "rejected") {
+      Logger.error("Error announcing presence:", result.reason);
     }
-  });
+  }
 
   discordBot.client.user?.setPresence({
     activities: [{ name: "with discord.js", type: ActivityType.Playing }],
@@ -93,5 +104,16 @@ function announcePresence() {
 
 function startTaskScheduler() {
   Logger.info("Starting task scheduler...");
-  new TaskScheduler(scheduledTasks);
+  taskScheduler = new TaskScheduler(scheduledTasks);
 }
+
+function gracefulShutdown(signal: string) {
+  Logger.info(`Received ${signal}, shutting down gracefully...`);
+  taskScheduler?.stop();
+  discordBot?.client?.destroy();
+  try { db.close(); } catch { /* already closed */ }
+  process.exit(0);
+}
+
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));

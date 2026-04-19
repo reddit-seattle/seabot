@@ -14,6 +14,7 @@ export class DatabaseCommand<
   ModelType extends ItemDefinition,
 > extends SlashCommand {
   private static connectorCache = new Map<string, any>();
+  private static initFailures = new Set<string>();
 
   public static getConnector<ModelType extends ItemDefinition>(
     connectorType: ConnectorType,
@@ -38,15 +39,22 @@ export class DatabaseCommand<
         `Failed to connect to database container of type ${connectorType}`,
       );
       console.error(reason);
+      DatabaseCommand.initFailures.add(connectorType);
     });
 
+    DatabaseCommand.connectorCache.set(connectorType, connector);
     return connector;
   }
 
   private _connector;
+  private _connectorType: ConnectorType;
 
   public get connector() {
     return this._connector;
+  }
+
+  public get isReady() {
+    return !DatabaseCommand.initFailures.has(this._connectorType);
   }
 
   constructor(
@@ -54,6 +62,7 @@ export class DatabaseCommand<
     configuration: SlashCommandConfiguration,
   ) {
     super(configuration);
+    this._connectorType = connectorType;
     this._connector = DatabaseCommand.getConnector<ModelType>(connectorType);
   }
 

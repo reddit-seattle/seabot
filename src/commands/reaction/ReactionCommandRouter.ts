@@ -30,7 +30,7 @@ export default class ReactionCommandRouter extends CommandRouter {
           if (emoji.name && commandMap.has(emoji.name)) {
             const command = commandMap.get(emoji.name) as ReactionCommand;
             if (command?.execute) {
-              command.execute(reaction, message, user);
+              await command.execute(reaction, message, user);
             }
 
             if (command?.removeReaction) {

@@ -1,4 +1,5 @@
 import { Database } from "better-sqlite3";
+import { Logger } from "../utils/logger";
 import db from "./sqlite";
 
 export interface WordTracker {
@@ -46,7 +47,7 @@ export class WordTrackerStore {
         .get(word) as WordTracker | undefined;
       return result ?? null;
     } catch (e) {
-      console.warn("Failed to get word tracker:", e);
+      Logger.warn(`WordTrackerStore.getWordTracker("${word}") failed:`, e);
       return null;
     }
   }
@@ -91,7 +92,7 @@ export class WordTrackerStore {
         return this.getWordTracker(word);
       }
     } catch (e) {
-      console.warn("Failed to update word tracker:", e);
+      Logger.warn(`WordTrackerStore.updateWordTracker("${word}", channel=${channelId}) failed:`, e);
       return null;
     }
   }
@@ -106,7 +107,7 @@ export class WordTrackerStore {
         )
         .all() as WordTracker[];
     } catch (e) {
-      console.warn("Failed to get all word trackers:", e);
+      Logger.warn("WordTrackerStore.getAllWordTrackers() failed:", e);
       return [];
     }
   }
@@ -121,7 +122,7 @@ export class WordTrackerStore {
         )
         .run(word);
     } catch (e) {
-      console.warn("Failed to reset word tracker:", e);
+      Logger.warn(`WordTrackerStore.resetWordTracker("${word}") failed:`, e);
       return null;
     }
   }
