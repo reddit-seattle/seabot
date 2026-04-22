@@ -19,6 +19,7 @@ export default class ExpressServer {
     { data: any; timestamp: number }
   >();
   private readonly CACHE_DURATION = 8000; // 8 seconds cache for live updates
+  private readonly ALLOWED_TIME_RANGES = new Set(["24h", "7d"]);
 
   // Rate limiting for endpoint
   private readonly rateLimiter = rateLimit({
