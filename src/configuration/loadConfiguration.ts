@@ -29,14 +29,10 @@ export default async function loadConfiguration(
       }
     }
   } catch (error) {
-    /*
-     * This will only catch instances where the configuration file is not valid JSON or not present.
-     * When the configuration file schema is in a more final state, a full type guard should be established
-     * to validate the loaded configuration file.
-     */
-    console.warn(
-      "Configuration file not found, or is malformed. Continuing with default configuration...",
+    Logger.warn(
+      "Configuration file not found or is malformed. Continuing with default configuration.",
     );
+    Logger.error("Config load error:", error);
     configuration = defaultConfig;
   }
 

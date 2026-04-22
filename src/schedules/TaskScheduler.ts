@@ -1,9 +1,12 @@
-import { schedule } from "node-cron";
+import { schedule, ScheduledTask } from "node-cron";
+import { Logger } from "../utils/logger";
 import IScheduledTask from "./IScheduledTask";
 
 export default class TaskScheduler {
+  private tasks: ScheduledTask[] = [];
+
   constructor(tasks: Array<IScheduledTask>) {
-    tasks.forEach(({ frequency, handler }) => {
+    tasks.forEach(({ name, frequency, handler }) => {
       let scheduleString = "";
       scheduleString += `*${
         frequency.seconds > 0 ? `/${frequency.seconds}` : ""
@@ -14,7 +17,21 @@ export default class TaskScheduler {
       scheduleString += `*${frequency.hours > 0 ? `/${frequency.hours}` : ""} `;
       scheduleString += `*${frequency.days > 0 ? `/${frequency.days}` : ""} `;
       scheduleString += "* *";
-      schedule(scheduleString, handler);
+      this.tasks.push(
+        schedule(scheduleString, async () => {
+          try {
+            await handler();
+          } catch (error) {
+            Logger.error(`Scheduled task "${name}" failed:`, error);
+          }
+        }),
+      );
     });
+  }
+
+  stop() {
+    for (const task of this.tasks) {
+      task.stop();
+    }
   }
 }

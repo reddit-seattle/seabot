@@ -14,12 +14,12 @@ export default class ExpressServer {
   private _startTime: Date;
   private _telemetry: typeof telemetry | null = null;
   private _discordBot: DiscordBot | null = null;
-  private _metricsCache: {
-    data: any;
-    timestamp: number;
-    cacheKey?: string;
-  } | null = null;
+  private _metricsCache = new Map<
+    string,
+    { data: any; timestamp: number }
+  >();
   private readonly CACHE_DURATION = 8000; // 8 seconds cache for live updates
+  private readonly ALLOWED_TIME_RANGES = new Set(["24h", "7d"]);
 
   // Rate limiting for endpoint
   private readonly rateLimiter = rateLimit({
@@ -102,6 +102,21 @@ export default class ExpressServer {
       response.json(buildInfo);
     });
 
+    // Health check endpoint for Docker/monitoring
+    this._server.get("/health", (_request, response) => {
+      const mem = process.memoryUsage();
+      response.json({
+        status: "ok",
+        uptime: process.uptime(),
+        memory: {
+          rss: Math.round(mem.rss / 1024 / 1024),
+          heapUsed: Math.round(mem.heapUsed / 1024 / 1024),
+          heapTotal: Math.round(mem.heapTotal / 1024 / 1024),
+        },
+        discord: this._discordBot?.client?.isReady() ?? false,
+      });
+    });
+
     // Metrics endpoint - cached
     this._server.get(
       "/metrics",
@@ -114,19 +129,18 @@ export default class ExpressServer {
               .json({ "sorry mario": "your telemetry is in another castle" });
           }
 
-          // Get time range from query parameter (default to 24h)
-          const timeRange = (request.query.range as string) || "24h";
+          // Normalize time range to a small allowlist to avoid cache key explosion
+          const requestedRange = (request.query.range as string) || "24h";
+          const timeRange = this.ALLOWED_TIME_RANGES.has(requestedRange)
+            ? requestedRange
+            : "24h";
           const now = Date.now();
-          const cacheKey = `metrics_${timeRange}`;
 
-          // Check cache first (include time range in cache key)
-          if (
-            this._metricsCache &&
-            this._metricsCache.cacheKey === cacheKey &&
-            now - this._metricsCache.timestamp < this.CACHE_DURATION
-          ) {
+          // Check per-range cache
+          const cached = this._metricsCache.get(timeRange);
+          if (cached && now - cached.timestamp < this.CACHE_DURATION) {
             Logger.debug(`Serving cached metrics for ${timeRange}`);
-            return response.json(this._metricsCache.data);
+            return response.json(cached.data);
           }
 
           // Get fresh metrics with time range
@@ -137,12 +151,11 @@ export default class ExpressServer {
             await this._enrichWithChannelNames(metrics);
           }
 
-          // Cache the result with time range key
-          this._metricsCache = {
+          // Cache the result for this time range
+          this._metricsCache.set(timeRange, {
             data: metrics,
             timestamp: now,
-            cacheKey: cacheKey,
-          };
+          });
 
           Logger.debug("Serving fresh metrics");
           response.json(metrics);
@@ -177,68 +190,73 @@ export default class ExpressServer {
     }
 
     try {
-      // Enrich channel activity data
+      // Collect all unique channel IDs upfront
+      const channelIds = new Set<string>();
+      if (metrics.channelActivity) {
+        for (const d of metrics.channelActivity) channelIds.add(d.channel_id);
+      }
+      if (metrics.timeSeriesByChannel) {
+        for (const d of metrics.timeSeriesByChannel) channelIds.add(d.channel_id);
+      }
+
+      // Batch-resolve channel names in parallel
+      const channelNamesCache = new Map<string, string>();
+      await Promise.allSettled(
+        [...channelIds].map(async (id) => {
+          const channel = await this._discordBot!.client.channels
+            .fetch(id)
+            .catch(() => null);
+          if (channel && "name" in channel && channel.name) {
+            channelNamesCache.set(id, channel.name);
+          }
+        }),
+      );
+
+      // Apply channel names
       if (metrics.channelActivity) {
         for (const channelData of metrics.channelActivity) {
-          const channel = await this._discordBot.client.channels
-            .fetch(channelData.channel_id)
-            .catch(() => null);
-          if (channel && "name" in channel) {
-            channelData.channel_name = channel.name;
-          }
+          const name = channelNamesCache.get(channelData.channel_id);
+          if (name) channelData.channel_name = name;
         }
       }
 
-      // Enrich time series by channel data
       if (metrics.timeSeriesByChannel) {
-        const channelNamesCache = new Map<string, string>();
-
         for (const timeData of metrics.timeSeriesByChannel) {
-          if (!channelNamesCache.has(timeData.channel_id)) {
-            const channel = await this._discordBot.client.channels
-              .fetch(timeData.channel_id)
-              .catch(() => null);
-            if (channel && "name" in channel && channel.name) {
-              channelNamesCache.set(timeData.channel_id, channel.name);
-            }
-          }
-
-          const channelName = channelNamesCache.get(timeData.channel_id);
-          if (channelName) {
-            timeData.channel_name = channelName;
-          }
+          const name = channelNamesCache.get(timeData.channel_id);
+          if (name) timeData.channel_name = name;
         }
       }
 
       // Enrich role ping data with role names
       if (metrics.rolePings) {
         const roleNamesCache = new Map<string, string>();
+        const guild = this._discordBot.client.guilds.cache.first();
+
+        if (guild) {
+          // Collect all unique role IDs
+          const roleIds = new Set<string>();
+          for (const rolePingData of metrics.rolePings) {
+            const roleEntries = rolePingData.role_data.split("|");
+            for (const roleEntry of roleEntries) {
+              const [roleId] = roleEntry.split(":");
+              roleIds.add(roleId);
+            }
+          }
+
+          await Promise.allSettled(
+            [...roleIds].map(async (roleId) => {
+              const role = await guild.roles.fetch(roleId).catch(() => null);
+              if (role) roleNamesCache.set(roleId, role.name);
+            }),
+          );
+        }
 
         for (const rolePingData of metrics.rolePings) {
-          // Parse the aggregated role_data format: "roleId1:count1|roleId2:count2"
           const roleEntries = rolePingData.role_data.split("|");
           const enrichedRoles = [];
 
           for (const roleEntry of roleEntries) {
             const [roleId, count] = roleEntry.split(":");
-
-            // Fetch role name if not cached
-            if (!roleNamesCache.has(roleId)) {
-              try {
-                const guild = this._discordBot.client.guilds.cache.first();
-                if (guild) {
-                  const role = await guild.roles
-                    .fetch(roleId)
-                    .catch(() => null);
-                  if (role) {
-                    roleNamesCache.set(roleId, role.name);
-                  }
-                }
-              } catch (e) {
-                // Ignore errors for individual role fetches
-              }
-            }
-
             const roleName =
               roleNamesCache.get(roleId) || `Role ${roleId.slice(-4)}`;
             enrichedRoles.push({
@@ -248,7 +266,6 @@ export default class ExpressServer {
             });
           }
 
-          // Add enriched role information to the ping data
           rolePingData.roles = enrichedRoles;
           rolePingData.count = rolePingData.total_count;
         }

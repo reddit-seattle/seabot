@@ -13,7 +13,7 @@ export default class ContentCommandRouter extends CommandRouter {
         for (const command of commands) {
           try {
             if (command.canExecute(message)) {
-              command.execute(message);
+              await command.execute(message);
             }
           } catch (error) {
             console.error(`Error while handling command ${command.name}`);

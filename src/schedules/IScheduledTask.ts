@@ -4,5 +4,5 @@ export default interface IScheduledTask {
   name: string;
   description: string;
   frequency: Duration;
-  handler: () => void;
+  handler: () => void | Promise<void>;
 }

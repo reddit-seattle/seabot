@@ -4,6 +4,7 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder,
   MessageFlags,
+  SnowflakeUtil,
 } from "discord.js";
 import { Environment } from "../../../utils/constants";
 import { parseEventDate } from "../../../utils/eventDateParser";
@@ -91,13 +92,20 @@ export default new SlashCommand({
     const multiDay: EventEntry[] = [];
 
     for (const thread of allThreads) {
-      const { name, url } = thread;
+      const { name, url, locked, lastMessageId } = thread;
 
-      // Skip threads created more than MAX_THREAD_AGE_MONTHS months ago
-      if (thread.createdAt) {
+      // Skip locked threads
+      if (locked) continue;
+
+      // Skip threads with no recent activity — use last message timestamp (decoded from snowflake), falling back to createdAt
+      const lastMessageDate = lastMessageId
+        ? new Date(SnowflakeUtil.timestampFrom(lastMessageId))
+        : null;
+      const lastActivity = lastMessageDate ?? thread.createdAt;
+      if (lastActivity) {
         const cutoff = new Date(now);
         cutoff.setMonth(cutoff.getMonth() - MAX_THREAD_AGE_MONTHS);
-        if (thread.createdAt < cutoff) continue;
+        if (lastActivity < cutoff) continue;
       }
 
       const dates = parseEventDate(name);

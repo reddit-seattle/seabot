@@ -58,7 +58,9 @@ export default class DiscordEventRouter {
 
   private registerEventForHandlers(eventType: Events) {
     this._client.on(eventType.toString(), (...args: any[]) => {
-      this.handleEvents(eventType, args);
+      this.handleEvents(eventType, args).catch((error) => {
+        console.error(`Error handling event ${eventType}:`, error);
+      });
     });
   }
 
@@ -68,8 +70,15 @@ export default class DiscordEventRouter {
 
     eventArgs = await this.resolvePartialsInArgs(eventType, eventArgs);
 
-    for (const handler of handlers) {
-      handler(...eventArgs);
+    const results = await Promise.allSettled(
+      handlers.map((handler) =>
+        Promise.resolve().then(() => handler(...eventArgs)),
+      ),
+    );
+    for (const result of results) {
+      if (result.status === "rejected") {
+        console.error(`Event handler for ${eventType} failed:`, result.reason);
+      }
     }
   }
 

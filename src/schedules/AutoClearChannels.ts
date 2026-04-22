@@ -1,4 +1,4 @@
-import { TextChannel } from "discord.js";
+import { ChannelType, TextChannel } from "discord.js";
 import { AutoDeleteConfiguration } from "../configuration/ISeabotConfig";
 import { Logger } from "../utils/logger";
 
@@ -6,6 +6,8 @@ import IScheduledTask from "./IScheduledTask";
 
 import { configuration, discordBot } from "../server";
 import { Duration } from "../utils/Time/Duration";
+
+const BULK_DELETE_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
 
 const AutoClearChannels: IScheduledTask = {
   name: "AutoClearChannel",
@@ -17,43 +19,81 @@ const AutoClearChannels: IScheduledTask = {
 export default AutoClearChannels;
 
 async function clearChannels() {
-  discordBot.client.guilds.cache.forEach(async (guild) => {
-    configuration.autoDeleteMessages?.channels?.forEach((channelClearInfo) => {
-      const channelToClear = guild.channels.cache.get(
-        channelClearInfo.targetId,
-      ) as TextChannel;
-      if (!channelToClear) {
-        return;
+  const results = await Promise.allSettled(
+    discordBot.client.guilds.cache.map(async (guild) => {
+      const channels = configuration.autoDeleteMessages?.channels ?? [];
+      const channelResults = await Promise.allSettled(
+        channels.map((channelClearInfo) => {
+          const channelToClear = guild.channels.cache.get(
+            channelClearInfo.targetId,
+          );
+          if (
+            !channelToClear ||
+            !channelToClear.isTextBased() ||
+            channelToClear.type !== ChannelType.GuildText
+          ) {
+            return Promise.resolve();
+          }
+          return deleteMessages(
+            channelToClear as TextChannel,
+            channelClearInfo.numberOfMessages,
+          );
+        }),
+      );
+      for (const result of channelResults) {
+        if (result.status === "rejected") {
+          Logger.error(
+            `Error clearing channels in guild ${guild.id}:`,
+            result.reason,
+          );
+        }
       }
-
-      deleteMessages(channelToClear, channelClearInfo.numberOfMessages);
-    });
-  });
+    }),
+  );
+  for (const result of results) {
+    if (result.status === "rejected") {
+      Logger.error("Error in clearChannels:", result.reason);
+    }
+  }
 }
 
 async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
   try {
-    if (!channel.lastMessage) {
-      return;
-    }
-
     const configurationEntry = getConfigurationEntry(channel.id);
     if (!configurationEntry) {
       return;
     }
 
-    // delete everything before this
     const minimumMessageCreatedTime =
       Date.now() - configurationEntry.timeBeforeClearing.getMilliseconds() - 1;
 
-    let allMessages = await channel.messages.fetch();
+    let allMessages = await channel.messages.fetch({ limit: 100 });
 
     // delete all messages over the maximum age
     const oldMessages = allMessages.filter(
       (message) => message.createdAt.getTime() < minimumMessageCreatedTime,
     );
     if (oldMessages?.size) {
-      await channel.bulkDelete(oldMessages);
+      // bulkDelete only works on messages < 14 days old
+      const now = Date.now();
+      const bulkDeletable = oldMessages.filter(
+        (m) => now - m.createdAt.getTime() < BULK_DELETE_MAX_AGE_MS,
+      );
+      const tooOld = oldMessages.filter(
+        (m) => now - m.createdAt.getTime() >= BULK_DELETE_MAX_AGE_MS,
+      );
+
+      if (bulkDeletable.size > 0) {
+        await channel.bulkDelete(bulkDeletable);
+      }
+      if (tooOld.size > 0) {
+        await Promise.allSettled(
+          tooOld.filter((m) => m.deletable).map((m) => m.delete()),
+        );
+      }
+
+      // Re-fetch after deletion so the count below reflects the current state
+      allMessages = await channel.messages.fetch({ limit: 100 });
     }
 
     // delete messages greater than maximum message count (if configured)
@@ -61,11 +101,11 @@ async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
       const messagesToPrune = allMessages.last(
         allMessages.size - numberOfMessages,
       );
-      messagesToPrune.forEach((message) => {
-        if (message.deletable) {
-          message.delete();
-        }
-      });
+      await Promise.allSettled(
+        messagesToPrune
+          .filter((message) => message.deletable)
+          .map((message) => message.delete()),
+      );
     }
   } catch (e) {
     Logger.error("Error in deleteMessages:", e);
