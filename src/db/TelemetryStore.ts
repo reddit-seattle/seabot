@@ -1,5 +1,5 @@
 import { Database } from "better-sqlite3";
-import { Message } from "discord.js";
+import { ChannelType, Message } from "discord.js";
 import ISeabotConfig from "../configuration/ISeabotConfig";
 import { REGEX } from "../utils/constants";
 import db from "./sqlite";
@@ -49,6 +49,10 @@ export class TelemetryStore {
 
   logMessage(message: Message) {
     try {
+      if (message.channel.type !== ChannelType.GuildText) {
+        return;
+      }
+
       const categoryId = message.channel.isDMBased()
         ? null
         : "parentId" in message.channel

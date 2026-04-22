@@ -1,4 +1,4 @@
-import { SnowflakeUtil, TextChannel } from "discord.js";
+import { TextChannel } from "discord.js";
 import { AutoDeleteConfiguration } from "../configuration/ISeabotConfig";
 import { Logger } from "../utils/logger";
 
@@ -22,7 +22,7 @@ async function clearChannels() {
   const results = await Promise.allSettled(
     discordBot.client.guilds.cache.map(async (guild) => {
       const channels = configuration.autoDeleteMessages?.channels ?? [];
-      await Promise.allSettled(
+      const channelResults = await Promise.allSettled(
         channels.map((channelClearInfo) => {
           const channelToClear = guild.channels.cache.get(
             channelClearInfo.targetId,
@@ -31,6 +31,14 @@ async function clearChannels() {
           return deleteMessages(channelToClear, channelClearInfo.numberOfMessages);
         }),
       );
+      for (const result of channelResults) {
+        if (result.status === "rejected") {
+          Logger.error(
+            `Error clearing channels in guild ${guild.id}:`,
+            result.reason,
+          );
+        }
+      }
     }),
   );
   for (const result of results) {
@@ -42,23 +50,13 @@ async function clearChannels() {
 
 async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
   try {
-    if (!channel.lastMessageId) {
-      return;
-    }
-
     const configurationEntry = getConfigurationEntry(channel.id);
     if (!configurationEntry) {
       return;
     }
 
-    // Snowflake early exit: if the newest message is newer than the age threshold,
-    // and there's no count-based pruning configured, skip the fetch entirely
     const minimumMessageCreatedTime =
       Date.now() - configurationEntry.timeBeforeClearing.getMilliseconds() - 1;
-    const lastMessageTimestamp = SnowflakeUtil.timestampFrom(channel.lastMessageId);
-    if (lastMessageTimestamp > minimumMessageCreatedTime && !numberOfMessages) {
-      return;
-    }
 
     let allMessages = await channel.messages.fetch({ limit: 100 });
 

@@ -128,8 +128,11 @@ export default class ExpressServer {
               .json({ "sorry mario": "your telemetry is in another castle" });
           }
 
-          // Get time range from query parameter (default to 24h)
-          const timeRange = (request.query.range as string) || "24h";
+          // Normalize time range to a small allowlist to avoid cache key explosion
+          const requestedRange = (request.query.range as string) || "24h";
+          const timeRange = this.ALLOWED_TIME_RANGES.has(requestedRange)
+            ? requestedRange
+            : "24h";
           const now = Date.now();
 
           // Check per-range cache

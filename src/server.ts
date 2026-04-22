@@ -1,4 +1,4 @@
-import { ActivityType, Events, TextChannel } from "discord.js";
+import { ActivityType, ChannelType, Events, TextChannel } from "discord.js";
 import { exit } from "process";
 
 import loadConfiguration from "./configuration/loadConfiguration";
@@ -53,9 +53,9 @@ async function startDiscordBot() {
 
     // Simple telemetry - track messages (production only)
     eventRouter.addEventListener(Events.MessageCreate, (message: any) => {
-      if (!message.author.bot) {
-        expressServer.getTelemetry()?.logMessage(message);
-      }
+      if (message.author.bot) return;
+      if (message.channel?.type !== ChannelType.GuildText) return;
+      expressServer.getTelemetry()?.logMessage(message);
     });
 
     await discordBot.start(eventRouter);
@@ -84,9 +84,9 @@ async function announcePresence() {
         const debugChannel = await guild.channels.fetch(
           configuration.channelIds?.["DEBUG"],
         );
-        await (debugChannel as TextChannel)?.send(
-          "Greetings - SEABot is back online",
-        );
+        if (debugChannel?.isTextBased()) {
+          await debugChannel.send("Greetings - SEABot is back online");
+        }
       }
     }),
   );
