@@ -1,4 +1,4 @@
-import { ActivityType, ChannelType, Events, TextChannel } from "discord.js";
+import { ActivityType, ChannelType, Events } from "discord.js";
 import { exit } from "process";
 
 import loadConfiguration from "./configuration/loadConfiguration";

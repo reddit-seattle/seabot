@@ -1,4 +1,4 @@
-import { TextChannel } from "discord.js";
+import { ChannelType, TextChannel } from "discord.js";
 import { AutoDeleteConfiguration } from "../configuration/ISeabotConfig";
 import { Logger } from "../utils/logger";
 
@@ -26,9 +26,18 @@ async function clearChannels() {
         channels.map((channelClearInfo) => {
           const channelToClear = guild.channels.cache.get(
             channelClearInfo.targetId,
-          ) as TextChannel;
-          if (!channelToClear) return Promise.resolve();
-          return deleteMessages(channelToClear, channelClearInfo.numberOfMessages);
+          );
+          if (
+            !channelToClear ||
+            !channelToClear.isTextBased() ||
+            channelToClear.type !== ChannelType.GuildText
+          ) {
+            return Promise.resolve();
+          }
+          return deleteMessages(
+            channelToClear as TextChannel,
+            channelClearInfo.numberOfMessages,
+          );
         }),
       );
       for (const result of channelResults) {

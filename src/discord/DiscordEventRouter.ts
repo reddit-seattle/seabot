@@ -69,7 +69,9 @@ export default class DiscordEventRouter {
     eventArgs = await this.resolvePartialsInArgs(eventType, eventArgs);
 
     const results = await Promise.allSettled(
-      handlers.map((handler) => handler(...eventArgs)),
+      handlers.map((handler) =>
+        Promise.resolve().then(() => handler(...eventArgs)),
+      ),
     );
     for (const result of results) {
       if (result.status === "rejected") {

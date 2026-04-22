@@ -201,7 +201,7 @@ export default class ExpressServer {
 
       // Batch-resolve channel names in parallel
       const channelNamesCache = new Map<string, string>();
-      const channelResults = await Promise.allSettled(
+      await Promise.allSettled(
         [...channelIds].map(async (id) => {
           const channel = await this._discordBot!.client.channels
             .fetch(id)
