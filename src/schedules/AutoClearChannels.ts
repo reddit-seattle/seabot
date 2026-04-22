@@ -101,7 +101,7 @@ async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
       const messagesToPrune = allMessages.last(
         allMessages.size - numberOfMessages,
       );
-      await Promise.all(
+      await Promise.allSettled(
         messagesToPrune
           .filter((message) => message.deletable)
           .map((message) => message.delete()),

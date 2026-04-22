@@ -76,23 +76,20 @@ function startExpressServer() {
 
 async function announcePresence() {
   Logger.info("connected to servers:");
+  discordBot.client.guilds.cache.forEach((guild) => {
+    Logger.info(guild.name);
+  });
 
-  const results = await Promise.allSettled(
-    discordBot.client.guilds.cache.map(async (guild) => {
-      Logger.info(guild.name);
-      if (configuration?.channelIds?.["DEBUG"]) {
-        const debugChannel = await guild.channels.fetch(
-          configuration.channelIds?.["DEBUG"],
-        );
-        if (debugChannel?.isTextBased()) {
-          await debugChannel.send("Greetings - SEABot is back online");
-        }
+  if (configuration?.channelIds?.["DEBUG"]) {
+    try {
+      const debugChannel = await discordBot.client.channels.fetch(
+        configuration.channelIds["DEBUG"],
+      );
+      if (debugChannel?.isTextBased() && "send" in debugChannel) {
+        await debugChannel.send("Greetings - SEABot is back online");
       }
-    }),
-  );
-  for (const result of results) {
-    if (result.status === "rejected") {
-      Logger.error("Error announcing presence:", result.reason);
+    } catch (error) {
+      Logger.error("Error announcing presence:", error);
     }
   }
 

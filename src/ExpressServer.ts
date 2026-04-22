@@ -243,7 +243,6 @@ export default class ExpressServer {
             }
           }
 
-          // Batch-resolve role names in parallel
           await Promise.allSettled(
             [...roleIds].map(async (roleId) => {
               const role = await guild.roles.fetch(roleId).catch(() => null);
