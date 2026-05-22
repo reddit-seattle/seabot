@@ -2,10 +2,12 @@ import {
   ChatInputCommandInteraction,
   DiscordAPIError,
   GuildChannel,
-  MessageFlags,
+  GuildMember,
+  TextChannel,
 } from "discord.js";
 import { ChatInputCommandBuilder } from "@discordjs/builders";
 import SlashCommand from "../SlashCommand";
+import { configuration } from "../../../server";
 
 const RENAMEABLE_CHANNELS: string[] = [
   "370945003566006274",
@@ -34,7 +36,7 @@ export default new SlashCommand({
           .setRequired(true),
     ]),
   execute: async (interaction: ChatInputCommandInteraction) => {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await interaction.deferReply();
     const { options } = interaction;
     const channel = options.getChannel("channel", true);
     const newName = options.getString("new-name", true);
@@ -53,7 +55,14 @@ export default new SlashCommand({
       const oldName = guildChannel.name;
       await guildChannel.setName(newName);
       await interaction.editReply(
-        `Renamed \`${oldName}\` to \`${newName}\`.`,
+        `${(interaction.member as GuildMember)?.displayName ?? interaction.user.username} renamed <#${channel.id}> from \`${oldName}\` to \`${newName}\`.`,
+      );
+
+      const logChannel = interaction.guild?.channels.cache.get(
+        configuration?.channelIds?.["MOD_LOG"] ?? "",
+      ) as TextChannel;
+      await logChannel?.send(
+        `${(interaction.member as GuildMember)?.displayName ?? interaction.user.username} renamed <#${channel.id}> from \`${oldName}\` to \`${newName}\`.`,
       );
     } catch (e: any) {
       if (e instanceof DiscordAPIError) {
