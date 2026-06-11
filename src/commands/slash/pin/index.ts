@@ -1,3 +1,4 @@
 import Pin from "./Pin";
+import Unpin from "./Unpin";
 
-export default [Pin];
+export default [Pin, Unpin];

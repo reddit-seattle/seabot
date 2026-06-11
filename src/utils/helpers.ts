@@ -105,6 +105,15 @@ export const parseApolloMarkdownLink = (apolloLink: string) => {
   };
 };
 
+/**
+ * Extracts a message ID from a bare snowflake or a message link
+ * (https://discord.com/channels/<guild>/<channel>/<message>).
+ */
+export const parseMessageId = (input: string): string | null => {
+  const match = input.trim().match(/(\d{17,20})\/?$/);
+  return match ? match[1] : null;
+};
+
 export const relativeDateString = (input: string | Date) => {
   const time = getUnixTime(new Date(input));
   return `<t:${time}:R>`;

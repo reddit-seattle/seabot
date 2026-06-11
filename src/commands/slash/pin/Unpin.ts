@@ -6,15 +6,15 @@ import { resolveThreadPinTarget } from "./shared";
 
 export default new SlashCommand({
   description:
-    "Pin a message in this thread (defaults to the thread's first message)",
-  help: "pin [message id or link — omit to pin the thread's first message]",
-  name: "pin",
+    "Unpin a message in this thread (defaults to the thread's first message)",
+  help: "unpin [message id or link — omit to unpin the thread's first message]",
+  name: "unpin",
   builder: new ChatInputCommandBuilder().addStringOptions([
     (option) =>
       option
         .setName("message")
         .setDescription(
-          "Message ID or link to pin; leave empty to pin the thread's first message",
+          "Message ID or link to unpin; leave empty to unpin the thread's first message",
         )
         .setRequired(false),
   ]),
@@ -22,31 +22,23 @@ export default new SlashCommand({
     const message = await resolveThreadPinTarget(interaction);
     if (!message) return;
 
-    if (message.pinned) {
-      await interaction.editReply(`📌 Already pinned: ${message.url}`);
+    if (!message.pinned) {
+      await interaction.editReply(`That message is not pinned: ${message.url}`);
       return;
     }
 
     try {
-      await message.pin();
+      await message.unpin();
     } catch (err: any) {
-      if (
-        err.code === RESTJSONErrorCodes.MaximumNumberOfPinsReachedForTheChannel
-      ) {
-        await interaction.editReply(
-          "This thread already has the maximum of 50 pins.",
-        );
-        return;
-      }
       if (err.code === RESTJSONErrorCodes.MissingPermissions) {
         await interaction.editReply(
-          "I need the **Manage Messages** permission here to pin.",
+          "I need the **Manage Messages** permission here to unpin.",
         );
         return;
       }
       throw err;
     }
 
-    await interaction.editReply(`📌 Pinned: ${message.url}`);
+    await interaction.editReply(`📌 Unpinned: ${message.url}`);
   },
 });
