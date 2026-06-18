@@ -27,7 +27,8 @@ export default new SlashCommand({
           choices.sort((a, b) =>
             a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
           );
-          option.addChoices(...choices);
+          // Discord caps string option choices at 25; registration fails otherwise.
+          option.addChoices(...choices.slice(0, 25));
         });
         return option;
       },
