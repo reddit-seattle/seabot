@@ -83,8 +83,12 @@ async function deleteMessages(channel: TextChannel, numberOfMessages?: number) {
         (m) => now - m.createdAt.getTime() >= BULK_DELETE_MAX_AGE_MS,
       );
 
-      if (bulkDeletable.size > 0) {
+      if (bulkDeletable.size > 1) {
         await channel.bulkDelete(bulkDeletable);
+      } else if (bulkDeletable.size === 1) {
+        // is discordjs really this stupid
+        const msg = bulkDeletable.first();
+        if (msg?.deletable) await msg.delete();
       }
       if (tooOld.size > 0) {
         await Promise.allSettled(

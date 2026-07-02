@@ -7,11 +7,11 @@ import rjCommands from "./rj";
 import roleCommands from "./role";
 import utilityCommands from "./utility";
 import weatherCommands from "./weather";
-import redditCommands from "./reddit";
 import modCommands from "./mod";
 import timeoutCommands from "./timeout";
 import camCommands from "./cam";
 import pinCommands from "./pin";
+import seasonsCommands from "./seasons";
 
 const commands: SlashCommand[] = [
   ...databaseCommands,
@@ -22,11 +22,11 @@ const commands: SlashCommand[] = [
   ...roleCommands,
   ...utilityCommands,
   ...weatherCommands,
-  ...redditCommands,
   ...modCommands,
   ...timeoutCommands,
   ...camCommands,
   ...pinCommands,
+  ...seasonsCommands,
 ];
 
 export default commands;
