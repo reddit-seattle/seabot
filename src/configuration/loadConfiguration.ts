@@ -21,10 +21,10 @@ export default async function loadConfiguration(
     Logger.info("Loaded Configuration:");
     Logger.dir(configuration);
     if (configuration.autoDeleteMessages) {
-      const { channels } = configuration.autoDeleteMessages;
-      for (const channel of channels) {
-        if (channel.timeBeforeClearing) {
-          channel.timeBeforeClearing = new Duration(channel.timeBeforeClearing);
+      const { channels, categories } = configuration.autoDeleteMessages;
+      for (const entry of [...channels, ...categories]) {
+        if (entry.timeBeforeClearing) {
+          entry.timeBeforeClearing = new Duration(entry.timeBeforeClearing);
         }
       }
     }
