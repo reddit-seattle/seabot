@@ -7,12 +7,12 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
-    "@azure/cosmos": "^3.15.1",
+    "@azure/cosmos": "^4.9.3",
     "better-sqlite3": "^12.2.0",
     "canvas": "^3.1.2",
     "date-fns": "^3.6.0",
     "discord-api-types": "^0.37.17",
-    "discord.js": "^15.0.0-dev.1771286636-ccce987fa",
+    "discord.js": "^15.0.0-pr-11006.1765452229-e636950b2",
     "dotenv": "8.2.0",
     "express": "^4.22.2",
     "express-rate-limit": "^8.5.2",
