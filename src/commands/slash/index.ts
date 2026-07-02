@@ -11,6 +11,7 @@ import modCommands from "./mod";
 import timeoutCommands from "./timeout";
 import camCommands from "./cam";
 import pinCommands from "./pin";
+import seasonsCommands from "./seasons";
 
 const commands: SlashCommand[] = [
   ...databaseCommands,
@@ -25,6 +26,7 @@ const commands: SlashCommand[] = [
   ...timeoutCommands,
   ...camCommands,
   ...pinCommands,
+  ...seasonsCommands,
 ];
 
 export default commands;
