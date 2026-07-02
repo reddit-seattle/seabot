@@ -7,10 +7,7 @@ interface Season {
   displayIndex: number; // 0-based row in the 14-item display list
 }
 
-// Seasons in cycle order (ascending shiftedVal, cycle starts Nov 1).
-// "The Dark Wet" is split at Dec 1 so both display rows are reachable:
-//   Nov 1–Nov 30  → displayIndex 13 (bottom row, just entered from Convergence Zones)
-//   Dec 1–Dec 21  → displayIndex  0 (top row, deep in winter heading to Paralyzing Snow)
+// "The Dark Wet" is split at Dec 1 to wrap around
 const SEASONS: Season[] = [
   { name: "The Dark Wet",            startMonth: 11, startDay:  1, displayIndex: 13 },
   { name: "The Dark Wet",            startMonth: 12, startDay:  1, displayIndex:  0 },
@@ -34,15 +31,11 @@ for (const s of SEASONS) {
   DISPLAY_SEASONS[s.displayIndex] = s.name;
 }
 
-/**
- * Returns the 0-based display row (0–13) for the given date.
- */
 export function getCurrentSeasonIndex(date: Date): number {
   const m = date.getMonth() + 1; // 1-12
   const d = date.getDate();
 
-  // Shift so Nov 1 = offset 0: (m - 11 + 12) % 12
-  const shiftedMonth = ((m - 11 + 12) % 12);
+  const shiftedMonth = ((m + 1) % 12);
   const shiftedVal = shiftedMonth * 100 + d;
 
   const seasonShiftedVals = SEASONS.map((s) => {
