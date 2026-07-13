@@ -98,7 +98,8 @@ function credentialLines(screenName: string, password: string | null): string {
 
 export default new SlashCommand({
   name: "aim",
-  description: "your retro AIM account on ${aim.rseattle.org}",
+  description: "your retro AIM account on aim.rseattle.org",
+  // TEMP - exclude from telemetry / help for now
   adminOnly: true,
   builder: new ChatInputCommandBuilder()
     .setName("aim")
