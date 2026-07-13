@@ -1,5 +1,5 @@
 import fetch, { Response } from "node-fetch";
-import { randomBytes } from "crypto";
+import { randomInt } from "crypto";
 import { Environment } from "../constants";
 import { Logger } from "../logger";
 
@@ -134,10 +134,9 @@ export function isReservedScreenName(name: string): boolean {
 /** 12 chars, unambiguous alphanumerics — typable on a 2003 client. */
 export function generateAimPassword(): string {
   const alphabet = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
-  const bytes = randomBytes(12);
   let out = "";
   for (let i = 0; i < 12; i++) {
-    out += alphabet[bytes[i] % alphabet.length];
+    out += alphabet[randomInt(alphabet.length)];
   }
   return out;
 }
