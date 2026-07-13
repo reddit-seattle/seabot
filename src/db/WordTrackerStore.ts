@@ -92,7 +92,10 @@ export class WordTrackerStore {
         return this.getWordTracker(word);
       }
     } catch (e) {
-      Logger.warn(`WordTrackerStore.updateWordTracker("${word}", channel=${channelId}) failed:`, e);
+      Logger.warn(
+        `WordTrackerStore.updateWordTracker("${word}", channel=${channelId}) failed:`,
+        e,
+      );
       return null;
     }
   }

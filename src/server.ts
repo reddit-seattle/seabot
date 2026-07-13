@@ -108,7 +108,11 @@ function gracefulShutdown(signal: string) {
   Logger.info(`Received ${signal}, shutting down gracefully...`);
   taskScheduler?.stop();
   discordBot?.client?.destroy();
-  try { db.close(); } catch { /* already closed */ }
+  try {
+    db.close();
+  } catch {
+    /* already closed */
+  }
   process.exit(0);
 }
 

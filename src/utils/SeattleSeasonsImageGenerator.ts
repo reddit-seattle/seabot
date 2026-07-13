@@ -9,20 +9,25 @@ interface Season {
 
 // "The Dark Wet" is split at Dec 1 to wrap around
 const SEASONS: Season[] = [
-  { name: "The Dark Wet",            startMonth: 11, startDay:  1, displayIndex: 13 },
-  { name: "The Dark Wet",            startMonth: 12, startDay:  1, displayIndex:  0 },
-  { name: "Paralyzing Snow (¼ inch)", startMonth: 12, startDay: 22, displayIndex:  1 },
-  { name: "Brightening Wet",         startMonth:  1, startDay: 11, displayIndex:  2 },
-  { name: "*Fakeout Sunbreak*",       startMonth:  2, startDay: 21, displayIndex:  3 },
-  { name: "Molding Wet",             startMonth:  3, startDay: 16, displayIndex:  4 },
-  { name: "Flowering Wet",           startMonth:  4, startDay: 11, displayIndex:  5 },
-  { name: "Juneuary",                startMonth:  5, startDay: 21, displayIndex:  6 },
-  { name: "Glorious Sun",            startMonth:  7, startDay:  1, displayIndex:  7 },
-  { name: "Oppressive Sun",          startMonth:  7, startDay: 21, displayIndex:  8 },
-  { name: "Choking Smoke",           startMonth:  8, startDay: 16, displayIndex:  9 },
-  { name: "Welcome Drizzle",         startMonth:  9, startDay: 11, displayIndex: 10 },
-  { name: "Spiders",                 startMonth:  9, startDay: 21, displayIndex: 11 },
-  { name: "Convergence Zones",       startMonth: 10, startDay:  6, displayIndex: 12 },
+  { name: "The Dark Wet", startMonth: 11, startDay: 1, displayIndex: 13 },
+  { name: "The Dark Wet", startMonth: 12, startDay: 1, displayIndex: 0 },
+  {
+    name: "Paralyzing Snow (¼ inch)",
+    startMonth: 12,
+    startDay: 22,
+    displayIndex: 1,
+  },
+  { name: "Brightening Wet", startMonth: 1, startDay: 11, displayIndex: 2 },
+  { name: "*Fakeout Sunbreak*", startMonth: 2, startDay: 21, displayIndex: 3 },
+  { name: "Molding Wet", startMonth: 3, startDay: 16, displayIndex: 4 },
+  { name: "Flowering Wet", startMonth: 4, startDay: 11, displayIndex: 5 },
+  { name: "Juneuary", startMonth: 5, startDay: 21, displayIndex: 6 },
+  { name: "Glorious Sun", startMonth: 7, startDay: 1, displayIndex: 7 },
+  { name: "Oppressive Sun", startMonth: 7, startDay: 21, displayIndex: 8 },
+  { name: "Choking Smoke", startMonth: 8, startDay: 16, displayIndex: 9 },
+  { name: "Welcome Drizzle", startMonth: 9, startDay: 11, displayIndex: 10 },
+  { name: "Spiders", startMonth: 9, startDay: 21, displayIndex: 11 },
+  { name: "Convergence Zones", startMonth: 10, startDay: 6, displayIndex: 12 },
 ];
 
 // Fixed 14-item display list (top → bottom). Built from displayIndex ordering above.
@@ -35,11 +40,11 @@ export function getCurrentSeasonIndex(date: Date): number {
   const m = date.getMonth() + 1; // 1-12
   const d = date.getDate();
 
-  const shiftedMonth = ((m + 1) % 12);
+  const shiftedMonth = (m + 1) % 12;
   const shiftedVal = shiftedMonth * 100 + d;
 
   const seasonShiftedVals = SEASONS.map((s) => {
-    const sm = ((s.startMonth - 11 + 12) % 12);
+    const sm = (s.startMonth - 11 + 12) % 12;
     return sm * 100 + s.startDay;
   });
 

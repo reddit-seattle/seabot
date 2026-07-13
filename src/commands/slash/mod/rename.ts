@@ -9,9 +9,7 @@ import { ChatInputCommandBuilder } from "@discordjs/builders";
 import SlashCommand from "../SlashCommand";
 import { configuration } from "../../../server";
 
-const RENAMEABLE_CHANNELS: string[] = [
-  "370945003566006274",
-];
+const RENAMEABLE_CHANNELS: string[] = ["370945003566006274"];
 
 export default new SlashCommand({
   name: "rename",
