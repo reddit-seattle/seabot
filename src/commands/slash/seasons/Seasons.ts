@@ -16,7 +16,9 @@ export default new SlashCommand({
     await interaction.deferReply();
 
     try {
-      const date = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+      const date = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" }),
+      );
       const seasonIndex = getCurrentSeasonIndex(date);
       const imageBuffer =
         SeattleSeasonsImageGenerator.generateSeasonsImage(seasonIndex);

@@ -115,6 +115,18 @@ export module Environment {
     "./assets/dayswithoutincident.png";
   export const trackedWords = process.env["DAYS_SINCE_MEME_TRIGGER_WORDS"];
   export const eventsChannelId = process.env["EVENTS_CHANNEL_ID"] || undefined;
+
+  // AIM server config
+  export const aimMgmtUrl =
+    process.env["AIM_MGMT_URL"] || "https://aim-mgmt.rseattle.org";
+  export const aimCfAccessClientId =
+    process.env["AIM_CF_ACCESS_CLIENT_ID"] || "";
+  export const aimCfAccessClientSecret =
+    process.env["AIM_CF_ACCESS_CLIENT_SECRET"] || "";
+  export const aimHost = process.env["AIM_HOST"] || "aim.rseattle.org";
+  export const aimPort = process.env["AIM_PORT"] || "5190";
+  export const aimAuditChannelId =
+    process.env["AIM_AUDIT_CHANNEL_ID"] || undefined;
 }
 export module VoiceConstants {
   export const VOICE_TYPE = 2;

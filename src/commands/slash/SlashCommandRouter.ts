@@ -10,6 +10,17 @@ import CommandRouter from "../CommandRouter";
 import SlashCommand from "./SlashCommand";
 import { configuration, expressServer } from "../../server";
 
+// Option names whose values must never appear in debug output
+const SENSITIVE_OPTION_NAMES = new Set(["password"]);
+
+function redactOptions(options: readonly any[]): any[] {
+  return options.map((opt) => ({
+    ...opt,
+    value: SENSITIVE_OPTION_NAMES.has(opt.name) ? "[redacted]" : opt.value,
+    options: opt.options ? redactOptions(opt.options) : undefined,
+  }));
+}
+
 export default class SlashCommandRouter extends CommandRouter {
   public async initialize(commands: SlashCommand[]) {
     const commandMap = commands.reduce((map, obj) => {
@@ -64,7 +75,7 @@ export default class SlashCommandRouter extends CommandRouter {
               await debugChannel.send(`
                 Error while handling command \`${command.name}\`.
                 Options:
-                ${JSON.stringify(options)}
+                ${JSON.stringify(redactOptions(options.data))}
                 Error:
                 ${error}
               `);

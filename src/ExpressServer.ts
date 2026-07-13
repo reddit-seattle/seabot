@@ -14,10 +14,7 @@ export default class ExpressServer {
   private _startTime: Date;
   private _telemetry: typeof telemetry | null = null;
   private _discordBot: DiscordBot | null = null;
-  private _metricsCache = new Map<
-    string,
-    { data: any; timestamp: number }
-  >();
+  private _metricsCache = new Map<string, { data: any; timestamp: number }>();
   private readonly CACHE_DURATION = 8000; // 8 seconds cache for live updates
   private readonly ALLOWED_TIME_RANGES = new Set(["24h", "7d"]);
 
@@ -196,16 +193,17 @@ export default class ExpressServer {
         for (const d of metrics.channelActivity) channelIds.add(d.channel_id);
       }
       if (metrics.timeSeriesByChannel) {
-        for (const d of metrics.timeSeriesByChannel) channelIds.add(d.channel_id);
+        for (const d of metrics.timeSeriesByChannel)
+          channelIds.add(d.channel_id);
       }
 
       // Batch-resolve channel names in parallel
       const channelNamesCache = new Map<string, string>();
       await Promise.allSettled(
         [...channelIds].map(async (id) => {
-          const channel = await this._discordBot!.client.channels
-            .fetch(id)
-            .catch(() => null);
+          const channel = await this._discordBot!.client.channels.fetch(
+            id,
+          ).catch(() => null);
           if (channel && "name" in channel && channel.name) {
             channelNamesCache.set(id, channel.name);
           }
