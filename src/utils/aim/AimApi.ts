@@ -72,10 +72,11 @@ export const AimApi = {
     });
   },
 
-  // enum: deleted|expired|suspended|suspended_age; null = not suspended
+  // enum: deleted|expired|suspended|suspended_age;
+  // NOTE: null does NOT clear suspension (server ignores it) — must be "".
   async setSuspendedStatus(screenName: string, suspended: boolean) {
     await request("PATCH", `/user/${encodeURIComponent(screenName)}/account`, {
-      suspended_status: suspended ? "suspended" : null,
+      suspended_status: suspended ? "suspended" : "",
     });
   },
 
