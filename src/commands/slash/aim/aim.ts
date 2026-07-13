@@ -36,27 +36,38 @@ function screenNameSeed(interaction: ChatInputCommandInteraction): string {
   return nick ?? interaction.user.globalName ?? interaction.user.username;
 }
 
+/** Creates the account; returns true on success, false if taken or create fails */
+async function tryCreate(name: string, password: string): Promise<boolean> {
+  if (aimStore.isScreenNameTaken(name)) return false;
+  try {
+    await AimApi.createUser(name, password);
+    return true;
+  } catch (e) {
+    if (e instanceof AimApiError && e.status === 409) return false;
+    throw e;
+  }
+}
+
 /**
- * Claim a free screen name by attempting creation with numbered suffixes.
- * Returns the created screen name, or null if none could be created.
+ * Attempts to claim a screen name, appending numbers if necessary.
+ * Returns the claimed name, or null if none could be claimed.
  */
-async function createWithFreeName(
-  seed: string,
+async function claimScreenName(
+  base: string,
   password: string,
+  exact: boolean,
 ): Promise<string | null> {
-  const base = sanitizeScreenName(seed);
-  if (!base || isReservedScreenName(base)) return null;
-  for (let i = 1; i < 100; i++) {
-    const suffix = i === 1 ? "" : String(i);
+  // Try the base name first
+  if (await tryCreate(base, password)) return base;
+
+  // If exact was requested (and didn't succeed), fail fast
+  if (exact) return null;
+
+  // Try appending numbers to the base name
+  for (let i = 2; i < 100; i++) {
+    const suffix = String(i);
     const candidate = base.slice(0, 16 - suffix.length).trim() + suffix;
-    if (aimStore.isScreenNameTaken(candidate)) continue;
-    try {
-      await AimApi.createUser(candidate, password);
-      return candidate;
-    } catch (e) {
-      if (e instanceof AimApiError && e.status === 409) continue;
-      throw e;
-    }
+    if (await tryCreate(candidate, password)) return candidate;
   }
   return null;
 }
@@ -96,9 +107,16 @@ export default new SlashCommand({
         cmd
           .setName(AimSubCommands.REGISTER)
           .setDescription(
-            "create your AIM screen name from your current server nickname",
+            "create your AIM screen name (defaults to your server nickname)",
           )
           .addStringOptions([
+            (opt) =>
+              opt
+                .setName("screenname")
+                .setDescription(
+                  "Optional screen name (letters/digits/spaces, max 16). Omit to use your server nickname.",
+                )
+                .setRequired(false),
             (opt) =>
               opt
                 .setName("password")
@@ -149,9 +167,27 @@ export default new SlashCommand({
             );
             return;
           }
+          // did user requst a custom name
+          const requested = interaction.options.getString("screenname", false);
+          // sanitize the requested name, or derive a base name from user nickname
+          const base = sanitizeScreenName(
+            requested ?? screenNameSeed(interaction),
+          );
+          // make sure name is valid / available
+          if (!base || isReservedScreenName(base)) {
+            await interaction.followUp(
+              requested
+                ? `\`${requested}\` is reserved or invalid — try another name.`
+                : "Couldn't derive a screen name from your nickname — ping a mod.",
+            );
+            return;
+          }
 
-          const seed = screenNameSeed(interaction);
-          const base = sanitizeScreenName(seed);
+          const resolved = resolvePassword(interaction);
+          if (!resolved) {
+            await interaction.followUp(`Password must be ${PASSWORD_RULES}.`);
+            return;
+          }
 
           // Re-register: replaces the old account (one screen name per person)
           if (link) {
@@ -175,18 +211,14 @@ export default new SlashCommand({
             aimStore.deleteLink(user.id);
           }
 
-          const resolved = resolvePassword(interaction);
-          if (!resolved) {
-            await interaction.followUp(`Password must be ${PASSWORD_RULES}.`);
-            return;
-          }
-
-          const screenName = await createWithFreeName(seed, resolved.password);
+          const screenName = await claimScreenName(
+            base,
+            resolved.password,
+            requested !== null,
+          );
           if (!screenName) {
             await interaction.followUp(
-              link
-                ? "Couldn't create a screen name from your nickname — your old one was removed, run `/aim register` again or ping a mod."
-                : "Couldn't derive a screen name from your nickname — ping a mod.",
+              `\`${base}\` is taken — try another name${link ? " (your old account was removed, so don't forget to finish registering)" : ""}.`,
             );
             return;
           }
