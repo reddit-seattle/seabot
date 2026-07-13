@@ -98,10 +98,13 @@ function credentialLines(screenName: string, password: string | null): string {
 
 export default new SlashCommand({
   name: "aim",
-  description: "your retro AIM account on aim.rseattle.org",
+  description: "your retro AIM account on ${aim.rseattle.org}",
+  adminOnly: true,
   builder: new ChatInputCommandBuilder()
     .setName("aim")
-    .setDescription("your retro AIM account on aim.rseattle.org")
+    .setDescription("your AIM account on aim.rseattle.org")
+    // TEMP - requires manual admin role assignment for now
+    .setDefaultMemberPermissions(0)
     .addSubcommands([
       (cmd) =>
         cmd
@@ -294,9 +297,7 @@ export default new SlashCommand({
             interaction.client,
             `**AIM unregister** — <@${user.id}> (\`${link.screen_name}\`)`,
           );
-          await interaction.followUp(
-            `\`${link.screen_name}\` is now deleted.`,
-          );
+          await interaction.followUp(`\`${link.screen_name}\` is now deleted.`);
           return;
         }
 

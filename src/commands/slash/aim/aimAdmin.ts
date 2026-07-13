@@ -25,7 +25,7 @@ export default new SlashCommand({
       (cmd) =>
         cmd
           .setName(AimAdminSubCommands.BAN)
-          .setDescription("ban a user from AIM (suspend + kick + blocklist)")
+          .setDescription("ban a user from AIM (suspend account + kick sessions)")
           .addUserOptions([
             (opt) =>
               opt.setName("user").setDescription("who").setRequired(true),

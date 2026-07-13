@@ -55,8 +55,14 @@ export const AimApi = {
     });
   },
 
+  /** 404 = already gone (e.g. deleted out-of-band) = success. */
   async deleteUser(screenName: string): Promise<void> {
-    await request("DELETE", "/user", { screen_name: screenName });
+    try {
+      await request("DELETE", "/user", { screen_name: screenName });
+    } catch (e) {
+      if (e instanceof AimApiError && e.status === 404) return;
+      throw e;
+    }
   },
 
   async setPassword(screenName: string, password: string): Promise<void> {
