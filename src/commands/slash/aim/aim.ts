@@ -99,6 +99,8 @@ function credentialLines(screenName: string, password: string | null): string {
 export default new SlashCommand({
   name: "aim",
   description: "your retro AIM account on aim.rseattle.org",
+  // TEMP - admin must manually assign roles that can create accounts
+  adminOnly: true,
   builder: new ChatInputCommandBuilder()
     .setName("aim")
     .setDescription("your retro AIM account on aim.rseattle.org")
