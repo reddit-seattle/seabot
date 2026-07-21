@@ -14,7 +14,6 @@ export default interface ISeabotConfig {
 
   autoDeleteMessages?: {
     channels: Array<AutoDeleteConfiguration>;
-    categories: Array<AutoDeleteConfiguration>;
   };
 
   telemetryCategories?: Array<string>;
