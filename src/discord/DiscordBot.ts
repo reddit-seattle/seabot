@@ -16,6 +16,7 @@ import {
 import createCommandRouters from "../commands/createCommandRouters";
 import { initEventsTitleEnforcer } from "../commands/slash/events";
 import { initAimBanMirror } from "../commands/slash/aim";
+import { initEveryoneGuard } from "../functions/everyoneGuard";
 import InMemoryDbConnector from "../db/InMemoryDbConnector";
 import { Logger } from "../utils/logger";
 import DiscordEventRouter from "./DiscordEventRouter";
@@ -105,6 +106,7 @@ export default class DiscordBot {
     eventRouter.addEventListener(Events.ThreadDelete, this.logThreadDeletion);
     initEventsTitleEnforcer(eventRouter);
     initAimBanMirror(eventRouter);
+    initEveryoneGuard(eventRouter);
   }
 
   private startCommandRouters(eventRouter: DiscordEventRouter) {
