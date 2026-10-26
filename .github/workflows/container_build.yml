@@ -11,6 +11,8 @@ on:
             - 'src/**'
             - 'package*.json'
             - 'tsconfig.json'
+            - 'tsconfig.test.json'
+            - 'tests/**'
             - 'webpack.config.js'
             - 'Dockerfile'
             - '.github/workflows/container_build.yml'

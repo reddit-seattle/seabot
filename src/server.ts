@@ -14,6 +14,7 @@ import { Logger } from "./utils/logger";
 
 import { handleVoiceStatusUpdate } from "./functions/voiceChannelManagement";
 import { processModReportInteractions } from "./utils/helpers";
+import { processAiCheckInteractions } from "./commands/slash/aiCheck";
 
 let expressServer: ExpressServer;
 let configuration: ISeabotConfig;
@@ -40,6 +41,7 @@ async function startDiscordBot() {
   Logger.info("Starting bot...");
   try {
     const eventRouter = new DiscordEventRouter(discordBot.client);
+    eventRouter.addEventListener(Events.InteractionCreate, processAiCheckInteractions);
     eventRouter.addEventListener(
       Events.InteractionCreate,
       processModReportInteractions,

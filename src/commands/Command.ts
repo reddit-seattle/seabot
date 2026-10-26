@@ -4,6 +4,8 @@ export interface CommandConfiguration {
   help?: string;
   adminOnly?: boolean;
   telemetry?: boolean;
+  /** Suppress diagnostic payload logging and keep unexpected errors private. */
+  privateErrors?: boolean;
 }
 
 export abstract class Command {
@@ -17,6 +19,9 @@ export abstract class Command {
   }
   public get adminOnly() {
     return this.configuration.adminOnly;
+  }
+  public get privateErrors() {
+    return this.configuration.privateErrors ?? false;
   }
   public get telemetry() {
     return this.configuration.telemetry ?? !this.configuration.adminOnly;

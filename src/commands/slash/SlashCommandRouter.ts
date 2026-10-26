@@ -9,6 +9,7 @@ import { Environment, Strings } from "../../utils/constants";
 import CommandRouter from "../CommandRouter";
 import SlashCommand from "./SlashCommand";
 import { configuration, expressServer } from "../../server";
+import { respondPrivateError } from "../../discord/privateErrors";
 
 // Option names whose values must never appear in debug output
 const SENSITIVE_OPTION_NAMES = new Set(["password"]);
@@ -56,6 +57,10 @@ export default class SlashCommandRouter extends CommandRouter {
             );
           }
         } catch (error) {
+          if (command.privateErrors) {
+            await respondPrivateError(interaction, error);
+            return;
+          }
           // boo
           const telemetry = expressServer.getTelemetry();
           if (telemetry && command.telemetry) {
@@ -81,10 +86,10 @@ export default class SlashCommandRouter extends CommandRouter {
               `);
             }
           }
-          if (interaction.replied) {
-            interaction.editReply(Strings.unhandledError);
+          if (interaction.replied || interaction.deferred) {
+            await interaction.editReply(Strings.unhandledError);
           } else {
-            interaction.reply(Strings.unhandledError);
+            await interaction.reply(Strings.unhandledError);
           }
 
           throw error;

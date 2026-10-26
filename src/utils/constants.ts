@@ -102,6 +102,7 @@ export module Strings {
 }
 
 export module Environment {
+  export const pangramApiKey = process.env["PANGRAM_API_KEY"] || "";
   export const DEBUG = process.env["seabotDEBUG"] == "true" || false;
   export const botToken = process.env["botToken"] || undefined;
   export const weatherAPIKey = process.env["weatherAPIKey"] || "";

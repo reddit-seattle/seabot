@@ -1,4 +1,5 @@
 import { Duration } from "../utils/Time/Duration";
+import type { AiDetectionConfig } from "../aiDetection/types";
 
 export type AutoDeleteConfiguration = {
   targetId: string;
@@ -7,6 +8,7 @@ export type AutoDeleteConfiguration = {
 };
 
 export default interface ISeabotConfig {
+  aiDetection?: AiDetectionConfig;
   userVoiceChannels?: {
     groupId: string;
     triggerChannelId: string;
@@ -23,6 +25,7 @@ export default interface ISeabotConfig {
   channelIds?: { [key: string]: string };
 
   roleIds: {
+    subredditModerator?: string;
     moderator: string;
     everyone: string;
     premium: string;

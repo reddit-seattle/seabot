@@ -23,6 +23,7 @@ RUN npm ci
 
 # Copy source files and build
 COPY . .
+RUN npm test
 RUN npm run container:$environment
 
 # Production stage

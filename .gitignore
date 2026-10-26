@@ -63,6 +63,7 @@ typings/
 
 # dist / build output
 dist
+.test-dist/
 
 # local cert stuffs
 *.key

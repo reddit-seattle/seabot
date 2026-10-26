@@ -31,7 +31,7 @@ jobs:
       - name: npm install and build
         run: |
           npm ci
-          npm run test --if-present
+          npm test
       - name: "webpack ${{ env.PACK_SCRIPT }}"
         run: npm run ${{ env.PACK_SCRIPT }}
       - name: zip deployment bundle

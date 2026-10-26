@@ -1,5 +1,13 @@
 {
+  "aiDetection": {
+    "enabled": false,
+    "guildId": "",
+    "provider": "pangram",
+    "model": "pangram-4",
+    "usdPer100Words": 0.05
+  },
   "roleIds": {
+    "subredditModerator": "",
     "moderator": "370946173902520342",
     "everyone": "370945003566006272",
     "premium": "1040844355667251211"
@@ -20,6 +28,7 @@
     ]
   },
   "channelIds": {
+    "SUBREDDIT_CHAT": "",
     "DEBUG": "541322708844281867",
     "EVENTS_FORUM": "1067168116171345930",
     "MOD_LOG": "634526832816816128",

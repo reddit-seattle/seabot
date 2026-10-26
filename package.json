@@ -4,7 +4,7 @@
   "description": "a bot. in SEA.",
   "main": "dist/seabot.js",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.12.0"
   },
   "dependencies": {
     "@azure/cosmos": "^4.9.3",
@@ -37,6 +37,8 @@
     "webpack-node-externals": "^3.0.0"
   },
   "scripts": {
+    "test": "tsc -p tsconfig.test.json && node --require ./tests/offline.cjs --test tests/*.test.cjs",
+    "typecheck": "tsc --noEmit",
     "clean": "rimraf ./dist/",
     "build": "npm run clean && tsc",
     "tsc": "tsc",

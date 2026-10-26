@@ -13,6 +13,7 @@ import camCommands from "./cam";
 import pinCommands from "./pin";
 import seasonsCommands from "./seasons";
 import aimCommands from "./aim";
+import aiCheckCommands from "./aiCheck";
 
 const commands: SlashCommand[] = [
   ...databaseCommands,
@@ -29,6 +30,7 @@ const commands: SlashCommand[] = [
   ...pinCommands,
   ...seasonsCommands,
   ...aimCommands,
+  ...aiCheckCommands,
 ];
 
 export default commands;

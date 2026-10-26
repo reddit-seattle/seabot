@@ -24,6 +24,7 @@ logs/
 
 # Ignore TypeScript build output
 dist/
+.test-dist/
 
 # Ignore Git stuffs
 .git

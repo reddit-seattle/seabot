@@ -13,6 +13,8 @@ Pull requests will be reviewed but please, be gentle.
 ## Running a SEABot
 If you do (for whatever reason) decide to fork/clone/run this amazing bot on your own, there are a few different ways to do so.
 
+Use Node.js 22.12 or newer. Run `npm test` for offline tests; these do not start the bot or connect to application services.
+
 ### 1. VSCode Debug (F5)
 Create a `.vscode/launch.json` configuration entry like so:
 
@@ -58,6 +60,7 @@ There are [a lot to customize](./src/utils/constants.ts), but you really only ne
 - `airQualityAPIKey`: key for air quality API
 - `cosmosHost`: cosmos database host
 - `cosmosAuthKey`: cosmos auth key
+- `PANGRAM_API_KEY`: API key for optional AI-content detection; the feature is disabled until configured
 
 **Customization:**
 - `DAYS_WITHOUT_BACKGROUND`: url / image link to override url for `days without` image
@@ -71,6 +74,10 @@ There are [a lot to customize](./src/utils/constants.ts), but you really only ne
 
 Seabot also has [a prod config file](./src/seabotConfig.json) (and a [dev version here](./src/devConfig.json)) for server-specific channel / role IDs
 and other various config. If you are debugging locally, change `devConfig` - because [`webpack:dev`](./webpack.config.js) will write this to the output directory and use it.
+
+### AI-content detection
+
+`/ai-check` returns a private AI-content report for pasted Reddit text or a `.txt` attachment, with segment details and an explicit action to share it in the channel. It is available to users in the configured subreddit channel/threads or with the Subreddit Mod role. See [AI detection setup and behavior](./docs/ai-detection.md) for configuration, budget limitations, offline tests, and deferred live validation.
 
 
 ## Database
