@@ -7,6 +7,7 @@ WORKDIR /app
 # Install build dependencies and fonts
 RUN apk add --no-cache \
     build-base \
+    python3 \
     cairo-dev \
     jpeg-dev \
     pango-dev \

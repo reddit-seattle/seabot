@@ -11,6 +11,7 @@ export interface ReportSession extends RequestContext {
   result?: DetectionResult;
   completedAt?: number;
   messageId?: string;
+  deliveryPending?: boolean;
   hasChart?: boolean;
   share: "available" | "sending" | "published" | "unknown";
   publicMessage?: { id: string; url: string };
@@ -41,6 +42,12 @@ export class AiCheckService {
 
   get providerName(): string { return this.provider.name; }
   get minimumWords(): number { return this.provider.minimumWords; }
+
+  pendingDelivery(context: RequestContext): ReportSession | undefined {
+    this.cleanup();
+    return [...this.sessions.values()].find(session => session.phase === "ready" && session.deliveryPending &&
+      session.userId === context.userId && session.guildId === context.guildId && session.channelId === context.channelId);
+  }
 
   create(context: RequestContext, interactionId: string): ReportSession {
     this.cleanup();

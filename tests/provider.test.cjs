@@ -51,6 +51,18 @@ test('preserves overlaps and gaps without changing provider aggregate fractions'
   assert.equal(r.segments[1].range.end, 5);
 });
 
+test('ambiguous Unicode offset conventions omit positions instead of choosing a repeated occurrence', () => {
+  const p = pangram('🙂aaaaaaaaaaaa');
+  p.windows = [{ text: 'aaa', label: 'AI-Generated', start_index: 2, end_index: 5 }];
+  const r = normalizePangram(p, 'pangram-4');
+  assert.equal(r.segments[0].range, undefined);
+  assert.equal(r.segments[0].text, 'aaa');
+  assert.equal(r.textFractions.ai, 1);
+  // ASCII conventions coincide, so repeated text itself does not discard correct ranges.
+  p.text = 'aaaaaaaaaaaa';
+  assert.deepEqual(normalizePangram(p, 'pangram-4').segments[0].range, { start: 2, end: 5 });
+});
+
 test('rejects invalid fractions, empty results, malformed JSON and failed tasks', async () => {
   for (const change of [{ fraction_ai: NaN }, { fraction_ai: -1 }, { fraction_ai: 2 }, { text: '' }, { windows: [{}] }]) {
     assert.throws(() => normalizePangram({ ...pangram(), ...change }, 'pangram-4'), { code: 'response' });

@@ -1,12 +1,12 @@
 import { MessageFlags } from "discord.js";
 import type { ChatInputCommandInteraction, ModalSubmitInteraction, ButtonInteraction } from "discord.js";
-import { AiCheckError } from "../aiDetection/types";
+import { UserFacingError } from "../utils/UserFacingError";
 
 type PrivateInteraction = ChatInputCommandInteraction | ModalSubmitInteraction | ButtonInteraction;
 
 /** Never log error objects: SDK errors can contain request bodies and interaction tokens. */
 export async function respondPrivateError(interaction: PrivateInteraction, error: unknown): Promise<void> {
-  const content = error instanceof AiCheckError ? error.message : "SeaBot could not complete this request. Please try later.";
+  const content = error instanceof UserFacingError ? error.message : "SeaBot could not complete this request. Please try later.";
   const payload = { content, allowedMentions: { parse: [] as never[] } };
   try {
     if (interaction.deferred && !interaction.isButton()) {

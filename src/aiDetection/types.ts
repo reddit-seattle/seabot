@@ -44,12 +44,7 @@ export interface AiDetectionConfig {
   usdPer100Words: number;
 }
 
-export class AiCheckError extends Error {
-  constructor(public readonly code: string, message: string) {
-    super(message);
-    this.name = "AiCheckError";
-  }
-}
+export { UserFacingError as AiCheckError } from "../utils/UserFacingError";
 
 export const LIMITS = {
   bytes: 256 * 1024,

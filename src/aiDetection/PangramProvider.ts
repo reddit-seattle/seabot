@@ -1,6 +1,6 @@
 import { setTimeout as sleep } from "node:timers/promises";
 import { readLimited, wordCount } from "./input";
-import { AiCheckError, AiDetectionProvider, DetectionResult, DetectionSegment, Fetch } from "./types";
+import { AiCheckError, AiDetectionProvider, DetectionResult, DetectionSegment, Fetch, LIMITS } from "./types";
 
 const BASE_URL = "https://text.external-api.pangram.com";
 const labels: Record<string, DetectionSegment["category"]> = {
@@ -13,7 +13,7 @@ const isObject = (v: unknown): v is Record<string, any> => !!v && typeof v === "
 export function normalizePangram(value: unknown, model: string): DetectionResult {
   if (!isObject(value) || value.stage !== "STAGE_SUCCESS" || typeof value.text !== "string" ||
       !value.text.trim() || typeof value.headline !== "string" || typeof value.prediction !== "string" ||
-      !Array.isArray(value.windows) || Buffer.byteLength(value.text) > 256 * 1024) throw malformed();
+      !Array.isArray(value.windows) || Buffer.byteLength(value.text) > LIMITS.bytes) throw malformed();
   const fractions = [value.fraction_ai, value.fraction_ai_assisted, value.fraction_human];
   if (fractions.some(f => typeof f !== "number" || !Number.isFinite(f) || f < 0 || f > 1) ||
       Math.abs(fractions.reduce((a, b) => a + b, 0) - 1) > 0.001) throw malformed();
@@ -29,14 +29,19 @@ export function normalizePangram(value: unknown, model: string): DetectionResult
     return Number.isInteger(start) && Number.isInteger(end) && start >= 0 && end > start && end <= length &&
       (unit === "codepoint" ? codePoints.slice(start, end).join("") : text.slice(start, end)) === w.text;
   });
-  const unit = verifies("codepoint") ? "codepoint" : verifies("utf16") ? "utf16" : undefined;
+  const codepointValid = verifies("codepoint"), utf16Valid = verifies("utf16");
+  // Until the provider's offset contract is confirmed, never pick between two
+  // matching interpretations that point to different occurrences of repeated text.
+  const ambiguous = codepointValid && utf16Valid && windows.some(w =>
+    utf16Offsets[w.start_index] !== w.start_index || utf16Offsets[w.end_index] !== w.end_index);
+  const unit = ambiguous ? undefined : codepointValid ? "codepoint" : utf16Valid ? "utf16" : undefined;
   return {
     provider: "Pangram", model,
     version: typeof value.version === "string" ? value.version : undefined,
     analyzedText: text, headline: value.headline, explanation: value.prediction,
     textFractions: { ai: fractions[0], assisted: fractions[1], human: fractions[2] },
     segments: windows.map(w => ({
-      text: w.text, category: labels[w.label] ?? "unknown", label: w.label,
+      text: w.text, category: Object.prototype.hasOwnProperty.call(labels, w.label) ? labels[w.label] : "unknown", label: w.label,
       confidence: typeof w.confidence === "string" ? w.confidence : undefined,
       range: unit ? {
         start: unit === "codepoint" ? utf16Offsets[w.start_index] : w.start_index,

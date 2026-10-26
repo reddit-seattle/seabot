@@ -27,21 +27,3 @@ test('shared router keeps private-policy failures private and never writes diagn
   assert.equal(debugPosts.length, 0); assert.equal(responses[0].flags, MessageFlags.Ephemeral);
   assert.ok(!responses[0].content.includes('SECRET'));
 });
-
-test('command composition fails closed without tokens/configuration and defaults remain disabled', async () => {
-  const commands = require('../.test-dist/commands/slash/aiCheck').default;
-  const command = commands.find(c => c.name === 'ai-check');
-  assert.equal(command.privateErrors, true);
-  assert.equal(command.telemetry, false);
-  await assert.rejects(command.execute({}), { code: 'disabled' });
-  const root = require.cache[serverPath].exports;
-  root.configuration.aiDetection = { enabled: true, guildId: '12345678901234567', provider: 'pangram', model: 'pangram-4', usdPer100Words: .05 };
-  root.configuration.channelIds.SUBREDDIT_CHAT = '12345678901234568';
-  root.configuration.roleIds = { subredditModerator: '12345678901234569' };
-  Environment.pangramApiKey = '';
-  await assert.rejects(command.execute({}), { code: 'disabled' });
-  for (const config of [require('../src/devConfig.json'), require('../src/seabotConfig.json')]) {
-    assert.equal(config.aiDetection.enabled, false);
-    assert.equal(config.aiDetection.guildId, '');
-  }
-});

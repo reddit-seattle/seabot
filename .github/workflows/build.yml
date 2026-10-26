@@ -19,6 +19,18 @@ env:
   PACK_SCRIPT: ${{ inputs.dev == 'true' && 'pack:dev' || 'pack'}}
 
 jobs:
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the production runtime image
+        run: docker build --build-arg environment=production -t seabot-ci .
+      - name: Verify native rendering without network access
+        run: >-
+          docker run --rm --network none --entrypoint node
+          -v "$PWD/tests/container-smoke.cjs:/app/container-smoke.cjs:ro"
+          seabot-ci /app/container-smoke.cjs
+
   build:
     runs-on: ubuntu-latest
     steps:
