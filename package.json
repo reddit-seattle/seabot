@@ -12,7 +12,7 @@
     "canvas": "^3.1.2",
     "date-fns": "^3.6.0",
     "discord-api-types": "^0.37.17",
-    "discord.js": "^15.0.0-pr-11006.1765452229-e636950b2",
+    "discord.js": "^15.0.0-pr-11602.1789066132-275cd4b42",
     "dotenv": "8.2.0",
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
